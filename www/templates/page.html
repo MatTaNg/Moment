@@ -1,0 +1,17 @@
+<ion-view title="Page" id="page1">
+  <ion-content padding="true" class="has-header">
+    <ion-slides disable-side-menu-drag="" options="{'loop': true}" slider="slider2" delegate-handle="slider2" id="page-slider2" style="width:100%;height:300px;">
+      <ion-slide-page id="page-slide27" style="background:url(&quot;img/avfsZwJT9WGsBj982ul1_kitten1.jpg&quot;) no-repeat center;background-size:cover;"></ion-slide-page>
+      <ion-slide-page id="page-slide28" style="background:url(&quot;img/gHd5vedGQJu4s4qsPQvr_kitten2.jpg&quot;) no-repeat center;background-size:cover;"></ion-slide-page>
+      <ion-slide-page id="page-slide29" style="background:url(&quot;img/WE6rB9dZRTiIWQlP5qsA_kitten3.jpg&quot;) no-repeat center;background-size:cover;"></ion-slide-page>
+    </ion-slides>
+    <div ng-click="camera()" id="page-markdown3" class="show-list-numbers-and-dots">
+      <p style="color:#000000;font-size:18px;">Picture Descrn</p>
+    </div>
+    <div class="bar bar-header bar-stable">
+      <h1 ng-click="camera()" class="title">Camera</h1>
+    </div>
+    <img ng-show="imgURI !== undefined" ng-src="{{imgURI}}">
+    <img ng-show="imgURI === undefined" ng-src="http://placehold.it/300x300">
+  </ion-content>
+</ion-view>
