@@ -9,9 +9,9 @@
       <p style="color:#000000;font-size:18px;">Picture Descrn</p>
     </div>
     <div class="bar bar-header bar-stable">
-      <h1 ng-click="camera()" class="title">Camera</h1>
+      <h1 ng-click="camera()" class="title">Camera: {{momentSrc}}</h1>
     </div>
-    <img ng-show="imgURI !== undefined" ng-src="{{imgURI}}">
-    <img ng-show="imgURI === undefined" ng-src="http://placehold.it/300x300">
+    <!-- <img ng-show="momentSrc !== undefined" ng-src="momentSrc"> -->
+    <img id = "momentPicture" ng-show="momentSrc === undefined" ng-src="http://placehold.it/300x300">
   </ion-content>
 </ion-view>

@@ -6,25 +6,22 @@ angular.module('app.controllers', [])
 function ($scope, $stateParams) {
 
 	$scope.camera = function() {
-		alert("Called Camera");
-		var options = { 
-			quality : 75, 
-			destinationType : Camera.DestinationType.DATA_URL, 
-			sourceType : Camera.PictureSourceType.CAMERA, 
-			allowEdit : true,
-			encodingType: Camera.EncodingType.JPEG,
-			targetWidth: 300,
-			targetHeight: 300,
-			popoverOptions: CameraPopoverOptions,
-			saveToPhotoAlbum: false
-		};
-		
-		$cordovaCamera.getPicture(options).then(function(imageData) {
-			$scope.imgURI = "data:image/jpeg;base64," + imageData;
-		}, function(err) {
-            // An error occured. Show a message to the user
-        });
-		
+		navigator.camera.getPicture(onSuccess, onFail, 
+			{ quality: 50, //Quality of photo 0-100
+			destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL
+			allowEdit: false	//Allows editing of picture
+			 });
+
+		function onSuccess(imageURI) {
+			var image = document.getElementById('momentPicture');
+			image.src = "data:image/jpeg;base64," + imageURI;
+			console.log(image.src);
+			$scope.$apply();
+		}
+
+		function onFail(message) {
+			console.log('Failed because: ' + message);
+		}
 	};
 
 }])
