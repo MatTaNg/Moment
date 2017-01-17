@@ -6,12 +6,7 @@ angular.module('app.controllers', [])
 function ($scope, $stateParams, $timeout) {
 
 	$scope.momentPicture = document.getElementById('momentPicture');
-	// var startimg="img/ionic.png";
-	// $scope.image=startimg;
 	$scope.textOverlay= { foo: "" };
-
-	// var canvas = document.getElementById('tempCanvas');
-	// var context = canvas.getContext('2d');
 
 	$scope.camera = function() {
 		navigator.camera.getPicture(onSuccess, onFail, 
@@ -19,20 +14,13 @@ function ($scope, $stateParams, $timeout) {
 			destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL
 			allowEdit: false,	//Allows editing of picture
 			targetWidth: 300,
-			targetHeight: 300
+			targetHeight: 300,
+			correctOrientation: true
 		});
 
 		function onSuccess(imageURI) {
-			// var image = document.getElementById('momentPicture');
 			$scope.momentPicture.src = "data:image/jpeg;base64," + imageURI;
-			console.log("Moment Pic");
-			console.log($scope.momentPicture.src);
 			$scope.$apply();
-
-			var startimg=$scope.momentPicture.src;
-			$scope.momentPicture=startimg;
-			$scope.textOverlay="";
-
 		}
 
 		function onFail(message) {
@@ -42,17 +30,13 @@ function ($scope, $stateParams, $timeout) {
 
         $scope.createOverlay= function(){
 
-       var startimg="img/test.jpg";
-        $scope.momentPicture.src =startimg;
         var canvas = document.getElementById('tempCanvas');
         var context = canvas.getContext('2d');
 
           var source =  new Image();
-          source.src = startimg;
+          source.src =  $scope.momentPicture.src;
           canvas.width = source.width;
           canvas.height = source.height;
-
-          console.log(canvas);
 
           context.drawImage(source,0,0);
 
@@ -66,13 +50,10 @@ function ($scope, $stateParams, $timeout) {
           context.fillStyle = 'white';
 
           context.fillText($scope.textOverlay.foo,canvas.width/2,canvas.height*0.8);
-          console.log("Text Overlay");
-          console.log($scope.textOverlay.foo);
             var imgURI = canvas.toDataURL();
 
           $timeout( function(){
               $scope.momentPicture.src = imgURI;
-              console.log($scope.momentPicture);
           }, 200);
         }
 }])

@@ -11,7 +11,7 @@
     <div class="bar bar-header bar-stable">
       <h1 ng-click="camera()" class="title">Camera: {{momentSrc}}</h1>
     </div>
-    <img id = "momentPicture" ng-show="momentSrc === undefined" ng-src="http://placehold.it/300x300" height="300px" width = "300px">
+    <img id = "momentPicture" ng-src="http://placehold.it/300x300">
     <!--Text overlay-->
     <div class="list">
        <label class="item item-input">
@@ -23,6 +23,6 @@
           Overlay
         </button>
       </div>
-       <canvas id="tempCanvas"></canvas>
   </ion-content>
 </ion-view>
+<canvas id="tempCanvas"></canvas>
