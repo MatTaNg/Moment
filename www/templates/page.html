@@ -11,7 +11,18 @@
     <div class="bar bar-header bar-stable">
       <h1 ng-click="camera()" class="title">Camera: {{momentSrc}}</h1>
     </div>
-    <!-- <img ng-show="momentSrc !== undefined" ng-src="momentSrc"> -->
-    <img id = "momentPicture" ng-show="momentSrc === undefined" ng-src="http://placehold.it/300x300">
+    <img id = "momentPicture" ng-show="momentSrc === undefined" ng-src="http://placehold.it/300x300" height="300px" width = "300px">
+    <!--Text overlay-->
+    <div class="list">
+       <label class="item item-input">
+          <input type="text" ng-model="textOverlay.foo" placeholder="Text to overlay">
+       </label>
+    </div>
+      <div class="row">
+        <button ng-click="createOverlay()" class="button button-full button-positive">
+          Overlay
+        </button>
+      </div>
+       <canvas id="tempCanvas"></canvas>
   </ion-content>
 </ion-view>
