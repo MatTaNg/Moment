@@ -5,10 +5,11 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'app.momentsCtrl'])
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'app.momentsCtrl', 'app.myMomentsCtrl', 'core'])
 
 .config(function($ionicConfigProvider, $sceDelegateProvider){
 
+  $ionicConfigProvider.tabs.position('bottom');
 
   $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**']);
 

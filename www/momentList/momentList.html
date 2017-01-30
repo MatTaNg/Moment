@@ -1,26 +1,64 @@
 <ion-view title="Best Moments" id="page3">
-  <ion-content padding="true" class="has-header">
-    <form id="bestMoments-form2" class="list">
-      <label class="item item-select" id="bestMoments-select3">
-        <span class="input-label">Filter</span>
-        <select>
-          <option>Date</option>
-          <option>Likes</option>
-          <option>My Pictures</option>
-        </select>
-      </label>
-    </form>
-    <div class="list card" id="bestMoments-card21">
-      <div style="margin: 0px; line-height: 250px; background-color: rgb(232, 235, 239); text-align: center;">
-        <i class="icon ion-image" style="font-size: 64px; color: rgb(136, 136, 136); vertical-align: middle;"></i>
+<ion-content padding="true" class="has-header">
+<form id="bestMoments-form2" class="list">
+  <label class="item item-select" id="bestMoments-select3">
+    <span class="input-label">Filter</span>
+    <select>
+      <option>Date</option>
+      <option>Likes</option>
+      <option>My Pictures</option>
+    </select>
+  </label>
+</form>
+<div class="list card" id="bestMoments-card21">
+  <img src="{{currentImage[0]}}" height="300px" width="100%"> </img>
+  <div class="item item-body" id="bestMoments-list-item-container2">
+    <div id="bestMoments-markdown2" class="show-list-numbers-and-dots">
+      <div class="row row-no-padding">
+        <div class="col  ion-happy-outline" style="font-size: 10pt">{{likes[0]}}</div>
+        <div class="col  ion-ios-location-outline" style="text-align: center; font-size: 10pt">{{location[0]}}</div>
+        <div class="col ion-ios-clock-outline" style="text-align: right; font-size: 10pt">{{time[0]}}</div>
       </div>
-      <div class="item item-body" id="bestMoments-list-item-container2">
-        <div id="bestMoments-markdown2" class="show-list-numbers-and-dots">
-          <p style="margin-top:0px;color:#000000;">Some friendly
-            <strong>markdown</strong>
-          </p>
-        </div>
+      <hr>
+      <div class="row">
+        <p style="font-size:14pt"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
       </div>
     </div>
-  </ion-content>
+  </div>
+</div>
+
+<div class="list card" id="bestMoments-card21">
+  <img src="{{currentImage[1]}}" height="300px" width="100%"> </img>
+  <div class="item item-body" id="bestMoments-list-item-container2">
+    <div id="bestMoments-markdown2" class="show-list-numbers-and-dots">
+      <div class="row row-no-padding">
+        <div class="col  ion-happy-outline" style="font-size: 10pt">{{likes[1]}}</div>
+        <div class="col  ion-ios-location-outline" style="text-align: center; font-size: 10pt">{{location[1]}}</div>
+        <div class="col ion-ios-clock-outline" style="text-align: right; font-size: 10pt">{{time[1]}}</div>
+      </div>
+      <hr>
+      <div class="row">
+        <p style="font-size:14pt"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="list card" id="bestMoments-card21">
+  <img src="{{currentImage[2]}}" height="300px" width="100%"> </img>
+  <div class="item item-body" id="bestMoments-list-item-container2">
+    <div id="bestMoments-markdown2" class="show-list-numbers-and-dots">
+      <div class="row row-no-padding">
+        <div class="col  ion-happy-outline" style="font-size: 10pt">{{likes[2]}}</div>
+        <div class="col  ion-ios-location-outline" style="text-align: center; font-size: 10pt">{{location[2]}}</div>
+        <div class="col ion-ios-clock-outline" style="text-align: right; font-size: 10pt">{{time[2]}}</div>
+      </div>
+      <hr>
+      <div class="row">
+        <p style="font-size:14pt"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</ion-content>
 </ion-view>

@@ -1,18 +1,40 @@
   <ion-content padding="true" class="has-header">
-    <div style="margin: 0px; line-height: 250px; background-color: rgb(232, 235, 239); text-align: center;">
-      <i class="icon ion-image" style="font-size: 64px; color: rgb(136, 136, 136); vertical-align: middle;"></i>
+  <div class = "row" style = "height: 70%">
+      <div class = "col"><img class="icon ion-image" src="{{momentPicture}}" id="momentPicture" width="100%" height="100%"></img></div>
+  </div>
+    <div class="row">
+       <label class="item item-input col col-75">
+          <input type="text" ng-model="textOverlay.foo" placeholder="Overlay">
+       </label>
+        <button ng-click="createOverlay()" class="button button-full button-positive col col-25">
+          Overlay
+        </button>
     </div>
-    <img id="momentPicture" ng-src="momentPicture"></img>
-    <form id="camera-form4" class="list">
-      <label class="item item-input" id="camera-input1">
-        <span class="input-label">Input</span>
-        <input type="text" placeholder="">
-      </label>
-    </form>
-    <button id="camera-button7" class="button button-positive  button-block">Text Overlay</button>
     <div id="camera-button-bar1" class="button-bar">
       <button id="camera-button4" ng-click="camera()" class="button button-positive  button-block">Submit</button>
       <button id="camera-button6" ng-click="back()" class="button button-positive  button-block button-outline">Cancel</button>
     </div>
   </ion-content>
 </ion-view>
+<canvas id="tempCanvas"></canvas>
+<!-- 
+<ion-view title="Camera" id="page4">
+  <ion-content padding="true" class="has-header">
+    <div style="margin: 0px; line-height: 250px; background-color: rgb(232, 235, 239); text-align: center;">
+      <img class="icon ion-image" src="{{momentPicture}}" id="momentPicture"
+      style="font-size: 64px; color: rgb(136, 136, 136); vertical-align: middle;"></img>
+    </div>
+    <form id="camera-form1" class="list">
+      <div class="spacer" style="width: 300px; height: 9px;"></div>
+      <label class="item item-input" id="camera-input1">
+        <span class="input-label">Text Overlay</span>
+        <input type="text" placeholder="">
+      </label>
+      <div id="camera-button-bar1" class="button-bar">
+        <button id="camera-button13" ng-click="camera()" class="button button-positive  button-block">Submit</button>
+        <button id="camera-button15" ng-click="back()" class="button button-positive  button-block button-outline">Cancel</button>
+      </div>
+    </form>
+  </ion-content>
+</ion-view>
+ -->

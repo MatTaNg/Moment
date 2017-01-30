@@ -1,0 +1,29 @@
+<ion-view title="My Moments" id="page4">
+  <ion-content padding="true" class="has-header">
+    <div ng-repeat="image in myImages">
+      <div class="list card">
+        <div class="item">
+          <div class="row">
+            <div class="col">
+              <img src="{{image}}" width="120px" height="120px" style="float:left"></img>
+            </div>
+            <div class="col">
+              DESCRIPTION
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              Likes
+            </div>
+            <div class="col">
+              <button class="button button-assertive" data-ng-click="delete(image)" style="margin: 5px">DELETE</button>
+            </div>
+            <div class="col">
+              <button class="button button-assertive" data-ng-click="edit()" style="margin: 5px">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  </ion-content>
+</ion-view>
