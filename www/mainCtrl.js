@@ -1,97 +1,81 @@
 angular.module('app.mainCtrl', [])
 
-.controller('mainCtrl', ['$scope', '$stateParams', '$state', '$q', 
-  function ($scope, $stateParams, $state, $q) {
+.controller('mainCtrl', ['$scope', '$stateParams', '$state', '$q', 'coreSvc',
+  function ($scope, $stateParams, $state, $q, coreSvc, $jrCrop) {
 
-  var screenWidth = window.screen.width;
-  var screenHeight = window.screen.height * 0.5;
-  $scope.momentPicture = document.getElementById('momentPicture');
-  var albumBucketName = 'mng-moment';
-  var bucketRegion = 'us-east-1';
-  var IdentityPoolId = 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4';
+    var screenWidth = window.screen.width;
+    var screenHeight = window.screen.height * 0.5;
+    var metaData = {location: "XYZ",
+    likes: "0",
+    time: "123",
+    UUIDs: "QWERT"};
 
-  AWS.config.update({
-    region: bucketRegion,
-    credentials: new AWS.CognitoIdentityCredentials({
-      IdentityPoolId: IdentityPoolId
-    })
-  });
+    var s3 = coreSvc.initiateBucket();
 
-  var s3 = new AWS.S3({
-    apiVersion: '2006-03-01',
-    params: {Bucket: albumBucketName}
-  });
+    var dataURItoBlob = function(dataURI) {
+      var byteString = atob(dataURI.split(',')[1]);
 
-  $scope.camera = function() { 
-    console.log("CAMERA");
-    console.log(screenWidth);
-    console.log(screenHeight);
-    navigator.camera.getPicture(onSuccess, onFail, 
+      // separate out the mime component
+      var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+      // write the bytes of the string to an ArrayBuffer
+      var ab = new ArrayBuffer(byteString.length);
+      var ia = new Uint8Array(ab);
+      for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+
+      // write the ArrayBuffer to a blob, and you're done
+      var blob = new Blob([ab], {type: mimeString});
+      alert(blob);
+      return blob;
+    }
+
+    $scope.camera = function() { 
+      navigator.camera.getPicture(onSuccess, onFail, 
       { quality: 100, //Quality of photo 0-100
       destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL
-      allowEdit: false, //Allows editing of picture
-      targetWidth: screenWidth,
-      targetHeight: screenHeight,
-      correctOrientation: true
-    });
-
-    function onSuccess(imageURI) {
-      console.log("Success");
-      var picture = "data:image/jpeg;base64," + imageURI;
-      $scope.momentPicture = document.getElementById('momentPicture');
-      $scope.momentPicture.src = picture;
-      $state.go('textOverlay', {'picture': picture});
-    };
-
-    function onFail(message) {
-      console.log('Failed because: ' + message);
-    }
-  };
-
-  $scope.gallery = function() {
-    $scope.addPhoto('img/test.jpg');
-
-    navigator.camera.getPicture(onSuccess, onFail, {
-      quality: 100, //Quality of photo 0-100
-      destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL
-      sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
       allowEdit: false, //Allows editing of picture
       targetWidth: 300,
       targetHeight: 300,
       correctOrientation: true
     });
 
-    function onSuccess(imageURI) {
-      var picture = "data:image/jpeg;base64," + imageURI;
-      $scope.momentPicture = document.getElementById('momentPicture');
-      $scope.momentPicture.src = picture;
-      console.log(imageURI);
-      // $state.go('textOverlay', {'picture': imageURI});
-    }
+      function onSuccess(imageURI) {
+        var blob = new Blob([dataURItoBlob("data:image/jpeg;base64," + imageURI)], {type: 'image/jpeg'});
+        var file = new File([blob], metaData.location + '.jpeg');
+        coreSvc.upload(file, metaData);
+      };
 
-    function onFail(message) {
-      console.log("Failed because: " + message);
-    }
-  };
-
-  $scope.addPhoto = function(albumName) {
-    console.log("Add Photo");
-    console.log(albumName);
-    var albumPhotosKey = encodeURIComponent(albumName) + '/test.jpg/';
-    console.log("albumPhotosKey");
-    console.log(albumPhotosKey);
-
-    var photoKey = albumPhotosKey;
-    s3.upload({
-      Key: photoKey,
-      Body: albumName,
-      ACL: 'public-read'
-    }, function(err, data) {
-      if (err) {
-        return alert('There was an error uploading your photo: ', err.message);
+      function onFail(message) {
+        console.log("Fail");
+        console.log('Failed because: ' + message);
       }
-      alert('Successfully uploaded photo.');
-      console.log(data);
+    };
+
+    $scope.gallery = function() {
+      navigator.camera.getPicture(onSuccess, onFail, {
+      quality: 100, //Quality of photo 0-100
+      destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL
+      sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+      allowEdit: true, //Allows editing of picture
+      targetWidth: 300,
+      targetHeight: 300,
+      correctOrientation: true
     });
-  };
+
+      function onSuccess(imageURI) {
+
+          console.log("SUCCESSFUL");
+          var blob = new Blob([dataURItoBlob("data:image/jpeg;base64," + imageURI)], {type: 'image/jpeg'});
+          var file = new File([blob], metaData.location + '.jpeg');
+          coreSvc.upload(file, metaData);
+
+}
+
+function onFail(message) {
+  console.log("Failed because: " + message);
+}
+};
+
 }])

@@ -24,36 +24,36 @@ function ($scope, $stateParams, $state, $timeout) {
 
  	$scope.createOverlay= function(){
 
-        var canvas = document.getElementById('tempCanvas');
-        var context = canvas.getContext('2d');
+        // var canvas = document.getElementById('tempCanvas');
+        // var context = canvas.getContext('2d');
 
-          var source =  new Image();
-          source.src =  momentPicture;
-          canvas.width = source.width;
-          canvas.height = source.height;
+        //   var source =  new Image();
+        //   source.src =  momentPicture;
+        //   canvas.width = source.width;
+        //   canvas.height = source.height;
 
-          console.log("Width");
-          console.log(canvas.width);
-          console.log("Height");
-          console.log(canvas.height);
+        //   console.log("Width");
+        //   console.log(canvas.width);
+        //   console.log("Height");
+        //   console.log(canvas.height);
 
-          context.drawImage(source,0,0);
+        //   context.drawImage(source,0,0);
 
-          context.font = "100px impact";
-          textWidth = context.measureText($scope.frase).width;
+        //   context.font = "100px impact";
+        //   textWidth = context.measureText($scope.frase).width;
 
-          if (textWidth > canvas.offsetWidth) {
-              context.font = "40px impact";
-          }
-          context.textAlign = 'center';
-          context.fillStyle = 'white';
+        //   if (textWidth > canvas.offsetWidth) {
+        //       context.font = "40px impact";
+        //   }
+        //   context.textAlign = 'center';
+        //   context.fillStyle = 'white';
 
-          context.fillText($scope.textOverlay.foo,canvas.width/2,canvas.height*0.8);
-            var imgURI = canvas.toDataURL();
+        //   context.fillText($scope.textOverlay.foo,canvas.width/2,canvas.height*0.8);
+        //     var imgURI = canvas.toDataURL();
 
-          $timeout( function(){
-              $scope.momentPicture = imgURI;
-              context.clearRect(0, 0, canvas.width, canvas.height);
-          }, 200);
+        //   $timeout( function(){
+        //       $scope.momentPicture = imgURI;
+        //       context.clearRect(0, 0, canvas.width, canvas.height);
+        //   }, 200);
         }
 }])

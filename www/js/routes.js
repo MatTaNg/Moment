@@ -1,4 +1,4 @@
-angular.module('app.routes', ['app.momentsCtrl', 'app.momentListCtrl', 'app.cameraCtrl', 'app.textOverlayCtrl', 'tabsController', 'app.myMomentsCtrl', 'app.mainCtrl'])
+angular.module('app.routes', ['app.momentsCtrl', 'app.momentListCtrl', 'app.cameraCtrl', 'app.textOverlayCtrl', 'tabsController', 'app.myMomentsCtrl', 'app.mainCtrl', 'app.momentsSvc', 'app.momentListSvc'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -21,6 +21,7 @@ angular.module('app.routes', ['app.momentsCtrl', 'app.momentListCtrl', 'app.came
   })
 
       .state('tabsController.moments', {
+        cache:false,
     url: '/moments',
     views: {
       'tab1': {

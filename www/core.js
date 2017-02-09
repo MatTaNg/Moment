@@ -1,10 +1,22 @@
 angular.module('core', [])
 
-.service('coreSvc', ['$cordovaGeolocation', function($cordovaGeolocation){
+.service('coreSvc', ['$cordovaGeolocation', '$http', function($cordovaGeolocation, $http){
 	var bucketName = 'mng-moment';
 	var bucketRegion = 'us-east-1';
 	var key = 'AKIAIJTJGHYI2C7CYWDA';
 	var IdentityPoolId = 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4';
+
+	var splitUrlOff = function(key) {
+		var result = "";
+		var keySplit = key.split('/');
+		if(keySplit.length > 4) {
+			for(var i = 4; i < keySplit.length; i++) {
+				result = result + keySplit[i] + '/';
+			}
+			return result.substring(0, result.length-1);
+		}
+		return key;
+	}
 
 	this.getBucketName = function() {
 		return bucketName;
@@ -40,6 +52,7 @@ angular.module('core', [])
 		s3.deleteObject(params, function(error, data) {
 			if(!error) {
 				console.log(data);
+				console.log("PATH: " + imagePath);
 			}
 			else {
 				console.log(error.stack);
@@ -47,19 +60,58 @@ angular.module('core', [])
 		})
 	};
 
+	this.edit = function(key, metaData){
+		key = splitUrlOff(key);
+		var s3 = this.initiateBucket();
+		var params = {
+			Bucket: bucketName,
+			CopySource: bucketName + '/' + key,
+			Key: key,
+			Metadata: metaData,
+			MetadataDirective: "REPLACE"
+		};
+
+		s3.copyObject(params, function(err, data) {
+  			if (err) {
+  				console.log(err, err.stack); // an error occurred
+  				console.log("KEY: " + key);
+  				console.log("META: " + metaData)
+  			}
+  			else {
+  				console.log(data);           // successful response
+  			}
+		});
+	};
+
+	this.upload = function(file, metaData) {
+		var s3 = this.initiateBucket();
+		var key = 'test/' + file.name;
+		s3.upload({
+			Key: key,
+			Body: file,
+			ACL: 'public-read',
+			Metadata: metaData
+		}, function(err, data) {
+			if (err) {
+				console.log(err.message);
+				console.log("FILE: " + file);
+  				console.log("META: " + metaData)
+			}
+			else {
+				console.log("Successfully Uploaded to S3");
+			}
+		});
+	};
+
 	this.getDeviceLocation = function() {
 		var posOptions = {timeout: 10000, enableHighAccuracy: false};
 		$cordovaGeolocation.getCurrentPosition(posOptions)
 		.then(function(position) {
-			var latitude = position.coords.latitude;
-			var longitude = position.coords.longitude;
-			alert(latitude);
-			alert(longitude);
+			console.log("SUCCESS");
 			return getTownName(latitude, longitude);
 		}, function(error) {
-			alert(error.message);
 			console.log("ERROR");
-			console.log(error.message);
+			alert(error.message);
 		});
 	};
 
@@ -79,40 +131,26 @@ angular.module('core', [])
 		return d;
 	};
 
-	this.getTownName = function(lat, long) {
-		alert("Get Town Name");
-		var geocoder;
-		geocoder = new google.maps.Geocoder();
-		var latlng = new google.maps.LatLng(lat, long);
-
-		geocoder.geocode(
-			{'latLng': latlng}, 
-			function(results, status) {
-				alert("Function");
-				if (status == google.maps.GeocoderStatus.OK) {
-					if (results[0]) {
-						var add= results[0].formatted_address ;
-						var  value=add.split(",");
-
-						count=value.length;
-						country=value[count-1];
-						state=value[count-2];
-						city=value[count-3];
-						alert("city name is: " + city);
-						return city;
-					}
-					else  {
-						alert("address not found");
-					}
-				}
-				else {
-					alert("Geocoder failed due to: " + status);
-				}
+	this.getTownName = function(lat, lng) {
+		alert("GET TOWN NAME");
+		var url = 'https://civinfo-apis.herokuapp.com/civic/geolocation?latlng=' + lat + ',' + lng;
+		$http.get(url).then(function(response) {
+			if(response.data.results.length) {
+				console.log("SUCCESS");
+				console.log(response.data.results[0]);
+				return response.data.results[0];
 			}
-			);
+			else {
+				console.log("UNKNOWN LOCATION");
+			}
+		},
+		function(error) {
+			console.log("ERROR");
+			console.log(error.message)
+		});
 	};
 
 	this.getUUID = function() {
-		return 123; //Temporary
+		return "123"; //Temporary
 	};
 }])

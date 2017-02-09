@@ -38,7 +38,12 @@ function ($scope, $stateParams, $state, $q) {
 		});
 
 		function onSuccess(imageURI) {
-			console.log("Success");
+			alert($scope.dataURItoBlob(imageURI).type);
+			console.log("Sucss");
+			var blob = new Blog([imageURI], {type: 'image/png'});
+			var file = new File([blob], 'imageFile.png');
+			alert("Success");
+			alert(file);
 			var picture = "data:image/jpeg;base64," + imageURI;
 			$scope.momentPicture = document.getElementById('momentPicture');
 			$scope.momentPicture.src = picture;
@@ -49,6 +54,27 @@ function ($scope, $stateParams, $state, $q) {
 			console.log('Failed because: ' + message);
 		}
 	};
+
+	$scope.dataURItoBlob = function(dataURI) {
+		alert("Data URI");
+	    // convert base64/URLEncoded data component to raw binary data held in a string
+	    var byteString;
+	    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+	        byteString = atob(dataURI.split(',')[1]);
+	    else
+	        byteString = unescape(dataURI.split(',')[1]);
+
+	    // separate out the mime component
+	    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+	    // write the bytes of the string to a typed array
+	    var ia = new Uint8Array(byteString.length);
+	    for (var i = 0; i < byteString.length; i++) {
+	        ia[i] = byteString.charCodeAt(i);
+	    }
+
+	    return new Blob([ia], {type:mimeString});
+	}
 
 	$scope.gallery = function() {
 		$scope.addPhoto('img/test.jpg');
