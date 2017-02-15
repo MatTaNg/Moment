@@ -1,25 +1,16 @@
 <ion-view title="Moments" id="page2">
 <ion-content padding="true" class="has-header">
-<!--     <ion-slides disable-side-menu-drag="" options="{'loop': true}" slider="slider2" delegate-handle="slider2" id="moments-slider2" style="width:100%;height:350px;">
-      <ion-slide-page class="card" id="moments-slide210" style="background:url(&quot;img/food.jpg&quot;) no-repeat center;background-size:cover;"><a class="ion-flag" style="margin: 5px; float: right"></a></ion-slide-page>
-      <ion-slide-page id="moments-slide211" style="background:url(&quot;img/landscape.jpg&quot;) no-repeat center;background-size:cover;"></ion-slide-page>
-      <ion-slide-page id="moments-slide212" style="background:url(&quot;img/selfie.jpg&quot;) no-repeat center;background-size:cover;"></ion-slide-page>
-    </ion-slides> -->
-    <!-- <div class="card"> -->
-      <img src="{{currentImage}}" height="300px" width="100%"> </img>
-      <div style="height:{{screenHeight * 0.3}}">
-        <div class="row row-no-padding">
-        	<div class="col  ion-happy-outline" style="font-size: 10pt">{{likes}}</div>
-        	<div class="col  ion-ios-location-outline" style="text-align: center; font-size: 10pt">{{location}}</div>
-        	<div class="col ion-ios-clock-outline" style="text-align: right; font-size: 10pt">{{time}}</div>
-        </div>
-        <hr style="margin: 2px">
-        <div class="row">
-          <button data-ng-click="liked(true)" style="float:left" class="col positive ion-happy"></button>
-          <button data-ng-click="liked(false)" style="float:left" class="col assertive ion-close"></button>
-        </div>
-        <p style="font-size:12pt"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-      </div>
-    <!-- </div> End of Card -->
-  </ion-content>
+
+<div ng-show="currentImage">
+  <mng-mainview moment="currentImage"></mng-mainview>
+  <hr style="margin: 2px">
+  <div mng-description></div>
+</div> <!-- End of ng-show -->
+<img src="/img/No-results-found.png" ng-hide="currentImage || loading"></img>
+
+<div class="row" style="margin-top: 5px">
+  <button data-ng-click="liked(true)" style="float:left; height: 80px" class="col positive ion-happy"></button>
+  <button data-ng-click="liked(false)" style="float:left; height: 80px" class="col assertive ion-close"></button>
+</div>
+</ion-content>
 </ion-view>

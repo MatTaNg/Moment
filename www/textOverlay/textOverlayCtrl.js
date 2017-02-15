@@ -1,59 +1,52 @@
 angular.module('app.textOverlayCtrl', [])
-  
-.controller('textOverlayCtrl', ['$scope', '$stateParams', '$state', '$timeout', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+
+.controller('textOverlayCtrl', ['$scope', '$stateParams', '$state', 'coreSvc', 'textOverlaySvc', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams, $state, $timeout) {
-	var screenWidth = window.screen.width;
-	var screenHeight = window.screen.height;
-	var momentPicture;
-	$scope.textOverlay= { foo: "" };
+function ($scope, $stateParams, $state, coreSvc, textOverlaySvc) {
+  $scope.picture = $stateParams.picture;
+  $scope.maxChars = coreSvc.max_description_length;
+  $scope.location = true;
+  $scope.moment = { description: ""};
+  var metaData = {location: "Unknown",
+  likes: "0",
+  time: "",
+  description: "",
+  UUIDs: coreSvc.getUUID()};
 
-	(function init() {
-		$scope.momentPicture = $stateParams.picture;
-		momentPicture = $scope.momentPicture;
-		console.log("Screen");
-		console.log(screenHeight);
-		console.log(screenWidth);
-	})();
+  $scope.changeLocation = function() {
+    $scope.location = !$scope.location;
+  };
 
-	$scope.back = function() {
-		console.log("Back");
-		$state.go('tabsController.camera');
-	};
+  $scope.cancel = function() {
+    $state.go("tabsController.moments");
+  };
 
- 	$scope.createOverlay= function(){
+  $scope.charLimit = function() {
+    if($scope.description.length > 10)
+      return "color: red;"
+    else
+      return "color: green;"
+  };
 
-        // var canvas = document.getElementById('tempCanvas');
-        // var context = canvas.getContext('2d');
+  $scope.submit = function() {
+      if($scope.moment.description.length <= $scope.maxChars) {
+        updateMetaData($scope.moment.description);
+        textOverlaySvc.uploadToLocalStorage($scope.picture, metaData);
+        textOverlaySvc.uploadToAWS($scope.picture, metaData);
+        $state.go('tabsController.moments');
+      }
+      else {
+        alert("Your description is too long.");
+      }
+  };
 
-        //   var source =  new Image();
-        //   source.src =  momentPicture;
-        //   canvas.width = source.width;
-        //   canvas.height = source.height;
+  var updateMetaData = function() {
+    if($scope.location === true) {
+      metaData.location = coreSvc.getDeviceLocation();
+    }
+    metaData.time = new Date().getTime().toString();
+    metaData.description = $scope.moment.description;
+  };
 
-        //   console.log("Width");
-        //   console.log(canvas.width);
-        //   console.log("Height");
-        //   console.log(canvas.height);
-
-        //   context.drawImage(source,0,0);
-
-        //   context.font = "100px impact";
-        //   textWidth = context.measureText($scope.frase).width;
-
-        //   if (textWidth > canvas.offsetWidth) {
-        //       context.font = "40px impact";
-        //   }
-        //   context.textAlign = 'center';
-        //   context.fillStyle = 'white';
-
-        //   context.fillText($scope.textOverlay.foo,canvas.width/2,canvas.height*0.8);
-        //     var imgURI = canvas.toDataURL();
-
-        //   $timeout( function(){
-        //       $scope.momentPicture = imgURI;
-        //       context.clearRect(0, 0, canvas.width, canvas.height);
-        //   }, 200);
-        }
 }])

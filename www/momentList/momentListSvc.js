@@ -4,16 +4,21 @@ angular.module('app.momentListSvc', [])
 
 }])
 
-.service('momentListSvc', [function(){
+.service('momentListSvc', ['coreSvc', '$q', function(coreSvc, $q){
+	var imageUrl = 'https://s3.amazonaws.com/' + coreSvc.getBucketName() + '/';
 	var momentArray = [];
 
-	this.getMoment = function() {
-		console.log("Get Moment");
-		return momentArray;
-	};
+	this.initializeView = function() {
+		var deferred = $q.defer();
+		coreSvc.initiateMoments(coreSvc.getBestMomentPrefix())
+		.then(function(moments) {
+			deferred.resolve(moments);
+		}, function(error) {
+			console.log("ERROR");
+			console.log(error.stack);
+			deferred.reject(error);
+		});
 
-	this.addMoment = function(key, metaData) {
-		console.log("Add Moment");
-		momentArray.push({key, metaData});
-	};
+		return deferred.promise;	
+	}
 }]);

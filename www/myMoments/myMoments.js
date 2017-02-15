@@ -1,0 +1,1 @@
+angular.module('myMoments', ['app.myMomentsCtrl', 'app.myMomentsSvc'])

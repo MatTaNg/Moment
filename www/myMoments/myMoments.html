@@ -1,29 +1,18 @@
 <ion-view title="My Moments" id="page4">
-  <ion-content padding="true" class="has-header">
-    <div ng-repeat="image in myImages">
-      <div class="list card">
-        <div class="item">
-          <div class="row">
-            <div class="col">
-              <img src="{{image}}" width="120px" height="120px" style="float:left"></img>
-            </div>
-            <div class="col">
-              DESCRIPTION
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              Likes
-            </div>
-            <div class="col">
-              <button class="button button-assertive" data-ng-click="delete(image)" style="margin: 5px">DELETE</button>
-            </div>
-            <div class="col">
-              <button class="button button-assertive" data-ng-click="edit()" style="margin: 5px">Edit</button>
-            </div>
-          </div>
-        </div>
-      </div>
+<ion-content padding="true" class="has-header">
+<div ng-show="errorMessage" style="text-align: center; text-font: 18pt; margin: 10px">
+  No Moments to Show
+</div>
+<div ng-repeat="image in myImages">
+  <mng-mainview moment="image"></mng-mainview>
+  <hr style="margin: 2px">
+  <div class="row">
+    <div class="col" style="margin: 5px"> {{image.description}} </div>
   </div>
-  </ion-content>
+  <hr style="margin: 2px">
+</div> <!--End of ng-repeat -->
+<div class = "row">
+  <button class="col button button-assertive" data-ng-click="feedback()" style="margin: 5px">Feedback</button>
+</div>
+</ion-content>
 </ion-view>

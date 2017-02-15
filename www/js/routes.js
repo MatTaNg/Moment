@@ -1,4 +1,4 @@
-angular.module('app.routes', ['app.momentsCtrl', 'app.momentListCtrl', 'app.cameraCtrl', 'app.textOverlayCtrl', 'tabsController', 'app.myMomentsCtrl', 'app.mainCtrl', 'app.momentsSvc', 'app.momentListSvc'])
+angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay', 'tabsController', 'app.mainCtrl', 'mainview'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -20,8 +20,7 @@ angular.module('app.routes', ['app.momentsCtrl', 'app.momentListCtrl', 'app.came
     controller: 'textOverlayCtrl'
   })
 
-      .state('tabsController.moments', {
-        cache:false,
+  .state('tabsController.moments', {
     url: '/moments',
     views: {
       'tab1': {
@@ -43,6 +42,7 @@ angular.module('app.routes', ['app.momentsCtrl', 'app.momentListCtrl', 'app.came
 
   .state('tabsController.myMoments', {
     url: '/myMoments',
+    cache:false,
     views: {
       'tab3': {
         templateUrl: 'myMoments/myMoments.html',
@@ -58,7 +58,7 @@ angular.module('app.routes', ['app.momentsCtrl', 'app.momentListCtrl', 'app.came
     abstract:true
   })
 
-$urlRouterProvider.otherwise('/page1/moments')
+  $urlRouterProvider.otherwise('/page1/moments')
   
 
 });
