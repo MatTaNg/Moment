@@ -1,6 +1,6 @@
-angular.module('app.mainCtrl', [])
+angular.module('app.indexCtrl', [])
 
-.controller('mainCtrl', ['$scope', '$stateParams', '$state', '$q', 'coreSvc',
+.controller('indexCtrl', ['$scope', '$stateParams', '$state', '$q', 'coreSvc',
   function ($scope, $stateParams, $state, $q, coreSvc, $jrCrop) {
 
     $scope.camera = function() { 
@@ -36,11 +36,11 @@ angular.module('app.mainCtrl', [])
       function onSuccess(imageURI) {
         var picture = "data:image/jpeg;base64," + imageURI;
         $state.go('textOverlay', {picture: picture});
-}
+      }
 
-function onFail(message) {
-  console.log("Failed because: " + message);
-}
-};
+      function onFail(message) {
+        console.log("Failed because: " + message);
+      }
+    };
 
-}])
+  }])

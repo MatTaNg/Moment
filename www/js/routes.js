@@ -1,4 +1,4 @@
-angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay', 'tabsController', 'app.mainCtrl', 'mainview'])
+angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay', 'app.indexCtrl', 'mainview'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -54,7 +54,6 @@ angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay
   .state('tabsController', {
     url: '/page1',
     templateUrl: 'templates/tabsController.html',
-    controller: 'tabsController',
     abstract:true
   })
 
