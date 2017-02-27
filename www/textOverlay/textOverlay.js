@@ -1,1 +1,0 @@
-angular.module('textOverlay', ['app.textOverlayCtrl', 'app.textOverlaySvc'])

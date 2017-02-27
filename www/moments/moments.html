@@ -1,16 +1,16 @@
 <ion-view title="Moments" id="page2">
 <ion-content padding="true" class="has-header">
 
-<div ng-show="currentImage">
-  <mng-mainview moment="currentImage"></mng-mainview>
+<div ng-show="vm.currentImage">
+  <mng-mainview moment="vm.currentImage"></mng-mainview>
   <hr style="margin: 2px">
-  <div mng-description></div>
+  <mng-description></mng-description>
 </div> <!-- End of ng-show -->
-<img src="/img/No-results-found.png" ng-hide="currentImage || loading"></img>
+<img src="/img/No-results-found.png" ng-hide="vm.currentImage || vm.loading"></img>
 
 <div class="row" style="margin-top: 5px">
-  <button data-ng-click="liked(true)" style="float:left; height: 80px" class="col positive ion-happy"></button>
-  <button data-ng-click="liked(false)" style="float:left; height: 80px" class="col assertive ion-close"></button>
+  <button data-ng-click="vm.liked(true)" style="float:left; height: 80px" class="col positive ion-happy"></button>
+  <button data-ng-click="vm.liked(false)" style="float:left; height: 80px" class="col assertive ion-close"></button>
 </div>
 </ion-content>
 </ion-view>

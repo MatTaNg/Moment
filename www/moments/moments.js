@@ -1,1 +1,0 @@
-angular.module('moments', ['app.momentsCtrl', 'app.momentsSvc', 'app.momentDir'])

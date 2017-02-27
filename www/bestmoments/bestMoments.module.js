@@ -1,0 +1,1 @@
+angular.module('bestMoments', ['app.BestMomentsController', 'app.bestMomentsService'])

@@ -4,15 +4,15 @@
 <form id="bestMoments-form2" class="list">
   <label class="item item-select" id="bestMoments-select3">
     <span class="input-label" ng-model="sortBy">Sort By</span>
-    <select ng-model="selectedOrder" ng-options="option for option in options"></select>
+    <select ng-model="vm.selectedOrder" ng-options="option for option in options"></select>
   </label>
 </form>
 
-<div ng-repeat="image in imageArray | orderBy: selectedOrder:!reverse">
+<div ng-repeat="image in vm.imageArray | orderBy: vm.selectedOrder:!reverse">
   <mng-mainview moment="image"></mng-mainview>
   <hr style="margin: 2px">
   <div class="row">
-    <div class="col" style="margin: 5px"> {{image.description}} </div>
+    <div class="col" style="margin: 5px"> {{vm.image.description}} </div>
   </div>
   <hr style="margin: 2px">
 </div> <!--End of ng-repeat-->

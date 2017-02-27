@@ -1,1 +1,0 @@
-angular.module('momentList', ['app.momentListCtrl', 'app.momentListSvc'])

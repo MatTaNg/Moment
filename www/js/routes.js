@@ -1,4 +1,4 @@
-angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay', 'app.indexCtrl', 'mainview'])
+angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMoment', 'app.IndexController', 'mainview'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -13,11 +13,12 @@ angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay
     controller: 'pageCtrl'
   })
 
-  .state('textOverlay', {
-    url: '/textOverlay',
+  .state('submitMoment', {
+    url: '/submitMoment',
     params: {'picture' : null},
-    templateUrl: 'textOverlay/textOverlay.html',
-    controller: 'textOverlayCtrl'
+    templateUrl: 'submitMoment/submitMoment.html',
+    controller: 'SubmitMomentController',
+    controllerAs: 'vm'
   })
 
   .state('tabsController.moments', {
@@ -25,7 +26,8 @@ angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay
     views: {
       'tab1': {
         templateUrl: 'moments/moments.html',
-        controller: 'momentsCtrl'
+        controller: 'MomentsController',
+        controllerAs: 'vm'
       }
     }
   })
@@ -34,8 +36,9 @@ angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay
     url: '/bestMoments',
     views: {
       'tab2': {
-        templateUrl: 'momentList/momentList.html',
-        controller: 'momentListCtrl'
+        templateUrl: 'bestMoments/bestMoments.html',
+        controller: 'BestMomentsController',
+        controllerAs: 'vm'
       }
     }
   })
@@ -46,14 +49,16 @@ angular.module('app.routes', ['momentList', 'moments', 'myMoments', 'textOverlay
     views: {
       'tab3': {
         templateUrl: 'myMoments/myMoments.html',
-        controller: 'myMomentsCtrl'
+        controller: 'MyMomentsController',
+        controllerAs: 'vm'
       }
     }
   })
 
   .state('tabsController', {
     url: '/page1',
-    templateUrl: 'templates/tabsController.html',
+    templateUrl: 'layout/tabsController.html',
+    controller: 'IndexController',
     abstract:true
   })
 
