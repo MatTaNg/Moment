@@ -1,11 +1,10 @@
 (function() {
 	angular.module('app.submitMomentService', [])
 
-	.service('submitMomentService', ['core', submitMomentService]);
+	.service('submitMomentService', ['core', 'constants', submitMomentService]);
 
-	function submitMomentService(core){
+	function submitMomentService(core, constants){
 		var dataURItoBlob = dataURItoBlob;
-
 		this.uploadToAWS = uploadToAWS;
 		this.uploadToLocalStorage = uploadToLocalStorage;
 		this.updateTime = updateTime;
@@ -14,11 +13,10 @@
 			localStorage.setItem('timeSinceLastMoment', new Date().getTime());
 		};
 
-		function uploadToAWS(picture, metaData) {
+		function uploadToAWS(key, picture, metaData) {
 			var blob = new Blob([dataURItoBlob(picture)], {type: 'image/jpeg'});
-			var file = new File([blob], metaData.location + '.jpeg');
-			var filePath = core.getMomentPrefix() + metaData.location;
-			core.upload(file, filePath, metaData);
+			var file = new File([blob], metaData.location + 'jpeg');
+			core.upload(file, key, metaData);
 		};
 
 		function uploadToLocalStorage(picture, metaData) {
@@ -27,7 +25,7 @@
 				location: metaData.location,
 				likes: metaData.likes,
 				description: metaData.description,
-				time: metaData.time
+				time: core.timeElapsed(metaData.time)
 			};
 			var localMomenets = [];
 			if(localStorage.getItem('myMoments') != null) {

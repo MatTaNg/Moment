@@ -1,40 +1,220 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', momentsService]);
+	.service('momentsService', ['core', '$q', '$ionicLoading', 'constants', momentsService]);
 
-	function momentsService(core, $q){
+	function momentsService(core, $q, $ionicLoading, constants){
 		var momentArray = [];
+		var currentCoordinates;
+		var deferred = $q.defer();
+		var s3 = core.initiateBucket();
+
+		this.max_north = {}; //40.4110615750005
+		this.max_south = {}; //39.567047425
+		this.max_west = {};  //-75.756022274999
+		this.max_east = {};  //-74.798121925
+
 		this.getMoments = getMoments;
 		this.initializeView = initializeView;
 		this.filterMoments = filterMoments;
 		this.updateObject = updateObject;
 		this.incrementCounter = incrementCounter;
+		this.calculateNearbyStates = calculateNearbyStates;
 
 		function getMoments() {
 			return momentArray;
 		};
 
-		function initializeView() {
-			var deferred = $q.defer();
-
-			core.initiateMoments(core.getMomentPrefix())
-			.then(function(moments) {
-				momentArray = filterMoments(moments);
-				deferred.resolve(momentArray);
-			}, function(error) {
-				console.log("ERROR");
-				console.log(error.stack);
-				deferred.reject(error);
-			});
-
-			return deferred.promise;
+		function extractCoordinatesFromKey(key) {
+			if(key.includes(',')) {
+				var lat = 0;
+				var lng = 0;
+				var coordinates = key.split('/');
+				coordinates = coordinates[coordinates.length - 1];
+				coordinates = coordinates.split(',');
+				lat = coordinates[0].trim();
+				//Pop off the extension
+				lng = coordinates[1].split('.');
+				lng.pop();
+				lng = (lng[0] + "." + lng[1]).trim();
+				var result = {latitude: lat, longitude: lng};
+				return result;
+			}
 		};
 
-		function filterMoments(moments) {
-			var result = moments;
-			if(moments) {
-				for(var i = 0; i < moments.length;) {
+		function filterImage(key) {
+			console.log("FILTER KEY");
+			var coordinates = extractCoordinatesFromKey(key);
+			var lat = coordinates.latitude;
+			var lng = coordinates.longitude;
+			console.log(coordinates);
+			console.log(max_north);
+			console.log(max_south);
+			console.log(max_west);
+			console.log(max_east);
+			console.log(lat < max_north);
+			console.log(lat > max_south);
+			console.log(lng > max_west);
+			console.log(lng < max_east);
+			if((lat < max_north.lat && lat > max_south.lat) &&
+				(lng > max_west.lng && lng < max_east.lng )) {
+				return true;
+		}
+		else {
+			return false;
+		}
+	};
+
+	function calculateNearbyStates() {
+		var deferred = $q.defer();
+
+		core.initializeUserLocation().then(function(locationData) {
+			this.max_north = { lat: locationData.lat + core.getLatMileRadius(), lng: locationData.lng }; 
+			this.max_south = { lat: locationData.lat - core.getLatMileRadius(), lng: locationData.lng }; 
+			this.max_west = {  lat: locationData.lat, lng: locationData.lng - core.getLngMileRadius() };
+			this.max_east = {  lat: locationData.lat, lng: locationData.lng + core.getLngMileRadius() };
+
+			var nearbyState = {north: "", south: "", west: "", east: ""};
+			var result = [];
+			core.getDeviceLocation(this.max_north.lat, this.max_north.lng).then(function(location) {
+				nearbyState.north = location.split(',')[1].trim();
+				core.getDeviceLocation(max_south.lat, max_south.lng).then(function(location) {
+					nearbyState.south = location.split(',')[1].trim();
+					core.getDeviceLocation(max_west.lat, max_west.lng).then(function(location) {
+						nearbyState.west = location.split(',')[1].trim();
+						core.getDeviceLocation(max_east.lat, max_east.lng).then(function(location) {
+							nearbyState.east = location.split(',')[1].trim();
+
+							result.push(nearbyState.north);
+							if(result.indexOf(nearbyState.south) === -1) {
+								result.push(nearbyState.south);
+							}
+							if(!result.indexOf(nearbyState.west) === -1) {
+								result.push(nearbyState.west);
+							}
+							if(!result.indexOf(nearbyState.east) === -1) {
+								result.push(nearbyState.east);
+							}
+							deferred.resolve(result);
+						});
+					});
+				});
+			});
+		}, function(error) {
+			deferred.reject(error);
+			console.log("COULD NOT GET LOCATION");
+			console.log(error.message);
+		});
+return deferred.promise;
+};
+
+function getMomentsByState(states) {
+	var result = [];
+	for(var i = 0; i < states.length; i++) {
+		(function(i) {
+			var params = {
+				Bucket: constants.BUCKET_NAME,
+				Prefix: constants.MOMENT_PREFIX + states[i]
+			};
+			s3.listObjectsV2(params, function(error, data) {
+				if(!error) {
+					
+					result.push(data.Contents);
+					if(result.length === states.length) {
+						deferred.resolve(result);
+					}
+				}
+				else {
+					console.log("ERROR");
+					console.log(error.message);
+				}
+			});
+		})(i);
+	}
+	return deferred.promise;
+};
+
+function getMomentsWithinRadius(momentsInStates) {
+	console.log("MOMENTS IN STATES");
+	console.log(momentsInStates);
+	var deferred = $q.defer();
+	for(var i = 0; i < momentsInStates.length; i++) {
+		(function(i) {
+			var params = {
+				Bucket: constants.BUCKET_NAME,
+				Key: momentsInStates[i].Key
+			};
+			s3.headObject(params, function(error, data) {
+				if(!error) {
+					console.log("KEY");
+					console.log(momentsInStates[i].Key);
+					var time = core.timeElapsed(data.Metadata.time);
+					momentArray.push({ 
+						key: constants.IMAGE_URL + momentsInStates[i].Key, 
+						description: data.Metadata.description,
+						likes: data.Metadata.likes,
+						location: data.Metadata.location,
+						time: time,
+						uuids: data.Metadata.uuids,
+						views: data.Metadata.views
+					});
+					if(momentArray.length === momentsInStates.length) {
+						deferred.resolve(momentArray);
+					}
+				}
+				else {
+					console.log("ERROR");
+					console.log(error.message);
+					deferred.reject(error.message);
+				}
+			});
+		})(i);
+	}
+	return deferred.promise;
+};
+
+function initializeView() {
+	var deferred = $q.defer();
+	momentArray = [];
+
+	$ionicLoading.show({
+		template: '<ion-spinner></ion-spinner>'
+	});
+calculateNearbyStates().then(function(states) {
+			//We cannot load all the images in the AWS database.
+			//Instead, we get the users State and figre out which nearby States to load
+			//This way we minimize the amount of images to load.
+			getMomentsByState(states).then(function(moments) {
+				var momentsInStates = [];
+				for(var i = 0; i < moments.length; i++) {
+					for(var x = 0; x < moments[i].length; x++) {
+						if(x > 0 && filterImage(moments[i][x].Key)) { //The first key listed is always the folder, skip that.
+							momentsInStates.push(moments[i][x]);
+						}
+					}
+				}
+				getMomentsWithinRadius(momentsInStates).then(function(moments) {
+					deferred.resolve(moments);
+					$ionicLoading.hide();
+				}, function(error) {
+					console.log("ERROR");
+					console.log(error.message);
+				});
+			}, function(error) {
+				console.log("COULD NOT GET MOMENTS BY STATE");
+				console.log(error.message);
+			});
+		}, function(error) {
+			console.log("CALCULATE NEARBY STATES ERROR");
+			console.log(error.message);
+		});
+return deferred.promise;
+};
+
+function filterMoments(moments) {
+	var result = moments;
+	if(moments) {
+		for(var i = 0; i < moments.length;) {
 					//Make not null
 					if(!(moments[i].uuids.includes(core.getUUID()))) {
 						result.splice(i, 1);
@@ -43,33 +223,31 @@
 						i++;
 					}
 				}
-	}
-	return result;
-};
-
-function updateObject(liked, counter) {
-	console.log(momentArray.length);
-	if(momentArray[counter]) {
-		var views = (parseInt(momentArray[counter].views) + 1).toString();
-		var moment = 
-		{	key: momentArray[counter].key,
-			location: momentArray[counter].location,
-			likes: momentArray[counter].likes,
-			description: momentArray[counter].description,
-			views: views,
-			uuids: core.getUUID()
+			}
+			return result;
 		};
-		if(liked) {
-			var likes = parseInt(moment.likes) + 1;
-			moment.likes = likes.toString();
-		}
-		console.log("TEST2");
-		moment.uuids = moment.uuids + " " + core.getUUID();
-		core.edit(moment.key, {uuids: moment.uuids, likes: moment.likes});
-		momentArray[counter] = moment;
-	}
+
+		function updateObject(liked, counter) {
+			if(momentArray[counter]) {
+				var views = (parseInt(momentArray[counter].views) + 1).toString();
+				var moment = 
+				{	key: momentArray[counter].key,
+					location: momentArray[counter].location,
+					likes: momentArray[counter].likes,
+					description: momentArray[counter].description,
+					views: views,
+					time: momentArray[counter].time,
+					uuids: core.getUUID()
+				};
+				if(liked) {
+					var likes = parseInt(moment.likes) + 1;
+					moment.likes = likes.toString();
+				}
+				moment.uuids = moment.uuids + " " + core.getUUID();
+				core.edit(moment.key, {uuids: moment.uuids, likes: moment.likes});
+				momentArray[counter] = moment;
+			}
 	else { //If user hits button on No Results Found screen
-		console.log("TEST");
 		return undefined;
 	}
 };

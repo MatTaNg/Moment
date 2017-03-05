@@ -33,22 +33,6 @@
 			console.log("FEEDBACK");
 			console.log(feedback);
 			core.logFile(feedback, createKey(isBug));
-			// var s3 = core.initiateBucket();
-			// var key = createKey(isBug);
-			// var params = {
-			// 	Bucket: core.getBucketName(),
-			// 	Key: key
-			// };
-			// s3.getObject(params, function(error, data) {
-			// 	if(error) {
-			// 		console.log(error, error.stack);
-			// 	}
-			// 	else {
-			// 		feedback = data.Body.toString() + "\r\n" + feedback;
-			// 		var blob = new Blob([feedback], {type: "text"});
-			// 		var file =  new File([blob], key);
-			// 		core.upload(file, key, {});
-			// 	}
 			};
 
 		};

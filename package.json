@@ -19,6 +19,11 @@
     "browserify-shim": "^3.8.13",
     "gulp-jshint": "^2.0.4",
     "gulp-util": "^2.2.14",
+    "jasmine-core": "^2.5.2",
+    "karma": "^1.4.1",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-phantomjs-launcher": "^1.0.2",
     "shelljs": "^0.3.0",
     "vinyl-source-stream": "^1.1.0"
   },

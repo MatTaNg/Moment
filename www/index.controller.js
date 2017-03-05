@@ -2,19 +2,18 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', IndexController]);
+  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', IndexController]);
   
-  function IndexController($scope, $stateParams, $state, $q, core, $location) {
+  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner) {
     var indexController = this,
         enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
 
     indexController.camera = camera;
     indexController.gallery = gallery;
     indexController.redirectMyMoments = redirectMyMoments;
+    $ionicContentBanner.show({text: ["TEST"]});
 
     function redirectMyMoments() {
-      console.log("REDIRECT");
-      // $location.path("#/page1/myMoments");
       $state.go("tabsController.myMoments");
     }
 
@@ -54,7 +53,7 @@
 
         function onSuccess(imageURI) {
           var picture = "data:image/jpeg;base64," + imageURI;
-          $state.go('tabsController.submitMoment', {picture: picture});
+          $state.go('submitMoment', {picture: picture});
         }
 
         function onFail(message) {

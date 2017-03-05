@@ -1,71 +1,56 @@
 (function() {
 	angular.module('core', [])
 
-	.service('core', ['$cordovaGeolocation', '$http', '$q', '$ionicLoading', core]);
+	.service('core', ['$cordovaGeolocation', '$q', '$http', 'constants', core]);
 
-	function core($cordovaGeolocation, $http, $q, $ionicLoading){
+	function core($cordovaGeolocation, $q, $http, constants){
 		var vm = this;
-		//Constants
-		vm.max_description_length = 180;
-		vm.hoursBetweenMoments = 12;
-		vm.bestMomentsRatio = 0.5;
 
-		bucketName = 'mng-moment',
-		bucketRegion = 'us-east-1',
-		key = 'AKIAIJTJGHYI2C7CYWDA',
-		IdentityPoolId = 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4',
-		moment_prefix = 'test/',
-		bestMoments_prefix = 'bestMoments/',
-		feedback_prefix = 'reports/feedback/',
-		bug_prefix = 'reports/bugs/',
-		imageUrl = 'https://s3.amazonaws.com/' + bucketName + '/',
-		momentArray = [],
+		var moment_radius_in_miles = 25,
+		lat_mile_radius = 0.016880283 * moment_radius_in_miles, //1 mile distance between two points * perferred radius
+		lng_mile_radius = 0.019158007 * moment_radius_in_miles, //1 mile distance between two points * perferred radius
+
 		verifyMetaData = verifyMetaData,
-		timeElapsed = timeElapsed,
 		splitUrlOff = splitUrlOff;
 
-		vm.getMomentPrefix = getMomentPrefix;
-		vm.getBestMomentPrefix = getMomentPrefix;
-		vm.getFeedbackPrefix = getFeedbackPrefix;
-		vm.getBugPrefix = getBugPrefix;
-		vm.getBucketName = getBucketName;
-		vm.getBucketRegion = getBucketRegion;
-		vm.getKey = getKey;
+		vm.userLocation = {lat: "lat", lng: "lng", town: "town", state: "state"};
+
+		vm.initializeUserLocation = initializeUserLocation,
+		vm.timeElapsed = timeElapsed,
 		vm.getCurrentTime = getCurrentTime;
-		vm.getDeviceLocation = getDeviceLocation;
-		vm.getCalculateDistance = calculateDistance;
-		vm.getTownName = getTownName;
+		vm.getCurrentLatLong = getCurrentLatLong;
 		vm.getUUID = getUUID;
+		vm.getLatMileRadius = getLatMileRadius;
+		vm.getLngMileRadius = getLngMileRadius;
+		vm.getDeviceLocation = getDeviceLocation;
 
 		vm.initiateBucket = initiateBucket;
 		vm.remove = remove;
 		vm.edit = edit;
 		vm.upload = upload;
-		vm.initiateMoments = initiateMoments;
 		vm.logFile = logFile;
 
-		function getMomentPrefix() {
-			return moment_prefix;
+		function getLatMileRadius() {
+			return lat_mile_radius;
 		};
-		function getBestMomentPrefix() {
-			return bestMoments_prefix;
+
+		function getLngMileRadius() {
+			return lng_mile_radius;
 		};
-		function getFeedbackPrefix() {
-			return feedback_prefix;
+
+		function getMomentRadiusInMiles() {
+			return moment_radius_in_miles
 		};
-		function getBugPrefix() {
-			return bug_prefix;
-		};
-		function getBucketName() {
-			return bucketName;
-		};
-		function getBucketRegion() {
-			return bucketRegion;
-		};
-		function getKey() {
-			return key;
-		};
+
+		function setMomentRadiusInMiles(newRadius) {
+			moment_radius_in_miles = newRadius;
+		}
+
 		function initiateBucket() {
+			var albumBucketName = 'mng-moment';
+			var bucketRegion = 'us-east-1';
+			var IdentityPoolId = 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4';
+
 			AWS.config.update({
 				region: bucketRegion,
 				credentials: new AWS.CognitoIdentityCredentials({
@@ -73,12 +58,10 @@
 				})
 			});
 
-			var s3 = new AWS.S3({
+			return new AWS.S3({
 				apiVersion: '2006-03-01',
-				params: {Bucket: bucketName}
+				params: {Bucket: albumBucketName}
 			});
-
-			return s3;
 		};
 
 		function splitUrlOff(key) {
@@ -96,13 +79,12 @@
 //Doesnt Work
 function remove(imageLocation) {
 	var params = {
-		Bucket: bucketName,
-		Key: moment_prefix + imageLocation
+		Bucket: constants.BUCKET_NAME,
+		Key: constants.MOMENT_PREFIX + imageLocation
 	};
 	var s3 = vm.initiateBucket();
 	s3.deleteObject(params, function(error, data) {
 		if(!error) {
-			console.log("SUCCESS");
 			console.log(data.DeleteMarker());
 			console.log("PATH: " + imagePath);
 		}
@@ -117,7 +99,8 @@ var verifyMetaData = function(metaData) {
 	return (
 		metaData.location &&
 		metaData.likes &&
-		metaData.description &&
+		metaData.description !== undefined &&
+		metaData.time &&
 		metaData.views &&
 		metaData.uuids
 		);
@@ -128,8 +111,8 @@ function edit(key, metaData){
 		key = splitUrlOff(key);
 		var s3 = vm.initiateBucket();
 		var params = {
-			Bucket: bucketName,
-			CopySource: bucketName + '/' + key,
+			Bucket: constants.BUCKET_NAME,
+			CopySource: constants.BUCKET_NAME + '/' + key,
 			Key: key,
 			Metadata: metaData,
 			MetadataDirective: "REPLACE"
@@ -172,7 +155,7 @@ function uploadToBestMoments(file, key, metaData) {
 				return false;
 			}
 			else {
-				logFile("Uploaded: " + file, 'logs.txt');
+				logFile("Uploaded to Best Moments: " + file, 'logs.txt');
 				console.log("Successfully Uploaded to S3");
 				return true;
 			}
@@ -184,7 +167,7 @@ function logFile(message, key) {
 	var s3 = vm.initiateBucket();
 	var key = 'reports/' + key;
 	var params = {
-		Bucket: bucketName,
+		Bucket: constants.BUCKET_NAME,
 		Key: key
 	};
 	s3.getObject(params, function(error, data) {
@@ -206,9 +189,12 @@ function logFile(message, key) {
 };
 
 function upload(file, key, metaData) {
-	if(key.includes('reports') || verifyMetaData(metaData)) {
+	console.log("KEY");
+	console.log(key);
+	if(verifyMetaData(metaData)) {
 		var s3 = vm.initiateBucket();
-		uploadToBestMoments(file, key, metaData);
+		console.log(s3);
+		// uploadToBestMoments(file, key, metaData);
 		// var key = moment_prefix + file.name;
 		s3.upload({
 			Key: key,
@@ -218,8 +204,6 @@ function upload(file, key, metaData) {
 		}, function(err, data) {
 			if (err) {
 				console.log(err.message);
-				console.log("FILE: " + file);
-				console.log("META: " + metaData)
 				return false;
 			}
 			else {
@@ -280,121 +264,65 @@ function timeElapsed(time) {
 		}
 	};
 
-	function getDeviceLocation() {
-		return "Narberth, PA";
-		// var posOptions = {timeout: 10000, enableHighAccuracy: false};
-		// $cordovaGeolocation.getCurrentPosition(posOptions)
-		// .then(function(position) {
-		// 	console.log("SUCCESS");
-		// 	return getTownName(latitude, longitude);
-		// }, function(error) {
-		// 	console.log("ERROR");
-		// 	console.log(error.message);
-		// });
-};
+	function initializeUserLocation() {
+		var deferred = $q.defer();
 
-function calculateDistance(lat1, lat2, long1, long2) {
-		var R = 6371e3; // metres
-		var φ1 = lat1.toRadians();
-		var φ2 = lat2.toRadians();
-		var Δφ = (lat2-lat1).toRadians();
-		var Δλ = (long2-long1).toRadians();
-
-		var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-		Math.cos(φ1) * Math.cos(φ2) *
-		Math.sin(Δλ/2) * Math.sin(Δλ/2);
-		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-		var d = R * c;
-		return d;
+		getCurrentLatLong().then(function(response) {
+			var lat = response.lat;
+			var lng = response.lng;
+			getDeviceLocation(lat, lng).then(function(response) {
+				var town = response.split(',')[0].trim();
+				var state = response.split(',')[1].trim();
+				vm.userLocation = {lat: lat, lng: lng, town: town, state: state}; 
+				deferred.resolve(vm.userLocation);
+			}, function(error) {
+				deferred.reject(error.message);
+			});
+		}, function(error) {
+			console.log("ERROR");
+			console.log(error.message);
+			deferred.reject(error.message)
+		});
+		return deferred.promise;
 	};
 
-	function getTownName(lat, lng) {
-		alert("GET TOWN NAME");
+	function getCurrentLatLong() {
+		var deferred = $q.defer();
+		var posOptions = {timeout: 10000, enableHighAccuracy: false};
+		$cordovaGeolocation.getCurrentPosition(posOptions)
+		.then(function(position) {
+			var lat = position.coords.latitude;
+			var lng = position.coords.longitude;
+
+	      // var url = 'https://civinfo-apis.herokuapp.com/civic/geolocation?latlng=' + lat + ',' + lng;
+	      deferred.resolve({lat: lat, lng: lng});
+	  }, function(error) {
+	  	deferred.reject(error);
+	  	console.log("ERROR");
+	  	console.log(error.message);
+	  });
+		return deferred.promise;
+	};
+
+	function getDeviceLocation(lat, lng) {
+		var deferred = $q.defer();
 		var url = 'https://civinfo-apis.herokuapp.com/civic/geolocation?latlng=' + lat + ',' + lng;
+
 		$http.get(url).then(function(response) {
-			if(response.data.results.length) {
-				console.log("SUCCESS");
-				console.log(response.data.results[0]);
-				return response.data.results[0];
-			}
-			else {
-				console.log("UNKNOWN LOCATION");
-			}
-		},
-		function(error) {
-			console.log("ERROR");
-			console.log(error.message)
+			// key = constants.MOMENT_PREFIX + response.data.results[6].formatted_address + '/' + key + '.jpeg';
+			response = response.data.results[2].formatted_address;
+			response = response.slice(0, response.lastIndexOf(','));
+			response = response.replace(/[0-9]/g, '');
+			deferred.resolve(response);
+		}, function(error) {
+			deferred.reject(error);
 		});
+		return deferred.promise;
 	};
 
 	function getUUID() {
 		return "123"; //Temporary
 	};
 
-	function initiateMoments(prefix) {
-		momentArray = [];
-		var deferred = $q.defer();
-		var s3 = vm.initiateBucket();
-		var imageURL;
-		var metaData;
-		var params = {
-			Bucket: bucketName,
-			Prefix: prefix
-		};
-		$ionicLoading.show({
-			template: '<ion-spinner></ion-spinner>'
-		});
-		s3.listObjectsV2(params, function(error, data) {
-			if (error) {
-				console.log("ERROR");
-				console.log(error.stack);
-				deferred.reject(error);
-			}
-			else {
-				$ionicLoading.hide();
-				var tempImageArray = [];
-				for(var i = 0; i < data.Contents.length; i++) {
-				//Push all images from the DB onto an array.  We filter them later.
-				if(i > 0) //The first key listed is always the folder, skip that.
-					tempImageArray.push(data.Contents[i].Key);
-			}
-			for(var x = 0; x < tempImageArray.length; x++) {
-				(function(x) {
-					var params = {
-						Bucket: bucketName,
-						Key: tempImageArray[x]
-					};
-					s3.headObject(params, function(error, data) {
-						if(error) {
-							console.log("ERROR");
-							console.log(error.stack);
-							deferred.reject(error);
-						}
-						else {
-							var time = timeElapsed(data.Metadata.time);
-							momentArray.push({ 
-								key: imageUrl + tempImageArray[x], 
-								description: data.Metadata.description,
-								likes: data.Metadata.likes,
-								location: data.Metadata.location,
-								time: time,
-								uuids: data.Metadata.uuids,
-								views: data.Metadata.views
-							});
-							if(momentArray.length === tempImageArray.length) {
-								deferred.resolve(momentArray);
-							}
-						}
-					});
-				})(x);
-			} //End of second for loop
-			if(tempImageArray.length === 0)
-				deferred.resolve(tempImageArray);
-		}
-	}); //End of listObjects
-return deferred.promise;
-
-};
 };
 })();
