@@ -23,6 +23,7 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
 
   .state('tabsController.moments', {
     url: '/moments',
+    cache: false,
     views: {
       'tab1': {
         templateUrl: 'moments/moments.html',

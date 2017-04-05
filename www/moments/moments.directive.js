@@ -25,20 +25,13 @@
           if(newValue) {
             $timeout(
               function() {
-                console.log("OFFSET");
-                console.log(element[0]);
-                console.log(element[0].offsetHeight);
                 if(element[0].offsetHeight > 60) {
-                  console.log("CONTRACT");
                   scope.showHR = true;
-                  console.log(scope);
                   scope.vm.moment.toggleDescription = 'contracted';
                 }
                 else {
-                  console.log("EXPAND");
                   scope.showHR = false;
                   scope.vm.moment.toggleDescription = 'expanded';
-                  console.log(scope.vm.moment.toggleDescription);
                 }
               }
 

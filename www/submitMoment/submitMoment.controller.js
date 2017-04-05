@@ -2,74 +2,79 @@
 
   angular.module('app.SubmitMomentController', [])
 
-  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'submitMomentService', '$q', 'constants', '$http', '$ionicLoading', SubmitMomentController]);
-  function SubmitMomentController($stateParams, $state, core, submitMomentService, $q, constants, $http, $ionicLoading) {
+  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'submitMomentService', '$q', 'constants', '$http', '$ionicLoading', '$ionicContentBanner', SubmitMomentController]);
+  function SubmitMomentController($stateParams, $state, core, submitMomentService, $q, constants, $http, $ionicLoading, $ionicContentBanner) {
     var vm = this,
     key = '',
     updateMetaData = updateMetaData,
     metaData = {location: 'Unknown',
-              likes: "0",
-              time: "",
-              description: "",
-              views: "0",
-              uuids: core.getUUID()
-            };
+    likes: "0",
+    time: "",
+    description: "",
+    views: "0",
+    uuids: core.getUUID()
+  };
 
-    vm.picture = $stateParams.picture;
-    vm.maxChars = constants.MAX_DESCRIPTION_LENGTH;
-    vm.location = true;
-    vm.moment = { description: ""};
-    vm.changeLocation = changeLocation;
-    vm.cancel = cancel;
-    vm.charLimit = charLimit;
-    vm.submit = submit;
+  vm.picture = $stateParams.picture;
+  vm.maxChars = constants.MAX_DESCRIPTION_LENGTH;
+  vm.location = true;
+  vm.moment = { description: ""};
+  vm.changeLocation = changeLocation;
+  vm.cancel = cancel;
+  vm.charLimit = charLimit;
+  vm.submit = submit;
 
-    if(!core.userLocation) {
-      $ionicLoading.show({
-        template: '<ion-spinner></ion-spinner>'
-      });
-      core.initializeUserLocation().then(function(response) {
-        $ionicLoading.hide();
-      }, function(error) {
-        console.log("ERROR");
-        console.log(error.message);
-      })
-    }
+  if(!core.userLocation) {
+    $ionicLoading.show({
+      template: '<ion-spinner></ion-spinner>'
+    });
+    core.initializeUserLocation().then(function(response) {
+      $ionicLoading.hide();
+    }, function(error) {
+      console.log("ERROR");
+      console.log(error.message);
+    })
+  }
 
-    function changeLocation() {
-      console.log(vm.location);
-      vm.location = !vm.location;
-      console.log(vm.location);
-    };
+  function changeLocation() {
+    console.log(vm.location);
+    vm.location = !vm.location;
+    console.log(vm.location);
+  };
 
-    function cancel() {
-      $state.go("tabsController.moments");
-    };
+  function cancel() {
+    $state.go("tabsController.moments");
+  };
 
-    function charLimit() {
-      if(vm.description.length > 10)
-        return "color: red;"
-      else
-        return "color: green;"
-    };
+  function charLimit() {
+    if(vm.description.length > 10)
+      return "color: red;"
+    else
+      return "color: green;"
+  };
 
-    function submit() {
-      $ionicLoading.show({
-        template: '<ion-spinner></ion-spinner>'
-      });
-      if(vm.moment.description.length <= vm.maxChars) {
-        updateMetaData()
-        $ionicLoading.hide();
+  function submit() {
+    $ionicLoading.show({
+      template: '<ion-spinner></ion-spinner>'
+    });
+    if(vm.moment.description.length <= vm.maxChars) {
+      updateMetaData()
+      $ionicLoading.hide();
           //Key = prefix/State/Lat, Long.jpg
-          var key = constants.MOMENT_PREFIX + core.userLocation.state + '/' + core.userLocation.lat + ',' + core.userLocation.lng + '.jpg';
-          submitMomentService.updateTime();
+          var key = constants.MOMENT_PREFIX + core.userLocation.state + '/' + core.userLocation.lat + ',' + core.userLocation.lng;
           submitMomentService.uploadToLocalStorage(vm.picture, metaData);
           submitMomentService.uploadToAWS(key, vm.picture, metaData);
+          alert("Submitted");
+          submitMomentService.updateTime();
           $state.go('tabsController.moments');
-
         }
         else {
-          alert("Your description is too long.");
+          $ionicLoading.hide();
+          console.log("SUBMITION FAILED");
+          $ionicContentBanner.show({
+            text: ["Your description is too long."],
+            autoClose: 3000
+          });
         }
       };
 

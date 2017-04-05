@@ -5,7 +5,9 @@
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
   <title></title>
   <script src="lib/ionic/js/ionic.bundle.js"></script>
-
+  <script src="lib/ionic-content-banner/dist/ionic.content.banner.js"></script>
+  <script src="lib/ionic-ion-tinder-cards/ionic.tdcards.js"></script>
+  <script src="lib/collide/collide.js"></script>
   <!-- cordova script (this will be a 404 during development) -->
   <script src="cordova.js"></script>
 
@@ -13,7 +15,7 @@
     <link href="css/ionic.app.css" rel="stylesheet">
   -->
   <link rel="stylesheet" href="lib/ionic-content-banner/dist/ionic.content.banner.css">
-  <script src="lib/ionic-content-banner/dist/ionic.content.banner.js"></script>
+  <link rel="stylesheet" href="lib/ionic-ion-tinder-cards/ionic.tdcards.css">
 
   <link href="lib/ionic/css/ionic.css" rel="stylesheet">
 
@@ -73,13 +75,39 @@
   .ion-ios-location-outline {
     font-size:20px;
   }
+  .on-drag-next {
+    position: absolute;
+    left: 65%;
+    top: 3%;
+    z-index: 10;
+  }
+  .on-drag-liked {
+    position: absolute;
+    left: 5%;
+    top: 3%;
+    z-index: 10;
+  }
+  .layer-top {
+    position: absolute;
+    z-index: 2;
+    width: 95%;
+    height: 100%;
+    background-color: white;
+  }
+  .layer-bottom {
+    position: absolute;
+    z-index: 1;
+    width: 95%;
+    height: 100%;
+    background-color: white;
+  }
   </style>
 
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.27.min.js"></script>
 
-  <script src="bestmoments/bestMoments.module.js"></script>
-  <script src="bestmoments/bestMoments.controller.js"></script>
-  <script src="bestmoments/bestMoments.service.js"></script>
+  <script src="bestMoments/bestMoments.module.js"></script>
+  <script src="bestMoments/bestMoments.controller.js"></script>
+  <script src="bestMoments/bestMoments.service.js"></script>
 
   <script src="moments/moments.module.js"></script>
   <script src="moments/moments.controller.js"></script>

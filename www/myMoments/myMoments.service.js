@@ -1,9 +1,9 @@
 (function() {
 	angular.module('myMomentsService', [])
 
-	.service('myMomentsService', ['core', myMomentsService]);
+	.service('myMomentsService', ['core', '$q', myMomentsService]);
 
-	function myMomentsService(core) {
+	function myMomentsService(core, $q) {
 		var findMoment = findMoment,
 		createKey = createKey;
 
@@ -30,10 +30,18 @@
 		};
 
 		function uploadFeedback(feedback, isBug) {
+			var defered = $q.defer();
 			console.log("FEEDBACK");
-			console.log(feedback);
-			core.logFile(feedback, createKey(isBug));
-			};
-
+			console.log(core.logFile(feedback, createKey(isBug)));
+			core.logFile(feedback, createKey(isBug)).then(function() {
+				console.log("RESOLVE");
+				defered.resolve();
+			}, function(error) {
+				console.log("REJECT");
+				defered.reject(error);
+			});
+			return defered.promise;
 		};
+
+	};
 })();

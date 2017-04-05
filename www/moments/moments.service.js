@@ -5,6 +5,7 @@
 
 	function momentsService(core, $q, $ionicLoading, constants){
 		var momentArray = [];
+		var momentArrayLength = 0; //For some reason changing momentArray in the controller affects the momentArray in the service
 		var currentCoordinates;
 		var deferred = $q.defer();
 		var s3 = core.initiateBucket();
@@ -37,25 +38,16 @@
 				lng = coordinates[1].split('.');
 				lng.pop();
 				lng = (lng[0] + "." + lng[1]).trim();
+				lng = lng.split("_")[0];
 				var result = {latitude: lat, longitude: lng};
 				return result;
 			}
 		};
 
 		function filterImage(key) {
-			console.log("FILTER KEY");
 			var coordinates = extractCoordinatesFromKey(key);
 			var lat = coordinates.latitude;
 			var lng = coordinates.longitude;
-			console.log(coordinates);
-			console.log(max_north);
-			console.log(max_south);
-			console.log(max_west);
-			console.log(max_east);
-			console.log(lat < max_north);
-			console.log(lat > max_south);
-			console.log(lng > max_west);
-			console.log(lng < max_east);
 			if((lat < max_north.lat && lat > max_south.lat) &&
 				(lng > max_west.lng && lng < max_east.lng )) {
 				return true;
@@ -66,6 +58,7 @@
 	};
 
 	function calculateNearbyStates() {
+		console.log("CALCULATE NEARBY STATES");
 		var deferred = $q.defer();
 
 		core.initializeUserLocation().then(function(locationData) {
@@ -103,12 +96,13 @@
 		}, function(error) {
 			deferred.reject(error);
 			console.log("COULD NOT GET LOCATION");
-			console.log(error.message);
+			console.log(error);
 		});
 return deferred.promise;
 };
 
 function getMomentsByState(states) {
+	console.log("GET MOMENTS BY STATE");
 	var result = [];
 	for(var i = 0; i < states.length; i++) {
 		(function(i) {
@@ -126,7 +120,7 @@ function getMomentsByState(states) {
 				}
 				else {
 					console.log("ERROR");
-					console.log(error.message);
+					console.log(error);
 				}
 			});
 		})(i);
@@ -135,8 +129,6 @@ function getMomentsByState(states) {
 };
 
 function getMomentsWithinRadius(momentsInStates) {
-	console.log("MOMENTS IN STATES");
-	console.log(momentsInStates);
 	var deferred = $q.defer();
 	for(var i = 0; i < momentsInStates.length; i++) {
 		(function(i) {
@@ -146,8 +138,6 @@ function getMomentsWithinRadius(momentsInStates) {
 			};
 			s3.headObject(params, function(error, data) {
 				if(!error) {
-					console.log("KEY");
-					console.log(momentsInStates[i].Key);
 					var time = core.timeElapsed(data.Metadata.time);
 					momentArray.push({ 
 						key: constants.IMAGE_URL + momentsInStates[i].Key, 
@@ -159,6 +149,9 @@ function getMomentsWithinRadius(momentsInStates) {
 						views: data.Metadata.views
 					});
 					if(momentArray.length === momentsInStates.length) {
+						momentArrayLength = momentArray.length;
+						console.log("MOMENT ARRAY");
+						console.log(momentArray);
 						deferred.resolve(momentArray);
 					}
 				}
@@ -170,6 +163,9 @@ function getMomentsWithinRadius(momentsInStates) {
 			});
 		})(i);
 	}
+	if(momentsInStates.length === 0) {
+		deferred.resolve();
+	}
 	return deferred.promise;
 };
 
@@ -177,10 +173,10 @@ function initializeView() {
 	var deferred = $q.defer();
 	momentArray = [];
 
-	$ionicLoading.show({
+	var ionicLoading = $ionicLoading.show({
 		template: '<ion-spinner></ion-spinner>'
-	});
-calculateNearbyStates().then(function(states) {
+	}).then(function() {
+		calculateNearbyStates().then(function(states) {
 			//We cannot load all the images in the AWS database.
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
@@ -194,8 +190,9 @@ calculateNearbyStates().then(function(states) {
 					}
 				}
 				getMomentsWithinRadius(momentsInStates).then(function(moments) {
-					deferred.resolve(moments);
-					$ionicLoading.hide();
+					$ionicLoading.hide().then(function() {
+						deferred.resolve(moments);		
+					});
 				}, function(error) {
 					console.log("ERROR");
 					console.log(error.message);
@@ -208,6 +205,7 @@ calculateNearbyStates().then(function(states) {
 			console.log("CALCULATE NEARBY STATES ERROR");
 			console.log(error.message);
 		});
+});
 return deferred.promise;
 };
 
@@ -239,13 +237,23 @@ function filterMoments(moments) {
 					time: momentArray[counter].time,
 					uuids: core.getUUID()
 				};
+
+				delete moment["swipedRight"];
+				delete moment["swipedLeft"];
+				//Angular puts attributes on our object to track it.  Delete it.
+				delete moment["$$hashkey"];
+				delete moment["class"];
 				if(liked) {
 					var likes = parseInt(moment.likes) + 1;
 					moment.likes = likes.toString();
+					console.log(moment.likes);
 				}
 				moment.uuids = moment.uuids + " " + core.getUUID();
-				core.edit(moment.key, {uuids: moment.uuids, likes: moment.likes});
+				core.edit(moment.key, moment);
+				console.log("TEST");
+				console.log(momentArray);
 				momentArray[counter] = moment;
+				console.log(momentArray);
 			}
 	else { //If user hits button on No Results Found screen
 		return undefined;
@@ -253,7 +261,9 @@ function filterMoments(moments) {
 };
 
 function incrementCounter(counter){
-	if(counter + 1 < momentArray.length) {
+	console.log("LENGTH");
+	console.log(momentArrayLength);
+	if(counter + 1 < momentArrayLength) {
 		return (counter + 1);
 	}
 	else {

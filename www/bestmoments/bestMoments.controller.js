@@ -25,6 +25,5 @@
 				console.log(error.stack);
 			});
 		};
-
 	};
 })();

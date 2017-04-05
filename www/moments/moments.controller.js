@@ -1,43 +1,67 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', MomentsController]);
+	.controller('MomentsController', ['momentsService', '$stateParams', '$ionicContentBanner', '$window', 'core', MomentsController]);
 
-	function MomentsController (momentsService) {
+	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core) {
 		var vm = this;
 		vm.currentImage;
 		vm.moment = {toggleDescription: "expanded"};
 		vm.imageArray = [];
 		vm.counter = 0;
 		vm.showHR = false;
+		vm.cardCSSClass = "layer-bottom";
+		vm.swipedLeft = false;
+		vm.swipedRight = false;
 		vm.liked = liked;		
 		vm.toggleDescription = toggleDescription;
+		vm.dragRight = dragRight;
+		vm.dragLeft = dragLeft;
+		vm.release = release;
 
-		// console.log(moments);
-		initialize();
-		// function initialize() {
-		// 	console.log(moments.length);
-		// 	if(moments.length > 0) {
-		// 		vm.imageArray = moments;
-		// 		vm.currentImage = moments[0];
-		// 	}
-		// 	else {
-		// 		vm.currentImage = undefined;
-		// 	}
+		this.cards = {};
+
+		function dragRight() {
+			vm.imageArray[0].swipedRight = true;
+		};
+
+		function dragLeft() {
+			vm.imageArray[0].swipedLeft = true;
+		};
+
+		function release() {
+			if(vm.imageArray[0].swipedRight) {
+				liked(true);
+			}
+			if(vm.imageArray[0].swipedLeft) {
+				liked(false);
+			}
+			vm.imageArray[0].swipedRight = false;
+			vm.imageArray[0].swipedLeft = false;
+		};		
+
+		// this.cardDestroyed = function(index) {
+		// 	console.log("ON DESTROY");
+		// 	this.imageArray.splice(index, 1);
 		// };
+		if(vm.imageArray.length === 0) {
+			initialize();
+		}
 		function initialize() { 
 			momentsService.initializeView()
 			.then(function(moments){
-				console.log("MOMENTS");
-				console.log(moments);
-				if(moments.length > 0) {
-					console.log("MOMENT ARRAY");
+				if(moments) {
+					for(var i = 1; i < moments.length; i++) {
+						moments[i].class = "layer-bottom";
+					}
+					moments[0].class = "layer-top";
+					// vm.imageArray.push(moments[0]);
 					vm.imageArray = moments;
 					vm.currentImage = moments[0];
-					console.log(vm.currentImage);
 				}
 				else {
-					vm.currentImage = undefined;
+					console.log("INITALIZE FAIL");
+					vm.imageArray = undefined;
 				}
 			}, function(error) {
 				vm.currentImage = undefined;
@@ -46,42 +70,48 @@
 		};
 
 		function liked(liked) {
-			// console.log("LIKED");
-			// console.log(momentsService.getDeviceLocation());
-			// console.log(momentsService.getDeviceLocation());
-			var counter = vm.counter;
+			core.checkAndDeleteExpiredMoment(vm.imageArray[0]);
+			// vm.imageArray.splice(0, 1);
+			// var counter = vm.counter;
 
-			momentsService.updateObject(liked, counter);
+			// momentsService.updateObject(liked, counter);
 
-			counter = momentsService.incrementCounter(counter);
-			if(counter === -1) {
-				counter = 0;
-				momentsService.initializeView()
-				.then(function(moments){
-					if(moments.length > 0) {
-						vm.imageArray = moments;
-						vm.currentImage = moments[0];
-					}
-					else {
-						vm.currentImage = undefined;
-					}
-				}, function(error) {
-					vm.currentImage = undefined;
-				});
-			//TODO: Try to fetch more moments
-		}
-		else {
-			vm.currentImage = momentsService.getMoments()[counter];
-		}
-		vm.counter = counter;
+			// counter = momentsService.incrementCounter(counter);
+			// console.log("COUNTER");
+			// console.log(counter);
+			// if(counter === -1) {
+			// 	counter = 0;
+			// 	momentsService.initializeView()
+			// 	.then(function(moments){
+			// 		if(moments.length > 0) {
+			// 			for(var i = 1; i < moments.length; i++) {
+			// 				moments[i].class = "layer-bottom";
+			// 			}
+			// 			moments[0].class = "layer-top";
+			// 			vm.imageArray = moments;
+			// 			vm.currentImage = moments[0];
+			// 		}
+			// 		else {
+			// 			vm.currentImage = undefined;
+			// 		}
+			// 	}, function(error) {
+			// 		vm.currentImage = undefined;
+			// 	});
+			// }
+			// else {
+			// 	vm.imageArray[0].class = "layer-top";
+			// 	console.log("IMAGE ARRAY LENGTH");
+			// 	console.log(vm.imageArray.length);
+			// }
+			// vm.counter = counter;
+		};
+
+		function toggleDescription() {
+			if(vm.moment.toggleDescription === "contracted")
+				vm.moment.toggleDescription = "expanded";
+			else
+				vm.moment.toggleDescription = "contracted";
+		};
+
 	};
-
-	function toggleDescription() {
-		if(vm.moment.toggleDescription === "contracted")
-			vm.moment.toggleDescription = "expanded";
-		else
-			vm.moment.toggleDescription = "contracted";
-	};
-
-};
 })();

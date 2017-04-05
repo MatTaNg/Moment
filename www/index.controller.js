@@ -2,16 +2,15 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', IndexController]);
+  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', IndexController]);
   
-  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner) {
+  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants) {
     var indexController = this,
         enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
 
     indexController.camera = camera;
     indexController.gallery = gallery;
     indexController.redirectMyMoments = redirectMyMoments;
-    $ionicContentBanner.show({text: ["TEST"]});
 
     function redirectMyMoments() {
       $state.go("tabsController.myMoments");
@@ -62,8 +61,10 @@
       }
     };
     function enoughTimePassedBetweenMoments() {
+      console.log("ENOUGH TIME PASSED");
+      console.log(localStorage.getItem('timeSinceLastMoment'));
       var currentTime = new Date().getTime();
-      var milisecondsBetweenMoments = core.hoursBetweenMoments * 3600000;
+      var milisecondsBetweenMoments = constants.hoursBetweenMoments * 3600000;
       return (currentTime > milisecondsBetweenMoments + localStorage.getItem('timeSinceLastMoment'))
     };
   };

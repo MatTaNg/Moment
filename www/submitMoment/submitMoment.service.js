@@ -15,7 +15,7 @@
 
 		function uploadToAWS(key, picture, metaData) {
 			var blob = new Blob([dataURItoBlob(picture)], {type: 'image/jpeg'});
-			var file = new File([blob], metaData.location + 'jpeg');
+			var file = new File([blob], metaData.location);
 			core.upload(file, key, metaData);
 		};
 
@@ -50,7 +50,6 @@
 
       // write the ArrayBuffer to a blob, and you're done
       var blob = new Blob([ab], {type: mimeString});
-      alert(blob);
       return blob;
   };
 };

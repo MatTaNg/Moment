@@ -50,12 +50,18 @@
 								e.preventDefault();
 							}
 							else {
-								myMomentsService.uploadFeedback(vm.moment.feedback, vm.moment.isBug);
-
-								$ionicPopup.alert({
-									title: '<b>Thank you for your feedback!</b>',
-									template: '<img width="100%" height="100%" src="/img/thankYou.png"></img>'
+								myMomentsService.uploadFeedback(vm.moment.feedback, vm.moment.isBug).then(function() {
+									$ionicPopup.alert({
+										title: '<b>Thank you for your feedback!</b>',
+										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
+									});
+								}, function(error) {
+									$ionicPopup.alert({
+										title: '<b>Something went wrong.  Sorry, our fault!</b>',
+										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
+									});
 								});
+
 							};
 						}
 						
