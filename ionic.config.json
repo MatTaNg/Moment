@@ -1,4 +1,5 @@
 {
-  "name": "moment",
-  "app_id": ""
+  "name": "test2",
+  "app_id": "8ccc69c5",
+  "defaultBrowser": "chrome"
 }

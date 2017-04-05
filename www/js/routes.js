@@ -1,4 +1,4 @@
-angular.module('app.routes', [])
+angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMoment', 'app.IndexController', 'mainview'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -13,8 +13,57 @@ angular.module('app.routes', [])
     controller: 'pageCtrl'
   })
 
-  $urlRouterProvider.otherwise('/page1')
+  .state('submitMoment', {
+    url: '/submitMoment',
+    params: {'picture' : null},
+    templateUrl: 'submitMoment/submitMoment.html',
+    controller: 'SubmitMomentController',
+    controllerAs: 'vm'
+  })
 
+  .state('tabsController.moments', {
+    url: '/moments',
+    cache: false,
+    views: {
+      'tab1': {
+        templateUrl: 'moments/moments.html',
+        controller: 'MomentsController',
+        controllerAs: 'vm'
+      }
+    }
+  })
+
+  .state('tabsController.bestMoments', {
+    url: '/bestMoments',
+    views: {
+      'tab2': {
+        templateUrl: 'bestMoments/bestMoments.html',
+        controller: 'BestMomentsController',
+        controllerAs: 'vm'
+      }
+    }
+  })
+
+  .state('tabsController.myMoments', {
+    url: '/myMoments',
+    cache:false,
+    views: {
+      'tab3': {
+        templateUrl: 'myMoments/myMoments.html',
+        controller: 'MyMomentsController',
+        controllerAs: 'vm'
+      }
+    }
+  })
+
+  .state('tabsController', {
+    url: '/page1',
+    templateUrl: 'layout/tabsController.html',
+    controller: 'IndexController',
+    abstract:true
+  })
+
+  $urlRouterProvider.otherwise('/page1/moments')
   
 
 });

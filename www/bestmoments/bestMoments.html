@@ -1,0 +1,20 @@
+<ion-view title="Best Moments" id="page3">
+<ion-content padding="true" class="has-header">
+
+<form id="bestMoments-form2" class="list">
+  <label class="item item-select" id="bestMoments-select3">
+    <span class="input-label" ng-model="sortBy">Sort By</span>
+    <select ng-model="vm.selectedOrder" ng-options="option for option in vm.options"></select>
+  </label>
+</form>
+
+<div ng-repeat="image in vm.imageArray | orderBy: vm.selectedOrder:!reverse">
+  <mng-mainview moment="image"></mng-mainview>
+  <hr style="margin: 2px">
+  <div class="row">
+    <div class="col" style="margin: 5px"> {{image.description}} </div>
+  </div>
+</div> <!--End of ng-repeat-->
+
+</ion-content>
+</ion-view>

@@ -30,6 +30,11 @@
   font-weight: normal;
   font-style: normal; }
 
+p.contracted {overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
+p.expanded {
+  text-overflow: initial;
+  white-space: initial;
+}
 .ion, .ionicons,
 .ion-alert:before,
 .ion-alert-circled:before,

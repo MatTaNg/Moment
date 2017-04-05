@@ -1,0 +1,17 @@
+<ion-view title="My Moments" id="page4">
+<ion-content padding="true" class="has-header">
+<div ng-show="vm.errorMessage" style="text-align: center; text-font: 18pt; margin: 10px">
+  No Moments to Show
+</div>
+<div ng-repeat="image in vm.myImages">
+  <mng-mainview moment="image"></mng-mainview>
+  <hr style="margin: 2px">
+  <div class="row">
+    <div class="col" style="margin: 5px"> {{image.description}} </div>
+  </div>
+</div> <!--End of ng-repeat -->
+<div class = "row">
+  <button class="col button button-assertive" data-ng-click="vm.feedback()" style="margin: 5px">Feedback</button>
+</div>
+</ion-content>
+</ion-view>

@@ -1,0 +1,20 @@
+<ion-view title="Moments" id="page2">
+<ion-content padding="true" class="has-header">
+
+<div ng-show="vm.imageArray">
+<td-cards>
+<td-card ng-repeat="image in vm.imageArray" on-destroy="vm.cardDestroyed($index)" 
+on-swipe-left="vm.liked(false)" on-swipe-right="vm.liked(true)" 
+on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release()"
+on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
+<mng-mainview moment="image"></mng-mainview>
+<img src="img/Like.png" ng-show="image.swipedRight" class="on-drag-liked"></img>
+<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next"></img>
+<strong>Description: </strong>
+{{ image.description }}
+</td-card>
+</td-cards>
+</div>
+<img src="img/No-results-found.png" ng-show="vm.imageArray.length === 0"></img>
+</ion-content>
+</ion-view>
