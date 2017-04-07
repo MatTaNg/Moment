@@ -58,7 +58,6 @@
 	};
 
 	function calculateNearbyStates() {
-		console.log("CALCULATE NEARBY STATES");
 		var deferred = $q.defer();
 
 		core.initializeUserLocation().then(function(locationData) {
@@ -102,7 +101,7 @@ return deferred.promise;
 };
 
 function getMomentsByState(states) {
-	console.log("GET MOMENTS BY STATE");
+	var deferred = $q.defer();
 	var result = [];
 	for(var i = 0; i < states.length; i++) {
 		(function(i) {
@@ -150,8 +149,6 @@ function getMomentsWithinRadius(momentsInStates) {
 					});
 					if(momentArray.length === momentsInStates.length) {
 						momentArrayLength = momentArray.length;
-						console.log("MOMENT ARRAY");
-						console.log(momentArray);
 						deferred.resolve(momentArray);
 					}
 				}
@@ -195,15 +192,22 @@ function initializeView() {
 					});
 				}, function(error) {
 					console.log("ERROR");
-					console.log(error.message);
+					console.log(error);
+					$ionicLoading.hide().then(function() {
+						deferred.reject(error);
+					});
 				});
 			}, function(error) {
-				console.log("COULD NOT GET MOMENTS BY STATE");
-				console.log(error.message);
+				$ionicLoading.hide().then(function() {
+					deferred.reject(error);
+				});
 			});
 		}, function(error) {
 			console.log("CALCULATE NEARBY STATES ERROR");
 			console.log(error.message);
+			$ionicLoading.hide().then(function() {
+				deferred.reject(error);
+			});
 		});
 });
 return deferred.promise;
@@ -249,11 +253,12 @@ function filterMoments(moments) {
 					console.log(moment.likes);
 				}
 				moment.uuids = moment.uuids + " " + core.getUUID();
-				core.edit(moment.key, moment);
-				console.log("TEST");
-				console.log(momentArray);
-				momentArray[counter] = moment;
-				console.log(momentArray);
+				core.edit(moment.key, moment).then(function() {
+					momentArray[counter] = moment;
+				}, function(error) {
+
+				});
+				
 			}
 	else { //If user hits button on No Results Found screen
 		return undefined;
@@ -261,8 +266,6 @@ function filterMoments(moments) {
 };
 
 function incrementCounter(counter){
-	console.log("LENGTH");
-	console.log(momentArrayLength);
 	if(counter + 1 < momentArrayLength) {
 		return (counter + 1);
 	}

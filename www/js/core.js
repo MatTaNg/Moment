@@ -4,7 +4,8 @@
  	.service('core', ['$cordovaGeolocation', '$q', '$http', 'constants', core]);
 
  	function core($cordovaGeolocation, $q, $http, constants){
- 		var vm = this;
+ 		var vm = this,
+ 		deferred = $q.defer();
 
  		var moment_radius_in_miles = 25,
 		lat_mile_radius = 0.016880283 * moment_radius_in_miles, //1 mile distance between two points * perferred radius
@@ -14,6 +15,7 @@
 		splitUrlOff = splitUrlOff;
 
 		vm.userLocation = {lat: "lat", lng: "lng", town: "town", state: "state"};
+		vm.moments = [];
 
 		vm.initializeUserLocation = initializeUserLocation,
 		vm.timeElapsed = timeElapsed,
@@ -77,23 +79,31 @@
 			return key;
 		};
 
-//Doesnt Work
+		function getImagePath(imageLocation) {
+			var result = imageLocation.split('/');
+			result = result[4] + '/' + result[5] + '/' + result[6]
+			return result;
+		};
+
 function remove(imageLocation) {
+	var imagePath = getImagePath(imageLocation);
+	var deferred = $q.defer();
 	var params = {
 		Bucket: constants.BUCKET_NAME,
-		Key: constants.MOMENT_PREFIX + imageLocation
+		Key: imagePath
 	};
 	var s3 = vm.initiateBucket();
 	s3.deleteObject(params, function(error, data) {
 		if(!error) {
-			console.log(data.DeleteMarker());
-			console.log("PATH: " + imagePath);
+			deferred.resolve();
 		}
 		else {
 			console.log("ERROR");
 			console.log(error.stack);
+			deferred.reject(error);
 		}
 	})
+	return deferred.promise;
 };
 
 var verifyMetaData = function(metaData) {
@@ -108,32 +118,25 @@ var verifyMetaData = function(metaData) {
 }
 
 function checkAndDeleteExpiredMoment(moment) {
-	console.log("DELETE EXPIRED MOMENTS");
-	console.log(moment);
 	var likes = moment.likes,
 		view = moment.views,
 		currentTime = new Date().getTime(),
 		timeElapsed = moment.timeElapsed,
 		miliseconds_in_a_day = 86400000;
-	console.log(currentTime - timeElapsed);
 	if(currentTime - miliseconds_in_a_day > timeElapsed) {
-		alert("Image Removed");
-		// remove(moment.key);
+		remove(moment.key);
 	}
 
 };
 
 function edit(key, metaData){
-	console.log("PRE-DELETE");
-	console.log(metaData);
+	var deferred = $q.defer();
 	delete metaData["swipedRight"];
 	delete metaData["swipedLeft"];
 	//Angular puts attributes on our object to track it.  Delete it.
 	delete metaData["$$hashkey"];
 	delete metaData["class"];
-	console.log(metaData);
 
-	console.log("EDIT");
 	if(verifyMetaData(metaData)) {
 		key = splitUrlOff(key);
 		var s3 = vm.initiateBucket();
@@ -152,23 +155,23 @@ function edit(key, metaData){
   				console.log(key);
   				console.log("META:");
   				console.log(metaData);
-  				return false;
+  				deferred.reject();
   			}
   			else {
-  				console.log("EDIT SUCCESSFUL");
-  				console.log(data);           // successful response
-  				return true;
+  				deferred.resolve();
   			}
   		});
 	}
 	else {
 		console.log("Invalid MetaData");
 		console.log(metaData);
-		return false;
+		deferred.reject();
 	}
+	return deferred.promise;
 };
 
 function uploadToBestMoments(file, key, metaData) {
+	var deferred = $q.defer();
 	var s3 = vm.initiateBucket();
 	if(metaData.likes / metaData.views > vm.bestMomentsRatio) {
 		s3.upload({
@@ -182,15 +185,16 @@ function uploadToBestMoments(file, key, metaData) {
 				console.log(err.message);
 				console.log("FILE: " + file);
 				console.log("META: " + metaData)
-				return false;
+				deferred.reject();
 			}
 			else {
 				logFile("Uploaded to Best Moments: " + file, 'logs.txt');
 				console.log("Successfully Uploaded to S3");
-				return true;
+				deferred.resolve();
 			}
 		});
 	}
+	return deferred.promise;
 };
 
 function logFile(message, key) {
@@ -210,20 +214,11 @@ function logFile(message, key) {
 			message = Date() + ': ' + message + "\r\n" + data.Body.toString();
 			var blob = new Blob([message], {type: "text"});
 			var file =  new File([blob], key);
-			console.log("TEST");
-			console.log(key);
-			console.log(message);
 			vm.upload(file, key, {}).then(function() {
 				deferred.resolve();
 			}, function(error) {
 				deferred.reject();
 			});
-			// if(vm.upload(file, key, {})) {
-			// 	return true;
-			// }
-			// else {
-			// 	return false;
-			// }
 		}
 	});
 	return deferred.promise;
@@ -231,12 +226,11 @@ function logFile(message, key) {
 
 function upload(file, key, metaData) {
 	var deferred = $q.defer();
-	if(!key.includes(".txt")) {
+	if(!key.includes(".txt") && !key.includes("_")) {
 		key = key + "_" + new Date().getTime() + ".jpg";
 	}
 	if(verifyMetaData(metaData) || key.includes('reports')) {
 		var s3 = vm.initiateBucket();
-		console.log(s3);
 		// uploadToBestMoments(file, key, metaData);
 		// var key = moment_prefix + file.name;
 		s3.upload({
@@ -251,9 +245,6 @@ function upload(file, key, metaData) {
 			}
 			else {
 				console.log("Successfully Uploaded to S3");
-				console.log(key);
-				console.log(file);
-				console.log(metaData);
 				deferred.resolve();
 			}
 		});
@@ -261,7 +252,7 @@ function upload(file, key, metaData) {
 	else {
 		console.log("Invalid MetaData");
 		console.log(metaData);
-		deferred.reject();
+		deferred.reject("invalid MetaData");
 	}
 	return deferred.promise;
 };
