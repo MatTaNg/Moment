@@ -15,6 +15,6 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 </td-card>
 </td-cards>
 </div>
-<img src="img/No-results-found.png" ng-show="vm.imageArray.length === 0"></img>
+<img src="img/No-results-found.png" ng-show="vm.imageArray === undefined || vm.imageArray.length === 0"></img>
 </ion-content>
 </ion-view>

@@ -16,16 +16,21 @@
 			})
 			.then(function(confirm) {
 				if(confirm) {
-					core.remove(location);
-					myMomentsService.removeFromLocalStorage(location);
-					vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
+					core.remove(location).then(function() {
+						myMomentsService.removeFromLocalStorage(location);
+						vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
 
-					if(vm.myImages.length === 0) {
-						vm.errorMessage = true;
-					}
+						if(vm.myImages.length === 0) {
+							vm.errorMessage = true;
+						}	
+					}, function(error) {
+						console.log("REMOVE FAILED");
+						console.log(error);
+					});
+					
 				}
 				else{
-
+					console.log("!CONFIRM");
 				}
 			});
 		};
@@ -45,7 +50,6 @@
 					type: 'button-positive',
 					onTap: function(e) {
 						if(!vm.moment.feedback) { 
-							console.log("PREVENT DEFAULT");
 								//Does nothing if user has not entered anything
 								e.preventDefault();
 							}
@@ -68,16 +72,16 @@
 					}
 					]
 				});
-		};
+};
 
-		function initialize() {
-			if(vm.myImages) {
-				vm.errorMessage = false;
-			}
-			else {
-				vm.errorMessage = true;
-			}
-		};
-		
-	};
+function initialize() {
+	if(vm.myImages) {
+		vm.errorMessage = false;
+	}
+	else {
+		vm.errorMessage = true;
+	}
+};
+
+};
 })();

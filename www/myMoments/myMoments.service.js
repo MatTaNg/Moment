@@ -31,13 +31,9 @@
 
 		function uploadFeedback(feedback, isBug) {
 			var defered = $q.defer();
-			console.log("FEEDBACK");
-			console.log(core.logFile(feedback, createKey(isBug)));
 			core.logFile(feedback, createKey(isBug)).then(function() {
-				console.log("RESOLVE");
 				defered.resolve();
 			}, function(error) {
-				console.log("REJECT");
 				defered.reject(error);
 			});
 			return defered.promise;

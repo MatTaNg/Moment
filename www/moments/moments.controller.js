@@ -5,9 +5,11 @@
 
 	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core) {
 		var vm = this;
+		
+		// $stateParams.submittedMoment;
 		vm.currentImage;
 		vm.moment = {toggleDescription: "expanded"};
-		vm.imageArray = [];
+		vm.imageArray = core.moments;
 		vm.counter = 0;
 		vm.showHR = false;
 		vm.cardCSSClass = "layer-bottom";
@@ -23,10 +25,12 @@
 
 		function dragRight() {
 			vm.imageArray[0].swipedRight = true;
+			vm.imageArray[0].swipedLeft = false;
 		};
 
 		function dragLeft() {
 			vm.imageArray[0].swipedLeft = true;
+			vm.imageArray[0].swipedFalse = false;
 		};
 
 		function release() {
@@ -40,10 +44,6 @@
 			vm.imageArray[0].swipedLeft = false;
 		};		
 
-		// this.cardDestroyed = function(index) {
-		// 	console.log("ON DESTROY");
-		// 	this.imageArray.splice(index, 1);
-		// };
 		if(vm.imageArray.length === 0) {
 			initialize();
 		}
@@ -57,6 +57,7 @@
 					moments[0].class = "layer-top";
 					// vm.imageArray.push(moments[0]);
 					vm.imageArray = moments;
+					core.moments = moments;
 					vm.currentImage = moments[0];
 				}
 				else {
@@ -65,45 +66,42 @@
 				}
 			}, function(error) {
 				vm.currentImage = undefined;
-				console.log(error.stack);
+				console.log(error);
 			});
 		};
 
 		function liked(liked) {
-			core.checkAndDeleteExpiredMoment(vm.imageArray[0]);
-			// vm.imageArray.splice(0, 1);
-			// var counter = vm.counter;
+			// window.localStorage.clear();
+			// core.checkAndDeleteExpiredMoment(vm.imageArray[0]);
+			vm.imageArray.splice(0, 1);
+			var counter = vm.counter;
 
-			// momentsService.updateObject(liked, counter);
+			momentsService.updateObject(liked, counter);
 
-			// counter = momentsService.incrementCounter(counter);
-			// console.log("COUNTER");
-			// console.log(counter);
-			// if(counter === -1) {
-			// 	counter = 0;
-			// 	momentsService.initializeView()
-			// 	.then(function(moments){
-			// 		if(moments.length > 0) {
-			// 			for(var i = 1; i < moments.length; i++) {
-			// 				moments[i].class = "layer-bottom";
-			// 			}
-			// 			moments[0].class = "layer-top";
-			// 			vm.imageArray = moments;
-			// 			vm.currentImage = moments[0];
-			// 		}
-			// 		else {
-			// 			vm.currentImage = undefined;
-			// 		}
-			// 	}, function(error) {
-			// 		vm.currentImage = undefined;
-			// 	});
-			// }
-			// else {
-			// 	vm.imageArray[0].class = "layer-top";
-			// 	console.log("IMAGE ARRAY LENGTH");
-			// 	console.log(vm.imageArray.length);
-			// }
-			// vm.counter = counter;
+			counter = momentsService.incrementCounter(counter);
+			if(counter === -1) {
+				counter = 0;
+				momentsService.initializeView()
+				.then(function(moments){
+					if(moments.length > 0) {
+						for(var i = 1; i < moments.length; i++) {
+							moments[i].class = "layer-bottom";
+						}
+						moments[0].class = "layer-top";
+						vm.imageArray = moments;
+						vm.currentImage = moments[0];
+					}
+					else {
+						vm.currentImage = undefined;
+					}
+				}, function(error) {
+					vm.currentImage = undefined;
+				});
+			}
+			else {
+				vm.imageArray[0].class = "layer-top";
+			}
+			vm.counter = counter;
 		};
 
 		function toggleDescription() {

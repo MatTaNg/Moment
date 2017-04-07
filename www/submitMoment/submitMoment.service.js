@@ -14,14 +14,16 @@
 		};
 
 		function uploadToAWS(key, picture, metaData) {
+			console.log("SADSADSASA");
+			console.log(key);
 			var blob = new Blob([dataURItoBlob(picture)], {type: 'image/jpeg'});
 			var file = new File([blob], metaData.location);
-			core.upload(file, key, metaData);
+			return core.upload(file, key, metaData);
 		};
 
-		function uploadToLocalStorage(picture, metaData) {
+		function uploadToLocalStorage(path, metaData) {
 			var momentData = {  
-				key: picture,
+				key: constants.IMAGE_URL + path,
 				location: metaData.location,
 				likes: metaData.likes,
 				description: metaData.description,
