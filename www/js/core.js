@@ -1,9 +1,9 @@
  (function() {
  	angular.module('core', [])
 
- 	.service('core', ['$cordovaGeolocation', '$q', '$http', 'constants', core]);
+ 	.service('core', ['$cordovaGeolocation', '$q', '$http', 'constants', 'awsServices', core]);
 
- 	function core($cordovaGeolocation, $q, $http, constants){
+ 	function core($cordovaGeolocation, $q, $http, constants, awsServices){
  		var vm = this,
  		deferred = $q.defer();
 
@@ -268,7 +268,7 @@ function timeElapsed(time) {
 	var hour = 3600;
 	var day = 86400;
 	var counter = 0;
-	var timeElapsed = currentTime - time;
+	var timeElapsed = Math.abs(currentTime - time);
 	timeElapsed = timeElapsed / 1000;
 		//How many days are in timeElasped?
 		for(var i = timeElapsed; i > day; i = i - day) {
@@ -286,6 +286,7 @@ function timeElapsed(time) {
 		hour = counter;
 		counter = 0;
 		if(hour >= 1) {
+			console.log("HOURS");
 			return hour + "h";
 		}
 
@@ -298,6 +299,7 @@ function timeElapsed(time) {
 			return minute + "m";
 		}
 		else {
+			console.log("MINS");
 			return "0m"
 		}
 	};
@@ -344,7 +346,7 @@ function timeElapsed(time) {
 
 	function getDeviceLocation(lat, lng) {
 		var deferred = $q.defer();
-		var url = 'https://civinfo-apis.herokuapp.com/civic/geolocation?latlng=' + lat + ',' + lng;
+		var url = CONSTANTS.GEOLOCATION_URL + lat + ',' + lng;
 
 		$http.get(url).then(function(response) {
 			// key = constants.MOMENT_PREFIX + response.data.results[6].formatted_address + '/' + key + '.jpeg';

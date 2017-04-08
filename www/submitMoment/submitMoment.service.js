@@ -27,7 +27,7 @@
 				location: metaData.location,
 				likes: metaData.likes,
 				description: metaData.description,
-				time: core.timeElapsed(metaData.time)
+				time: metaData.time
 			};
 			var localMomenets = [];
 			if(localStorage.getItem('myMoments') != null) {

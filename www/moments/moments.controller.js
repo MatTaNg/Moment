@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', '$stateParams', '$ionicContentBanner', '$window', 'core', MomentsController]);
+	.controller('MomentsController', ['momentsService', '$stateParams', '$ionicContentBanner', '$window', 'core', '$rootScope', MomentsController]);
 
-	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core) {
+	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core, $rootScope) {
 		var vm = this;
 		
 		// $stateParams.submittedMoment;
@@ -22,6 +22,9 @@
 		vm.release = release;
 
 		this.cards = {};
+
+		console.log("ROOT SCOPE");
+		console.log($rootScope.momentTimer);
 
 		function dragRight() {
 			vm.imageArray[0].swipedRight = true;
@@ -45,7 +48,7 @@
 		};		
 
 		if(vm.imageArray.length === 0) {
-			initialize();
+			// initialize();
 		}
 		function initialize() { 
 			momentsService.initializeView()

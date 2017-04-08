@@ -5,17 +5,17 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards'])
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices'])
 
 .config(function($ionicConfigProvider, $sceDelegateProvider){
-
   $ionicConfigProvider.tabs.position('bottom');
- 
+
   $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**']);
 
 })
 
-.run(function($ionicPlatform, $ionicPopup) {
+.run(function($ionicPlatform, $ionicPopup, $rootScope, constants, core) {
+  setTimeSinceLastMoment;
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -41,6 +41,21 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
       }
     } //window.connection
   });
+  var setTimeSinceLastMoment = setInterval(function() {
+    console.log("TIME SINCE LAST MOMENT");
+    $rootScope.momentTimer = "0m";
+    if(localStorage.getItem('timeSinceLastMoment')) {
+      var currentTime = new Date().getTime();
+      var timeUntilNextMoment = localStorage.getItem('timeSinceLastMoment') + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
+      // var timeUntilNextMoment = 1491591825758 + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
+      var timeLeft = timeUntilNextMoment - currentTime;
+      $rootScope.momentTimer = core.timeElapsed(currentTime + timeLeft);
+      if(currentTime > timeUntilNextMoment) {
+        $rootScope.momentTimer = 0;
+      }
+    }
+  }, 1000);
+
 })
 
 /*
