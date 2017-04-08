@@ -2,15 +2,23 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', IndexController]);
+  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', IndexController]);
   
-  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants) {
+  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope) {
     var indexController = this,
-        enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
+    enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
 
     indexController.camera = camera;
     indexController.gallery = gallery;
     indexController.redirectMyMoments = redirectMyMoments;
+
+    if($rootScope.momentTimer === '0m') {
+      console.log("TEST");
+      $scope.momentTimer = false;
+    }
+    else {
+      $scope.momentTimer = true;
+    }
 
     function redirectMyMoments() {
       $state.go("tabsController.myMoments");
@@ -24,7 +32,7 @@
           allowEdit: true, //Allows editing of picture
           targetWidth: 300,
           targetHeight: 300
-    });
+        });
 
         function onSuccess(imageURI) {
           var picture = "data:image/jpeg;base64," + imageURI;
@@ -48,7 +56,7 @@
           allowEdit: true, //Allows editing of picture
           targetWidth: 300,
           targetHeight: 300
-    });
+        });
 
         function onSuccess(imageURI) {
           var picture = "data:image/jpeg;base64," + imageURI;
