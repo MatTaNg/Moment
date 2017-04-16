@@ -18,6 +18,10 @@
 		"MAX_DESCRIPTION_LENGTH": 180,
 		"HOURS_BETWEEN_MOMENTS": 12,
 		"MILISECONDS_IN_AN_HOUR": 3600000,
-		"BEST_MOMENTS_RATIO": 0.5
+		"BEST_MOMENTS_RATIO": 0.5,
+
+		"GEOLOCATION_URL": "https://civinfo-apis.herokuapp.com/civic/geolocation?latlng=",
+
+		"DEV_MODE": false
 	})
 })();

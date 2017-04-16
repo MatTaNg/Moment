@@ -10,14 +10,14 @@
 
 		initialize();
 
-		function remove(location) {
+		function remove(moment) {
 			$ionicPopup.confirm({
 				title: 'Are you sure you want to delete this moment?'
 			})
 			.then(function(confirm) {
 				if(confirm) {
-					core.remove(location).then(function() {
-						myMomentsService.removeFromLocalStorage(location);
+					core.remove(moment).then(function() {
+						myMomentsService.removeFromLocalStorage(moment);
 						vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
 
 						if(vm.myImages.length === 0) {
@@ -75,7 +75,13 @@
 };
 
 function initialize() {
+	console.log("SADASA");
+	console.log(vm.myImages);
 	if(vm.myImages) {
+		for(var i = 0; i < vm.myImages.length; i++) {
+			vm.myImages.time = core.timeElapsed(vm.myImages.time);
+			console.log(vm.myImages.time);
+		}
 		vm.errorMessage = false;
 	}
 	else {

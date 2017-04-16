@@ -4,7 +4,6 @@
 	.controller('BestMomentsController', ['$stateParams', 'bestMomentsService', BestMomentsController]);
 	function BestMomentsController ($stateParams, bestMomentsService) {
 		var vm = this;
-		
 		vm.imageArray = [];
 		vm.selectedOrder = "likes";
 		vm.options = ['likes', 'location', 'time'];
@@ -22,7 +21,7 @@
 				}
 			}, function(error) {
 				vm.noMoments = true;
-				console.log(error.stack);
+				console.log(error);
 			});
 		};
 	};
