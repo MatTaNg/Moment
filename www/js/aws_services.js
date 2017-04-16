@@ -131,6 +131,8 @@
 
 		s3.listObjectsV2(params, function(error, data) {
 			if(data) {
+				console.log("LIST OBJECTS");
+				console.log(data);
 				deferred.resolve(data.Contents);
 			}
 			else {
