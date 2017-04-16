@@ -11,10 +11,10 @@
 		lat_mile_radius = 0.016880283 * moment_radius_in_miles, //1 mile distance between two points * perferred radius
 		lng_mile_radius = 0.019158007 * moment_radius_in_miles, //1 mile distance between two points * perferred radius
 
-		verifyMetaData = verifyMetaData,
-		splitUrlOff = splitUrlOff;
+		verifyMetaData = verifyMetaData;
+		vm.splitUrlOff = splitUrlOff;
 
-		vm.userLocation = {lat: "lat", lng: "lng", town: "town", state: "state"};
+		vm.userLocation = undefined;
 		vm.moments = [];
 
 		vm.initializeUserLocation = initializeUserLocation,
@@ -26,8 +26,9 @@
 		vm.getLngMileRadius = getLngMileRadius;
 		vm.getDeviceLocation = getDeviceLocation;
 		vm.checkAndDeleteExpiredMoment = checkAndDeleteExpiredMoment;
-
 		vm.initiateBucket = initiateBucket;
+		vm.getHardCodedMoments = getHardCodedMoments;
+
 		vm.remove = remove;
 		vm.edit = edit;
 		vm.upload = upload;
@@ -47,7 +48,7 @@
 
 		function setMomentRadiusInMiles(newRadius) {
 			moment_radius_in_miles = newRadius;
-		}
+		};
 
 		function initiateBucket() {
 			var albumBucketName = 'mng-moment';
@@ -76,200 +77,150 @@
 				}
 				return result.substring(0, result.length-1);
 			}
-			return key;
+			else {
+				return key;
+			}
 		};
 
-		function getImagePath(imageLocation) {
-			var result = imageLocation.split('/');
+		function getImagePath(key) {
+			var result = key.split('/');
 			result = result[4] + '/' + result[5] + '/' + result[6]
 			return result;
 		};
 
-function remove(imageLocation) {
-	var imagePath = getImagePath(imageLocation);
-	var deferred = $q.defer();
-	var params = {
-		Bucket: constants.BUCKET_NAME,
-		Key: imagePath
-	};
-	var s3 = vm.initiateBucket();
-	s3.deleteObject(params, function(error, data) {
-		if(!error) {
-			deferred.resolve();
-		}
-		else {
-			console.log("ERROR");
-			console.log(error.stack);
-			deferred.reject(error);
-		}
-	})
-	return deferred.promise;
-};
+		function remove(moment) {
+			var deferred = $q.defer();
+			var imagePath = getImagePath(moment.key);
 
-var verifyMetaData = function(metaData) {
-	return (
-		metaData.location &&
-		metaData.likes &&
-		metaData.description !== undefined &&
-		metaData.time &&
-		metaData.views &&
-		metaData.uuids
-		);
-}
-
-function checkAndDeleteExpiredMoment(moment) {
-	var likes = moment.likes,
-		view = moment.views,
-		currentTime = new Date().getTime(),
-		timeElapsed = moment.timeElapsed,
-		miliseconds_in_a_day = 86400000;
-	if(currentTime - miliseconds_in_a_day > timeElapsed) {
-		remove(moment.key);
-	}
-
-};
-
-function edit(key, metaData){
-	var deferred = $q.defer();
-	delete metaData["swipedRight"];
-	delete metaData["swipedLeft"];
-	//Angular puts attributes on our object to track it.  Delete it.
-	delete metaData["$$hashkey"];
-	delete metaData["class"];
-
-	if(verifyMetaData(metaData)) {
-		key = splitUrlOff(key);
-		var s3 = vm.initiateBucket();
-		var params = {
-			Bucket: constants.BUCKET_NAME,
-			CopySource: constants.BUCKET_NAME + '/' + key,
-			Key: key,
-			Metadata: metaData,
-			MetadataDirective: "REPLACE"
-		};
-
-		s3.copyObject(params, function(err, data) {
-			if (err) {
-  				console.log(err, err.stack); // an error occurred
-  				console.log("KEY:");
-  				console.log(key);
-  				console.log("META:");
-  				console.log(metaData);
-  				deferred.reject();
-  			}
-  			else {
-  				deferred.resolve();
-  			}
-  		});
-	}
-	else {
-		console.log("Invalid MetaData");
-		console.log(metaData);
-		deferred.reject();
-	}
-	return deferred.promise;
-};
-
-function uploadToBestMoments(file, key, metaData) {
-	var deferred = $q.defer();
-	var s3 = vm.initiateBucket();
-	if(metaData.likes / metaData.views > vm.bestMomentsRatio) {
-		s3.upload({
-			Key: key,
-			Body: file,
-			ACL: 'public-read',
-			Metadata: metaData
-		}, function(err, data) {
-			if (err) {
-				logFile("ERROR: " + err.message, 'logs.txt');
-				console.log(err.message);
-				console.log("FILE: " + file);
-				console.log("META: " + metaData)
-				deferred.reject();
-			}
-			else {
-				logFile("Uploaded to Best Moments: " + file, 'logs.txt');
-				console.log("Successfully Uploaded to S3");
-				deferred.resolve();
-			}
-		});
-	}
-	return deferred.promise;
-};
-
-function logFile(message, key) {
-	var deferred = $q.defer();
-	var s3 = vm.initiateBucket();
-	var key = 'reports/' + key;
-	var params = {
-		Bucket: constants.BUCKET_NAME,
-		Key: key
-	};
-	s3.getObject(params, function(error, data) {
-		if(error) {
-			console.log(error, error.stack);
-			deferred.reject();
-		}
-		else {
-			message = Date() + ': ' + message + "\r\n" + data.Body.toString();
-			var blob = new Blob([message], {type: "text"});
-			var file =  new File([blob], key);
-			vm.upload(file, key, {}).then(function() {
+			awsServices.remove(imagePath).then(function() {
 				deferred.resolve();
 			}, function(error) {
+				console.log("FAILED TO REMOVE");
 				deferred.reject();
 			});
-		}
-	});
-	return deferred.promise;
-};
+			return deferred.promise;
+		};
 
-function upload(file, key, metaData) {
-	var deferred = $q.defer();
-	if(!key.includes(".txt") && !key.includes("_")) {
-		key = key + "_" + new Date().getTime() + ".jpg";
-	}
-	if(verifyMetaData(metaData) || key.includes('reports')) {
-		var s3 = vm.initiateBucket();
-		// uploadToBestMoments(file, key, metaData);
-		// var key = moment_prefix + file.name;
-		s3.upload({
-			Key: key,
-			Body: file,
-			ACL: 'public-read',
-			Metadata: metaData
-		}, function(err, data) {
-			if (err) {
-				console.log(err.message);
-				deferred.reject(err);
+		var verifyMetaData = function(moment) {
+			return (
+				moment.location &&
+				moment.likes &&
+				moment.description !== undefined &&
+				moment.time &&
+				moment.views &&
+				moment.uuids
+				);
+		}
+
+		function checkAndDeleteExpiredMoment(moment) {
+			var likes = moment.likes,
+			view = moment.views,
+			currentTime = new Date().getTime(),
+			timeElapsed = moment.timeElapsed,
+			miliseconds_in_a_day = 86400000;
+			if(currentTime - miliseconds_in_a_day > timeElapsed) {
+				remove(moment.key);
+			}
+
+		};
+
+		function edit(moment){
+			var deferred = $q.defer();
+			var key = moment.key;
+			if(verifyMetaData(moment)) {
+				key = splitUrlOff(key);
+				awsServices.edit(key, moment).then(function() {
+					deferred.resolve();
+				}, function(error) {
+					console.log("ERROR");
+					console.log(error);
+					deferred.reject();
+				});
 			}
 			else {
-				console.log("Successfully Uploaded to S3");
-				deferred.resolve();
+				console.log("Invalid MetaData");
+				console.log(moment);
+				deferred.reject();
 			}
-		});
-	}
-	else {
-		console.log("Invalid MetaData");
-		console.log(metaData);
-		deferred.reject("invalid MetaData");
-	}
-	return deferred.promise;
-};
+			return deferred.promise;
+		};
 
-function getCurrentTime() {
-	return new Date().getTime();
-};
+		function uploadToBestMoments(file, key, metaData) {
+			var deferred = $q.defer();
+			var s3 = vm.initiateBucket();
+			if(metaData.likes / metaData.views > vm.bestMomentsRatio) {
+				awsServices.upload(file, key, metaData).then(function() {
+					deferred.resolve();
+				}, function(error) {
+					console.log("ERROR - Core.uploadToBestMoments");
+					console.log(error);
+					deferred.reject();
+				});
+			}
+			return deferred.promise;
+		};
 
-function timeElapsed(time) {
-	time = parseInt(time);
-	var currentTime = new Date().getTime();
-	var minute = 60;
-	var hour = 3600;
-	var day = 86400;
-	var counter = 0;
-	var timeElapsed = Math.abs(currentTime - time);
-	timeElapsed = timeElapsed / 1000;
+		function logFile(message, key) {
+			var deferred = $q.defer();
+			var s3 = vm.initiateBucket();
+			var key = 'reports/' + key;
+			var params = {
+				Bucket: constants.BUCKET_NAME,
+				Key: key
+			};
+			awsServices.getObject(key).then(function(data) {
+				message = Date() + ': ' + message + "\r\n" + data.toString();
+				var blob = new Blob([message], {type: "text"});
+				var file =  new File([blob], key);
+				vm.upload(file, key, {}).then(function() {
+					deferred.resolve();
+				}, function(error) {
+					deferred.reject();
+				});
+			}, function(error) {
+				console.log("ERROR");
+				console.log(error);
+				deferred.reject();
+			});
+			return deferred.promise;
+		};
+
+		function upload(file, moment) {
+			var deferred = $q.defer();
+			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
+				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
+			}
+			if(verifyMetaData(moment) || moment.key.includes('reports')) {
+				var key = splitUrlOff(moment.key);
+				delete moment.key;
+				awsServices.upload(file, key, moment).then(function(data) {
+					deferred.resolve();
+				}, function(error) {
+					console.log("FAILURE");
+					deferred.reject();
+				});
+			}
+			else {
+				console.log("Invalid MetaData");
+				console.log(metaData);
+				deferred.reject("invalid MetaData");
+			}
+			return deferred.promise;
+		};
+
+		function getCurrentTime() {
+			return new Date().getTime();
+		};
+
+		function timeElapsed(time) {
+			time = parseInt(time);
+			var currentTime = new Date().getTime();
+			var minute = 60;
+			var hour = 3600;
+			var day = 86400;
+			var counter = 0;
+			var timeElapsed = Math.abs(currentTime - time);
+			timeElapsed = timeElapsed / 1000;
 		//How many days are in timeElasped?
 		for(var i = timeElapsed; i > day; i = i - day) {
 			counter++;
@@ -286,7 +237,6 @@ function timeElapsed(time) {
 		hour = counter;
 		counter = 0;
 		if(hour >= 1) {
-			console.log("HOURS");
 			return hour + "h";
 		}
 
@@ -299,7 +249,6 @@ function timeElapsed(time) {
 			return minute + "m";
 		}
 		else {
-			console.log("MINS");
 			return "0m"
 		}
 	};
@@ -333,20 +282,18 @@ function timeElapsed(time) {
 		.then(function(position) {
 			var lat = position.coords.latitude;
 			var lng = position.coords.longitude;
-
-	      // var url = 'https://civinfo-apis.herokuapp.com/civic/geolocation?latlng=' + lat + ',' + lng;
-	      deferred.resolve({lat: lat, lng: lng});
-	  }, function(error) {
-	  	deferred.reject(error);
-	  	console.log("ERROR");
-	  	console.log(error.message);
-	  });
+			deferred.resolve({lat: lat, lng: lng});
+		}, function(error) {
+			deferred.reject(error);
+			console.log("ERROR");
+			console.log(error.message);
+		});
 		return deferred.promise;
 	};
 
 	function getDeviceLocation(lat, lng) {
 		var deferred = $q.defer();
-		var url = CONSTANTS.GEOLOCATION_URL + lat + ',' + lng;
+		var url = constants.GEOLOCATION_URL + lat + ',' + lng;
 
 		$http.get(url).then(function(response) {
 			// key = constants.MOMENT_PREFIX + response.data.results[6].formatted_address + '/' + key + '.jpeg';
@@ -360,7 +307,48 @@ function timeElapsed(time) {
 		return deferred.promise;
 	};
 
+	function getHardCodedMoments() {
+		var key = "test/PA/"
+		var temp = [];
+		awsServices.getMoments(key).then(function(moments) {
+			moments.splice(0, 1);
+			for(var i = 0; i < moments.length; i++) {
+				(function(i) {
+					awsServices.getMomentMetaData(moments[i].Key).then(function(metaData) {
+						temp.push({ 
+							key: constants.IMAGE_URL + moments[i].Key, 
+							description: metaData.description,
+							likes: metaData.likes,
+							location: metaData.location,
+							time: metaData.time,
+							uuids: metaData.uuids,
+							views: metaData.views
+						});
+						if(temp.length === moments.length) {
+							console.log("GET HARD CODED MOMENTS");
+							console.log(JSON.stringify(metaData));
+							deferred.resolve(temp);
+						}
+					}, function(error) {
+						console.log("ERROR - momentService.getMomentsWithinRadius");
+						console.log(error);
+						deferred.reject(error);
+					});
+				})(i);
+			}
+
+		}, function(error) {
+			console.log("ERRROR");
+			console.log(error);
+			deferred.reject(error);
+		});
+		return deferred.promise;
+	};
+
 	function getUUID() {
+		// console.log("window.device.uuid");
+		// console.log(window.device.uuid);
+		// return window.device.uuid;
 		return "123"; //Temporary
 	};
 

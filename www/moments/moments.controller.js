@@ -1,15 +1,21 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', '$stateParams', '$ionicContentBanner', '$window', 'core', '$rootScope', MomentsController]);
+	.controller('MomentsController', ['momentsService', '$stateParams', '$ionicContentBanner', '$window', 'core', '$rootScope', 'constants', MomentsController]);
 
-	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core, $rootScope) {
+	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core, $rootScope, constants) {
 		var vm = this;
-		
-		// $stateParams.submittedMoment;
 		vm.currentImage;
 		vm.moment = {toggleDescription: "expanded"};
-		vm.imageArray = core.moments;
+		if(localStorage.getItem('moments')) {
+			vm.imageArray = JSON.parse(localStorage.getItem('moments'));
+			for(var i = 0; i < vm.imageArray.length; i++) {
+				vm.imageArray[i].time = core.timeElapsed(vm.imageArray[i].time);
+			}
+		}
+		else {
+			vm.imageArray = [];
+		}
 		vm.counter = 0;
 		vm.showHR = false;
 		vm.cardCSSClass = "layer-bottom";
@@ -23,9 +29,6 @@
 
 		this.cards = {};
 
-		console.log("ROOT SCOPE");
-		console.log($rootScope.momentTimer);
-
 		function dragRight() {
 			vm.imageArray[0].swipedRight = true;
 			vm.imageArray[0].swipedLeft = false;
@@ -33,78 +36,54 @@
 
 		function dragLeft() {
 			vm.imageArray[0].swipedLeft = true;
-			vm.imageArray[0].swipedFalse = false;
+			vm.imageArray[0].swipedRight = false;
 		};
 
 		function release() {
-			if(vm.imageArray[0].swipedRight) {
-				liked(true);
+			if(vm.imageArray) {
+				vm.imageArray[0].swipedRight = false;
+				vm.imageArray[0].swipedLeft = false;
 			}
-			if(vm.imageArray[0].swipedLeft) {
-				liked(false);
-			}
-			vm.imageArray[0].swipedRight = false;
-			vm.imageArray[0].swipedLeft = false;
 		};		
 
 		if(vm.imageArray.length === 0) {
-			// initialize();
+			initialize();
 		}
 		function initialize() { 
+			updateView();
+		};
+
+		function updateView() {
+			vm.imageArray = [];
 			momentsService.initializeView()
 			.then(function(moments){
-				if(moments) {
-					for(var i = 1; i < moments.length; i++) {
-						moments[i].class = "layer-bottom";
-					}
-					moments[0].class = "layer-top";
-					// vm.imageArray.push(moments[0]);
-					vm.imageArray = moments;
-					core.moments = moments;
-					vm.currentImage = moments[0];
-				}
-				else {
-					console.log("INITALIZE FAIL");
-					vm.imageArray = undefined;
+				if(moments.length > 0) {
+					vm.imageArray = updateObject(moments);
 				}
 			}, function(error) {
 				vm.currentImage = undefined;
-				console.log(error);
 			});
 		};
 
 		function liked(liked) {
-			// window.localStorage.clear();
 			// core.checkAndDeleteExpiredMoment(vm.imageArray[0]);
-			vm.imageArray.splice(0, 1);
-			var counter = vm.counter;
+			momentsService.updateMoment(liked).then(function(moments) {
+				vm.imageArray = updateObject(moments);
+			}, function(error) {
+				updateView();
+			});
 
-			momentsService.updateObject(liked, counter);
+		};
 
-			counter = momentsService.incrementCounter(counter);
-			if(counter === -1) {
-				counter = 0;
-				momentsService.initializeView()
-				.then(function(moments){
-					if(moments.length > 0) {
-						for(var i = 1; i < moments.length; i++) {
-							moments[i].class = "layer-bottom";
-						}
-						moments[0].class = "layer-top";
-						vm.imageArray = moments;
-						vm.currentImage = moments[0];
-					}
-					else {
-						vm.currentImage = undefined;
-					}
-				}, function(error) {
-					vm.currentImage = undefined;
-				});
+		function updateObject(moments) {
+			// localStorage.setItem("moments", JSON.stringify(moments));
+			vm.imageArray = moments;
+			for(var i = 0; i < moments.length; i++) {
+				moments[i].class = "layer-bottom";
+				moments[i].time = core.timeElapsed(vm.imageArray[i].time);
 			}
-			else {
-				vm.imageArray[0].class = "layer-top";
-			}
-			vm.counter = counter;
+			moments[0].class = "layer-top";
+			return moments;
 		};
 
 		function toggleDescription() {

@@ -13,29 +13,23 @@
 			localStorage.setItem('timeSinceLastMoment', new Date().getTime());
 		};
 
-		function uploadToAWS(key, picture, metaData) {
-			console.log("SADSADSASA");
-			console.log(key);
+		function uploadToAWS(picture, moment) {
+			console.log("uploadToAWS");
+			console.log(moment);
 			var blob = new Blob([dataURItoBlob(picture)], {type: 'image/jpeg'});
-			var file = new File([blob], metaData.location);
-			return core.upload(file, key, metaData);
+			var file = new File([blob], moment.location);
+			return core.upload(moment.key, moment);
 		};
 
-		function uploadToLocalStorage(path, metaData) {
-			var momentData = {  
-				key: constants.IMAGE_URL + path,
-				location: metaData.location,
-				likes: metaData.likes,
-				description: metaData.description,
-				time: metaData.time
-			};
+		function uploadToLocalStorage(moment) {
+			moment.key = constants.IMAGE_URL + moment.key;
 			var localMomenets = [];
 			if(localStorage.getItem('myMoments') != null) {
 				localMomenets = JSON.parse(localStorage.getItem('myMoments'));
 			}
-			localMomenets.push(momentData);
+			localMomenets.push(moment);
 			localStorage.setItem('myMoments', JSON.stringify(localMomenets));
-		}; 
+		};
 
 		function dataURItoBlob(dataURI) {
 			var byteString = atob(dataURI.split(',')[1]);
