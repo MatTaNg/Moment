@@ -13,7 +13,6 @@
 		var momentArrayLength = 0; //For some reason changing momentArray in the controller affects the momentArray in the service
 		var currentCoordinates;
 		var deferred = $q.defer();
-		var counter = 0;
 
 		this.max_north = {}; //40.4110615750005
 		this.max_south = {}; //39.567047425
@@ -30,7 +29,6 @@
 		function initializeView() {
 			var deferred = $q.defer();
 			momentArray = [];
-
 			var ionicLoading = $ionicLoading.show({
 				template: '<ion-spinner></ion-spinner>'
 			}).then(function() {
@@ -95,23 +93,36 @@ return deferred.promise;
 
 function updateMoment(liked) {
 	var temp = createTempVariable(momentArray);
-	console.log("TEMP");
-	console.log(JSON.stringify(temp));
 	var deferred = $q.defer();
 	var views = (parseInt(temp[0].views) + 1).toString();
-	temp[0].views = views;
-	if(liked) {
-		var likes = parseInt(temp[0].likes) + 1;
-		temp[0].likes = likes.toString();
-	}
-	temp[0].uuids = temp[0].uuids + " " + core.getUUID();
-	core.edit(temp[0]).then(function() {
-		incrementCounter().then(function(moments) {
-			deferred.resolve(moments);
-		});
+	core.checkAndDeleteExpiredMoment(momentArray[0]).then(function(deleted) {
+		if(!deleted) {
+			temp[0].views = views;
+			if(liked) {
+				var likes = parseInt(temp[0].likes) + 1;
+				temp[0].likes = likes.toString();
+			}
+			temp[0].uuids = temp[0].uuids + " " + core.getUUID();
+			core.edit(temp[0]).then(function() {
+				momentArray.splice(0, 1);
+				incrementCounter().then(function(moments) {
+					temp = createTempVariable(moments);
+					deferred.resolve(temp);
+				});
+			}, function(error) {
+				console.log("ERROR - MomentService.edit");
+				deferred.reject(error);
+			});
+		}
+		else {
+			momentArray.splice(0, 1);
+			incrementCounter().then(function(moments) {
+				deferred.resolve(moments);
+			});
+		}
 	}, function(error) {
-		console.log("ERROR - MomentService.edit");
-		deferred.reject(error);
+		console.log("ERROR: UPDATE MOMENT");
+		console.log(error);
 	});
 	return deferred.promise;
 };
@@ -119,17 +130,13 @@ function updateMoment(liked) {
 function incrementCounter(){
 	var deferred = $q.defer();
 	var temp = createTempVariable(momentArray);
-	if(counter + 1 < momentArray.length) {
-		counter++;
-		momentArray.splice(0, 1);
-		temp.splice(0, 1);
+	if(momentArray.length > 0) {
 		deferred.resolve(temp);
 	}
 	else {
 		initializeView().then(function(moments) {
 			momentArray = moments;
 			var temp = createTempVariable(moments);
-			counter = 0;
 			deferred.resolve(temp);
 		}, function(error) {
 			deferred.reject();

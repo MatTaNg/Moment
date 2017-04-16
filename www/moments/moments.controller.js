@@ -7,11 +7,14 @@
 		var vm = this;
 		vm.currentImage;
 		vm.moment = {toggleDescription: "expanded"};
-		if(localStorage.getItem('moments')) {
+		localStorage.setItem('moments', JSON.stringify([]));
+		if(JSON.parse(localStorage.getItem('moments')).length > 0) {
 			vm.imageArray = JSON.parse(localStorage.getItem('moments'));
 			for(var i = 0; i < vm.imageArray.length; i++) {
+				vm.imageArray[i].class = "layer-bottom";
 				vm.imageArray[i].time = core.timeElapsed(vm.imageArray[i].time);
 			}
+			vm.imageArray[0].class = "layer-top";
 		}
 		else {
 			vm.imageArray = [];
@@ -66,9 +69,13 @@
 		};
 
 		function liked(liked) {
-			// core.checkAndDeleteExpiredMoment(vm.imageArray[0]);
 			momentsService.updateMoment(liked).then(function(moments) {
-				vm.imageArray = updateObject(moments);
+				if(moments.length > 0) {
+					vm.imageArray = updateObject(moments);
+				}
+				else {
+					vm.imageArray = [];
+				}
 			}, function(error) {
 				updateView();
 			});
@@ -76,7 +83,6 @@
 		};
 
 		function updateObject(moments) {
-			// localStorage.setItem("moments", JSON.stringify(moments));
 			vm.imageArray = moments;
 			for(var i = 0; i < moments.length; i++) {
 				moments[i].class = "layer-bottom";

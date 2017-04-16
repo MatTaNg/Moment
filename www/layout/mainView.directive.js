@@ -9,7 +9,7 @@
         scope: {
             moment: '=' 
         },
-        template: '<img src="https://s3.amazonaws.com/mng-moment/test/PA/40.0103647,-75.2625353_1491955135086" height="300px" width="100%"></img>' +
+        template: '<img src="{{moment.key}}" height="300px" width="100%"></img>' +
         '{{moment.key}}' +
         '<div class="row row-no-padding">' +
         '<div class="col">' +
