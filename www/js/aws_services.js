@@ -9,9 +9,10 @@
  		vm.initiateBucket = initiateBucket;
  		vm.upload = upload;
  		vm.remove = remove;
- 		vm.edit = edit;
+ 		vm.copyObject = copyObject;
  		vm.getMoments = getMoments;
  		vm.getMomentMetaData = getMomentMetaData;
+ 		vm.getObject = getObject;
 
  		function initiateBucket() {
  			var albumBucketName = 'mng-moment';
@@ -74,15 +75,20 @@
 		return deferred.promise;
 	};
 
-	function edit(key, metaData) {
+	function copyObject(key, copySource, metaData, directive) {
+		console.log("COPY OBJECT");
+		console.log(key);
+		console.log(copySource);
+		console.log(metaData);
+		console.log(directive);
 		var deferred = $q.defer();
 		var s3 = vm.initiateBucket();
 		var params = {
 			Bucket: constants.BUCKET_NAME,
-			CopySource: constants.BUCKET_NAME + '/' + key,
+			CopySource: constants.BUCKET_NAME + '/' + copySource,
 			Key: key,
 			Metadata: metaData,
-			MetadataDirective: "REPLACE"
+			MetadataDirective: directive
 		};
 
 		s3.copyObject(params, function(err, data) {
@@ -131,8 +137,6 @@
 
 		s3.listObjectsV2(params, function(error, data) {
 			if(data) {
-				console.log("LIST OBJECTS");
-				console.log(data);
 				deferred.resolve(data.Contents);
 			}
 			else {

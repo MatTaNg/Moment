@@ -1,18 +1,5 @@
 @charset "UTF-8";
 /*!
- * Copyright 2015 Drifty Co.
- * http://drifty.com/
- *
- * Ionic, v1.3.2
- * A powerful HTML5 mobile app framework.
- * http://ionicframework.com/
- *
- * By @maxlynch, @benjsperry, @adamdbradley <3
- *
- * Licensed under the MIT license. Please see LICENSE for more information.
- *
- */
-/*!
   Ionicons, v2.0.1
   Created by Ben Sperry for the Ionic Framework, http://ionicons.com/
   https://twitter.com/benjsperry  https://twitter.com/ionicframework
@@ -30,11 +17,6 @@
   font-weight: normal;
   font-style: normal; }
 
-p.contracted {overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
-p.expanded {
-  text-overflow: initial;
-  white-space: initial;
-}
 .ion, .ionicons,
 .ion-alert:before,
 .ion-alert-circled:before,
@@ -3323,6 +3305,7 @@ body,
   font-smoothing: antialiased;
   -webkit-text-size-adjust: none;
   -moz-text-size-adjust: none;
+  -ms-text-size-adjust: none;
   text-size-adjust: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-tap-highlight-color: transparent;
@@ -3400,8 +3383,10 @@ body.grade-c {
   -webkit-touch-callout: none;
   -webkit-text-size-adjust: none;
   -moz-text-size-adjust: none;
+  -ms-text-size-adjust: none;
   text-size-adjust: none;
   -webkit-transform-origin: left top;
+  -ms-transform-origin: left top;
   transform-origin: left top; }
 
 /**
@@ -5121,7 +5106,7 @@ ion-tabs.tabs-striped.tabs-color-active-dark .tab-item.tab-item-active, ion-tabs
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 52px;
   font-family: "-apple-system", "Helvetica Neue", "Roboto", "Segoe UI", sans-serif;
   opacity: 0.7; }
   .tab-item:hover {
@@ -5137,8 +5122,8 @@ ion-tabs.tabs-striped.tabs-color-active-dark .tab-item.tab-item-active, ion-tabs
 .tabs-icon-top.tabs .tab-item,
 .tabs-icon-bottom > .tabs .tab-item,
 .tabs-icon-bottom.tabs .tab-item {
-  font-size: 10px;
-  line-height: 14px; }
+  font-size: 25px;
+  line-height: 52px; }
 
 .tab-item .icon {
   display: block;
@@ -5150,7 +5135,7 @@ ion-tabs.tabs-striped.tabs-color-active-dark .tab-item.tab-item-active, ion-tabs
 .tabs-icon-left > .tabs .tab-item,
 .tabs-icon-right.tabs .tab-item,
 .tabs-icon-right > .tabs .tab-item {
-  font-size: 10px; }
+  font-size: 25px; }
   .tabs-icon-left.tabs .tab-item .icon, .tabs-icon-left.tabs .tab-item .tab-title,
   .tabs-icon-left > .tabs .tab-item .icon,
   .tabs-icon-left > .tabs .tab-item .tab-title,
@@ -5284,6 +5269,7 @@ ion-tabs.tabs-striped.tabs-color-active-dark .tab-item.tab-item-active, ion-tabs
 
 .menu-content {
   -webkit-transform: none;
+  -ms-transform: none;
   transform: none;
   box-shadow: -1px 0px 2px rgba(0, 0, 0, 0.2), 1px 0px 2px rgba(0, 0, 0, 0.2); }
 
@@ -5319,7 +5305,9 @@ ion-tabs.tabs-striped.tabs-color-active-dark .tab-item.tab-item-active, ion-tabs
 
 .menu-animated {
   -webkit-transition: -webkit-transform 200ms ease;
-  transition: transform 200ms ease; }
+  transition: -webkit-transform 200ms ease;
+  transition: transform 200ms ease;
+  transition: transform 200ms ease, -webkit-transform 200ms ease; }
 
 /**
  * Modals
@@ -5480,6 +5468,7 @@ ion-tabs.tabs-striped.tabs-color-active-dark .tab-item.tab-item-active, ion-tabs
     border-radius: 3px;
     content: '';
     -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
     transform: rotate(-45deg); }
 
 .platform-ios .popover-bottom .popover-arrow {
@@ -6437,7 +6426,9 @@ button.item.item-button-right {
   transition-timing-function: ease-in-out;
   -webkit-transition-property: -webkit-transform;
   -moz-transition-property: -moz-transform;
-  transition-property: transform; }
+  transition-property: -webkit-transform;
+  transition-property: transform;
+  transition-property: transform, -webkit-transform; }
 
 .list-left-editing .item-left-editable .item-content,
 .item-left-editing.item-left-editable .item-content {
@@ -6880,7 +6871,9 @@ button.item.item-button-right {
   -moz-transition-property: -moz-transform;
   -o-transition-property: -o-transform;
   -ms-transition-property: -ms-transform;
+  transition-property: -webkit-transform;
   transition-property: transform;
+  transition-property: transform, -webkit-transform;
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
   box-sizing: content-box; }
@@ -6912,6 +6905,7 @@ button.item.item-button-right {
   display: block;
   -webkit-flex-shrink: 0;
   -ms-flex: 0 0 auto;
+  -ms-flex-negative: 0;
   flex-shrink: 0;
   width: 100%;
   height: 100%;
@@ -6931,7 +6925,9 @@ button.item.item-button-right {
   -moz-transition-property: -moz-transform;
   -o-transition-property: -o-transform;
   -ms-transition-property: -ms-transform;
-  transition-property: transform, height; }
+  transition-property: height, -webkit-transform;
+  transition-property: transform, height;
+  transition-property: transform, height, -webkit-transform; }
 
 /* a11y */
 .swiper-container .swiper-notification {
@@ -7275,6 +7271,7 @@ button.swiper-pagination-bullet {
   z-index: 10;
   -webkit-transform-origin: 50%;
   -moz-transform-origin: 50%;
+  -ms-transform-origin: 50%;
   transform-origin: 50%;
   -webkit-animation: swiper-preloader-spin 1s steps(12, end) infinite;
   -moz-animation: swiper-preloader-spin 1s steps(12, end) infinite;
@@ -7300,6 +7297,7 @@ button.swiper-pagination-bullet {
 
 @keyframes swiper-preloader-spin {
   100% {
+    -webkit-transform: rotate(360deg);
     transform: rotate(360deg); } }
 
 ion-slides {
@@ -7393,7 +7391,9 @@ ion-slides {
     transition: -webkit-transform 0.2s;
     -webkit-transition: transform 0.2s;
     transition: transform 0.2s;
+    transition: transform 0.2s, -webkit-transform 0.2s;
     -webkit-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
     transform: scale(1, 1); }
     .scroll-refresher.active.refreshing .icon-pulling,
     .scroll-refresher.active.refreshing .text-pulling {
@@ -7403,6 +7403,7 @@ ion-slides {
       display: block; }
     .scroll-refresher.active.refreshing.refreshing-tail {
       -webkit-transform: scale(0, 0);
+      -ms-transform: scale(0, 0);
       transform: scale(0, 0); }
 
 .overflow-scroll > .scroll {
@@ -7424,8 +7425,10 @@ ion-slides {
 
 @keyframes refresh-spin {
   0% {
+    -webkit-transform: translate3d(0, 0, 0) rotate(0);
     transform: translate3d(0, 0, 0) rotate(0); }
   100% {
+    -webkit-transform: translate3d(0, 0, 0) rotate(180deg);
     transform: translate3d(0, 0, 0) rotate(180deg); } }
 
 @-webkit-keyframes refresh-spin-back {
@@ -7436,8 +7439,10 @@ ion-slides {
 
 @keyframes refresh-spin-back {
   0% {
+    -webkit-transform: translate3d(0, 0, 0) rotate(180deg);
     transform: translate3d(0, 0, 0) rotate(180deg); }
   100% {
+    -webkit-transform: translate3d(0, 0, 0) rotate(0);
     transform: translate3d(0, 0, 0) rotate(0); } }
 
 /**
@@ -7612,6 +7617,8 @@ textarea {
     min-width: 14px; }
 
 .platform-windowsphone .item-input input {
+  -webkit-flex-shrink: 1;
+  -ms-flex-negative: 1;
   flex-shrink: 1; }
 
 .item-input-inset {
@@ -7987,6 +7994,7 @@ input:checked + .checkbox-icon:before {
   -webkit-transition: opacity 0.05s ease-in-out;
   transition: opacity 0.05s ease-in-out;
   -webkit-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
   transform: rotate(-45deg);
   position: absolute;
   top: 33%;
@@ -8027,6 +8035,7 @@ input:checked + .checkbox-icon:before {
 .grade-c .checkbox input:after,
 .grade-c .checkbox-icon:after {
   -webkit-transform: rotate(0);
+  -ms-transform: rotate(0);
   transform: rotate(0);
   top: 3px;
   left: 4px;
@@ -8149,7 +8158,9 @@ input:checked + .checkbox-icon:after {
   -webkit-transition: 0.3s cubic-bezier(0, 1.1, 1, 1.1);
   transition: 0.3s cubic-bezier(0, 1.1, 1, 1.1);
   -webkit-transition-property: background-color, transform;
+  transition-property: background-color, -webkit-transform;
   transition-property: background-color, transform;
+  transition-property: background-color, transform, -webkit-transform;
   position: absolute;
   display: block;
   width: 27px;
@@ -9149,6 +9160,7 @@ a.button {
   -webkit-align-self: center;
   -moz-align-self: center;
   -ms-flex-item-align: center;
+  -ms-grid-row-align: center;
   align-self: center; }
 
 /* Column Offsets */
@@ -9678,9 +9690,11 @@ a.button {
 
 @keyframes scaleOut {
   from {
+    -webkit-transform: scale(1);
     transform: scale(1);
     opacity: 1; }
   to {
+    -webkit-transform: scale(0.8);
     transform: scale(0.8);
     opacity: 0; } }
 
@@ -9694,9 +9708,11 @@ a.button {
 
 @keyframes superScaleIn {
   from {
+    -webkit-transform: scale(1.2);
     transform: scale(1.2);
     opacity: 0; }
   to {
+    -webkit-transform: scale(1);
     transform: scale(1);
     opacity: 1; } }
 
@@ -9707,7 +9723,9 @@ a.button {
   -webkit-transition-timing-function: cubic-bezier(0.36, 0.66, 0.04, 1);
   transition-timing-function: cubic-bezier(0.36, 0.66, 0.04, 1);
   -webkit-transition-property: opacity, -webkit-transform, box-shadow;
-  transition-property: opacity, transform, box-shadow; }
+  transition-property: opacity, box-shadow, -webkit-transform;
+  transition-property: opacity, transform, box-shadow;
+  transition-property: opacity, transform, box-shadow, -webkit-transform; }
 
 [nav-view-transition="ios"][nav-view-direction="forward"], [nav-view-transition="ios"][nav-view-direction="back"] {
   background-color: #000; }
@@ -9729,7 +9747,9 @@ a.button {
   -webkit-transition-timing-function: cubic-bezier(0.36, 0.66, 0.04, 1);
   transition-timing-function: cubic-bezier(0.36, 0.66, 0.04, 1);
   -webkit-transition-property: opacity, -webkit-transform;
-  transition-property: opacity, transform; }
+  transition-property: opacity, -webkit-transform;
+  transition-property: opacity, transform;
+  transition-property: opacity, transform, -webkit-transform; }
 
 [nav-bar-transition="ios"] [nav-bar="active"],
 [nav-bar-transition="ios"] [nav-bar="entering"] {
@@ -9750,7 +9770,9 @@ a.button {
   -webkit-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
   transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
   -webkit-transition-property: -webkit-transform;
-  transition-property: transform; }
+  transition-property: -webkit-transform;
+  transition-property: transform;
+  transition-property: transform, -webkit-transform; }
 
 [nav-view-transition="android"] [nav-view="active"],
 [nav-view-transition="android"][nav-view-direction="forward"] [nav-view="entering"],

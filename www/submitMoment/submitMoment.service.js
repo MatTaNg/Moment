@@ -14,11 +14,9 @@
 		};
 
 		function uploadToAWS(picture, moment) {
-			console.log("uploadToAWS");
-			console.log(moment);
-			var blob = new Blob([dataURItoBlob(picture)], {type: 'image/jpg'});
+			var blob = new Blob([dataURItoBlob(picture)], {type: 'image/jpeg'});
 			var file = new File([blob], moment.location);
-			return core.upload(moment.key, moment);
+			return core.upload(file, moment);
 		};
 
 		function uploadToLocalStorage(moment) {

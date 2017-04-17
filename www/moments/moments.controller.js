@@ -4,6 +4,10 @@
 	.controller('MomentsController', ['momentsService', '$stateParams', '$ionicContentBanner', '$window', 'core', '$rootScope', 'constants', MomentsController]);
 
 	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core, $rootScope, constants) {
+		// if(constants.DEV_MODE) {
+			localStorage.setItem('timeSinceLastMoment', "0m");
+		// }
+
 		var vm = this;
 		vm.currentImage;
 		vm.moment = {toggleDescription: "expanded"};
@@ -83,21 +87,23 @@
 		};
 
 		function updateObject(moments) {
-			vm.imageArray = moments;
-			for(var i = 0; i < moments.length; i++) {
-				moments[i].class = "layer-bottom";
-				moments[i].time = core.timeElapsed(vm.imageArray[i].time);
-			}
-			moments[0].class = "layer-top";
-			return moments;
-		};
+	for(var i = 0; i < moments.length; i++) {
+		moments[i].class = "layer-bottom";
+		moments[i].time = core.timeElapsed(moments.time);
+	}
+	moments[0].class = "layer-top";
+	if(moments.length > 1) {
+		moments[1].class = "layer-next";
+	}
+	return moments;
+};
 
-		function toggleDescription() {
-			if(vm.moment.toggleDescription === "contracted")
-				vm.moment.toggleDescription = "expanded";
-			else
-				vm.moment.toggleDescription = "contracted";
-		};
+function toggleDescription() {
+	if(vm.moment.toggleDescription === "contracted")
+		vm.moment.toggleDescription = "expanded";
+	else
+		vm.moment.toggleDescription = "contracted";
+};
 
-	};
+};
 })();

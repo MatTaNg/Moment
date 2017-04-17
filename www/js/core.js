@@ -25,7 +25,6 @@
 		vm.getLatMileRadius = getLatMileRadius;
 		vm.getLngMileRadius = getLngMileRadius;
 		vm.getDeviceLocation = getDeviceLocation;
-		vm.checkAndDeleteExpiredMoment = checkAndDeleteExpiredMoment;
 		vm.initiateBucket = initiateBucket;
 		vm.getHardCodedMoments = getHardCodedMoments;
 
@@ -111,37 +110,12 @@
 				);
 		}
 
-		function checkAndDeleteExpiredMoment(moment) {
-			var deferred = $q.defer();
-			var likes = moment.likes,
-			view = moment.views,
-			currentTime = new Date().getTime(),
-			timeElapsed = moment.time,
-			timeBetweenMoments = constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_UNTIL_MOMENT_EXPIRES;
-			if(currentTime - timeBetweenMoments > timeElapsed) {
-				remove(moment).then(function(moment){
-					var moments = JSON.parse(localStorage.getItem('moments'));
-					moments.splice(moments.indexOf(moment), 1);
-					localStorage.setItem('moments', JSON.stringify(moments));
-					deferred.resolve(true);
-				}, function(error) {
-					console.log("ERROR: Check and delete expired moments");
-					console.log(error);
-					deferred.reject(error);
-				});
-			}
-			else {
-				deferred.resolve(false);
-			}
-			return deferred.promise;
-		};
-
 		function edit(moment){
 			var deferred = $q.defer();
 			var key = moment.key;
 			if(verifyMetaData(moment)) {
 				key = splitUrlOff(key);
-				awsServices.edit(key, moment).then(function() {
+				awsServices.copyObject(key, key, moment, "REPLACE").then(function() {
 					deferred.resolve();
 				}, function(error) {
 					console.log("ERROR");
@@ -157,20 +131,6 @@
 			return deferred.promise;
 		};
 
-		function uploadToBestMoments(file, key, metaData) {
-			var deferred = $q.defer();
-			if(metaData.likes / metaData.views > vm.bestMomentsRatio) {
-				awsServices.upload(file, key, metaData).then(function() {
-					deferred.resolve();
-				}, function(error) {
-					console.log("ERROR - Core.uploadToBestMoments");
-					console.log(error);
-					deferred.reject();
-				});
-			}
-			return deferred.promise;
-		};
-
 		function logFile(message, key) {
 			var deferred = $q.defer();
 			var key = 'reports/' + key;
@@ -182,7 +142,7 @@
 				message = Date() + ': ' + message + "\r\n" + data.toString();
 				var blob = new Blob([message], {type: "text"});
 				var file =  new File([blob], key);
-				vm.upload(file, key, {}).then(function() {
+				vm.upload(file, moment).then(function() {
 					deferred.resolve();
 				}, function(error) {
 					deferred.reject();
@@ -318,25 +278,25 @@
 	};
 
 //DEV MODE
-	function getHardCodedMoments() {
-		var key = "test/PA/"
-		var temp = [];
-		return awsServices.getMoments(key).then(function(moments) {
-			moments.splice(0,1);
-			return Promise.all(moments.map(moment =>
-				awsServices.getMomentMetaData(moment.Key).then(metaData => ({
-					key: constants.IMAGE_URL + moment.Key, 
-					description: metaData.description,
-					likes: metaData.likes,
-					location: metaData.location,
-					time: metaData.time,
-					uuids: metaData.uuids,
-					views: metaData.views
-				}))
-				));
-		}, function(error) {
+function getHardCodedMoments() {
+	var key = "test/PA/"
+	var temp = [];
+	return awsServices.getMoments(key).then(function(moments) {
+		moments.splice(0,1);
+		return Promise.all(moments.map(moment =>
+			awsServices.getMomentMetaData(moment.Key).then(metaData => ({
+				key: constants.IMAGE_URL + moment.Key, 
+				description: metaData.description,
+				likes: metaData.likes,
+				location: metaData.location,
+				time: metaData.time,
+				uuids: metaData.uuids,
+				views: metaData.views
+			}))
+			));
+	}, function(error) {
 
-		});
+	});
 };
 
 function getUUID() {
