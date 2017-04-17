@@ -5,20 +5,21 @@
   .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', IndexController]);
   
   function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope) {
+
     var indexController = this,
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
-
     indexController.camera = camera;
     indexController.gallery = gallery;
     indexController.redirectMyMoments = redirectMyMoments;
-
-    if($rootScope.momentTimer === '0m') {
-      console.log("TEST");
-      $scope.momentTimer = false;
-    }
-    else {
-      $scope.momentTimer = true;
-    }
+    // if($rootScope.momentTimer === '0m') {
+    //   console.log("TEST");
+    //   $scope.momentTimer = false;
+    // }
+    // else {
+    //   $scope.momentTimer = $rootScope.momentTimer;
+    //   console.log("WEQWEW");
+    //   console.log($scope.momentTimer);
+    // }
 
     function redirectMyMoments() {
       $state.go("tabsController.myMoments");
@@ -75,5 +76,18 @@
       var milisecondsBetweenMoments = constants.hoursBetweenMoments * 3600000;
       return (currentTime > milisecondsBetweenMoments + localStorage.getItem('timeSinceLastMoment'))
     };
+    setInterval(function() {
+      $scope.momentTimer = "0m";
+      if(localStorage.getItem('timeSinceLastMoment')) {
+        var currentTime = new Date().getTime();
+        var timeUntilNextMoment = parseInt(localStorage.getItem('timeSinceLastMoment')) + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
+        // var timeUntilNextMoment = 1492372819141 + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
+        var timeLeft = timeUntilNextMoment - currentTime;
+        $scope.momentTimer = core.timeElapsed(currentTime + timeLeft);
+        if(currentTime > timeUntilNextMoment) {
+          $scope.momentTimer = "0m";
+        }
+      }
+    }, 500);
   };
 })();
