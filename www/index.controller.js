@@ -11,15 +11,6 @@
     indexController.camera = camera;
     indexController.gallery = gallery;
     indexController.redirectMyMoments = redirectMyMoments;
-    // if($rootScope.momentTimer === '0m') {
-    //   console.log("TEST");
-    //   $scope.momentTimer = false;
-    // }
-    // else {
-    //   $scope.momentTimer = $rootScope.momentTimer;
-    //   console.log("WEQWEW");
-    //   console.log($scope.momentTimer);
-    // }
 
     function redirectMyMoments() {
       $state.go("tabsController.myMoments");

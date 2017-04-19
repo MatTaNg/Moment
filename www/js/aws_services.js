@@ -150,6 +150,9 @@
 	};
 
 	function getObject(key) {
+		console.log("KEY");
+		console.log(key);
+
 		var deferred = $q.defer();
 		var s3 = vm.initiateBucket();
 		var params = {
@@ -159,10 +162,13 @@
 
 		s3.getObject(params, function(error, data) {
 			if(error) {
+				console.log(JSON.stringify(key));
 				console.log(error, error.stack);
 				deferred.reject(error);
 			}
 			else {
+				console.log("ASDSADSA");
+				console.log(data);
 				deferred.resolve(data.Body);
 			}
 		});

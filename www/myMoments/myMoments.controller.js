@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['core', 'myMomentsService', '$ionicPopup', '$scope', MyMomentsController]);
-	function MyMomentsController(core, myMomentsService, $ionicPopup, $scope) {
+	.controller('MyMomentsController', ['core', 'myMomentsService', '$ionicPopup', '$ionicLoading', '$scope', MyMomentsController]);
+	function MyMomentsController(core, myMomentsService, $ionicPopup, $ionicLoading, $scope) {
 		var vm = this;
 		vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
 		vm.remove = remove;
@@ -75,14 +75,22 @@
 };
 
 function initialize() {
-	console.log("SADASA");
-	console.log(vm.myImages);
 	if(vm.myImages) {
-		for(var i = 0; i < vm.myImages.length; i++) {
-			vm.myImages.time = core.timeElapsed(vm.myImages.time);
-			console.log(vm.myImages.time);
-		}
-		vm.errorMessage = false;
+		$ionicLoading.show({
+			template: '<ion-spinner></ion-spinner>'
+		}).then(function() {
+			myMomentsService.initialize(vm.myImages).then(function(moments) {
+				$ionicLoading.hide();
+				console.log("MOMENTS");
+				console.log(JSON.stringify(moments));
+			});
+
+			for(var i = 0; i < vm.myImages.length; i++) {
+				vm.myImages.time = core.timeElapsed(vm.myImages.time);
+				console.log(vm.myImages.time);
+			}
+			vm.errorMessage = false;
+		});
 	}
 	else {
 		vm.errorMessage = true;
