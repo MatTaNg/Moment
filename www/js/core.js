@@ -134,6 +134,7 @@
 		function logFile(message, key) {
 			var deferred = $q.defer();
 			var key = 'reports/' + key;
+			var moment = {key: key};
 			var params = {
 				Bucket: constants.BUCKET_NAME,
 				Key: key

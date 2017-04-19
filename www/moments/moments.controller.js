@@ -73,6 +73,7 @@
 		};
 
 		function liked(liked) {
+			window.localStorage.clear();
 			momentsService.updateMoment(liked).then(function(moments) {
 				if(moments.length > 0) {
 					vm.imageArray = updateObject(moments);
@@ -87,23 +88,23 @@
 		};
 
 		function updateObject(moments) {
-	for(var i = 0; i < moments.length; i++) {
-		moments[i].class = "layer-bottom";
-		moments[i].time = core.timeElapsed(moments.time);
-	}
-	moments[0].class = "layer-top";
-	if(moments.length > 1) {
-		moments[1].class = "layer-next";
-	}
-	return moments;
-};
+			for(var i = 0; i < moments.length; i++) {
+				moments[i].class = "layer-bottom";
+				moments[i].time = core.timeElapsed(moments.time);
+			}
+			moments[0].class = "layer-top";
+			if(moments.length > 1) {
+				moments[1].class = "layer-next";
+			}
+			return moments;
+		};
 
-function toggleDescription() {
-	if(vm.moment.toggleDescription === "contracted")
-		vm.moment.toggleDescription = "expanded";
-	else
-		vm.moment.toggleDescription = "contracted";
-};
+		function toggleDescription() {
+			if(vm.moment.toggleDescription === "contracted")
+				vm.moment.toggleDescription = "expanded";
+			else
+				vm.moment.toggleDescription = "contracted";
+		};
 
-};
+	};
 })();

@@ -47,7 +47,7 @@
     list-style-type: decimal;
     padding-left:40px;
   }
-  .ion-ios-upload-outline {
+  .ion-ios-upload {
     font-size: 35px;
   }
   .ion-person {
@@ -91,22 +91,32 @@
     position: absolute;
     z-index: 2;
     width: 95%;
-    height: 100%;
+    height: 95%;
     background-color: white;
+    /*border: solid #fff 2px;*/
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
   }
   .layer-next {
     position: absolute;
     z-index: 1;
     width: 95%;
-    height: 100%;
+    height: 95%;
     background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
   }
   .layer-bottom {
     position: absolute;
     z-index: 0;
     width: 95%;
-    height: 100%;
+    height: 95%;
     background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
   }
   </style>
 
@@ -150,10 +160,10 @@
       <ion-nav-bar class="bar-stable" align-title="center">
       <!-- <ion-nav-back-button></ion-nav-back-button> -->
       <ion-nav-buttons side="left">
-      <div class="ion-ios-upload-outline" ng-click="indexController.gallery()"></div>
+      <div class="ion-ios-upload" ng-click="indexController.gallery()"></div>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
-    <div class="ion-person" ng-click="indexController.redirectMyMoments()"></div>
+    <div class="ion-person" ui-sref="tabsController.myMoments"></div>
   </ion-nav-buttons>
 </ion-nav-buttons>
 </ion-nav-bar>

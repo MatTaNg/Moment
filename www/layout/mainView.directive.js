@@ -10,7 +10,6 @@
             moment: '=' 
         },
         template: '<img src="{{moment.key}}" height="300px" width="100%"></img>' +
-        '{{moment.key}}' +
         '<div class="row row-no-padding">' +
         '<div class="col">' +
         '<div style="text-align: left; margin: 5px; font-size: 18pt">{{moment.location}}</div>' +

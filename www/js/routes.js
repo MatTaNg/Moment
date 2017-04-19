@@ -48,7 +48,7 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
     url: '/myMoments',
     cache:false,
     views: {
-      'tab3': {
+      'tab4': {
         templateUrl: 'myMoments/myMoments.html',
         controller: 'MyMomentsController',
         controllerAs: 'vm'
