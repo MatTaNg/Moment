@@ -25,9 +25,6 @@
     vm.charLimit = charLimit;
     vm.submit = submit;
 
-    console.log("USER LOCATION");
-    console.log(core.userLocation);
-
     if(!core.userLocation) {
       $ionicLoading.show({
         template: '<ion-spinner></ion-spinner>'
@@ -68,7 +65,6 @@
       });
       if(vm.moment.description.length <= vm.maxChars) {
         updateMetaData();
-          //Key = prefix/State/Lat, Long.jpg
           var key = constants.MOMENT_PREFIX + core.userLocation.state + '/' + core.userLocation.lat + '_' + core.userLocation.lng;
           vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
           submitMomentService.uploadToLocalStorage(vm.moment);

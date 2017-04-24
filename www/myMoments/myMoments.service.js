@@ -12,16 +12,14 @@
 		this.initialize = initialize;
 
 		function initialize(moments) {
-			console.log("initialize");
-			console.log(JSON.stringify(moments));
 			return Promise.all(moments.map(moment => 
 				awsServices.getObject(core.splitUrlOff(moment.key)).then(object => (
 					{
-						key: object.key,
+						key: moment.key,
 						description: object.description,
 						likes: object.likes,
 						location: object.location,
-						time: object.time,
+						time: core.timeElapsed(object.time),
 						uuids: object.uuids,
 						views: object.views
 					}))

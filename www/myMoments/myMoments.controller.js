@@ -10,6 +10,28 @@
 
 		initialize();
 
+		function initialize() {
+			if(vm.myImages) {
+				$ionicLoading.show({
+					template: '<ion-spinner></ion-spinner>'
+				}).then(function() {
+					myMomentsService.initialize(vm.myImages).then(function(moments) {
+						$ionicLoading.hide().then(function() {
+							localStorage.setItem('myMoments', JSON.stringify(moments));
+							vm.myImages = moments;
+							});
+					});
+					for(var i = 0; i < vm.myImages.length; i++) {
+						vm.myImages.time = core.timeElapsed(vm.myImages.time);
+					}
+					vm.errorMessage = false;
+				});
+			}
+			else {
+				vm.errorMessage = true;
+			}
+		};
+
 		function remove(moment) {
 			$ionicPopup.confirm({
 				title: 'Are you sure you want to delete this moment?'
@@ -72,29 +94,6 @@
 					}
 					]
 				});
-};
-
-function initialize() {
-	if(vm.myImages) {
-		$ionicLoading.show({
-			template: '<ion-spinner></ion-spinner>'
-		}).then(function() {
-			myMomentsService.initialize(vm.myImages).then(function(moments) {
-				$ionicLoading.hide();
-				console.log("MOMENTS");
-				console.log(JSON.stringify(moments));
-			});
-
-			for(var i = 0; i < vm.myImages.length; i++) {
-				vm.myImages.time = core.timeElapsed(vm.myImages.time);
-				console.log(vm.myImages.time);
-			}
-			vm.errorMessage = false;
-		});
-	}
-	else {
-		vm.errorMessage = true;
-	}
 };
 
 };

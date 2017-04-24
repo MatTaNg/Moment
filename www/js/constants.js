@@ -4,7 +4,7 @@
 	.constant("constants", {
 		"BUCKET_NAME": 'mng-moment',
 		"BUCKET_REGION": 'us-east-1',
-		"KEY_ID": 'AKIAJVH2FRYBZESGBD6Q',
+		"KEY_ID": 'AKIAIBIANXR773ZDLRMQ',
 		"IDENTITY_POOL_ID": 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4',
 		"IMAGE_URL": 'https://s3.amazonaws.com/' + "mng-moment" + '/',
 
@@ -24,3 +24,4 @@
 		"DEV_MODE": true
 	})
 })();
+// AIJvTx/0jXboCBh5PtuUQwRKde4zTchmUKYjcCIF
