@@ -48,7 +48,7 @@
 					}
 				}
 				getMomentsWithinRadius(momentsInStates).then(function(moments) {
-					core.uploadToBestMoments(moments).then(function() {
+					uploadToBestMoments(moments).then(function() {
 						var temp = createTempVariable(moments);
 						momentArray = moments;
 						$ionicLoading.hide().then(function() {
@@ -157,7 +157,13 @@ function uploadToBestMoments(moments) {
 			if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO) {
 				var copySource = splitUrlOff(moment.key);
 				var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
-				awsServices.copyObject(key, copySource, moment, "COPY");
+				var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
+				console.log("New BestMoment - moment.uploadToBestMoments");
+				console.log(log);
+				logFile(log, 'logs.txt').then(function() {
+					awsServices.copyObject(key, copySource, moment, "COPY");
+				});
+				
 			}
 		}
 		));
@@ -175,10 +181,12 @@ function checkAndDeleteExpiredMoment(moment) {
 			var moments = JSON.parse(localStorage.getItem('moments'));
 			moments.splice(moments.indexOf(moment), 1);
 			localStorage.setItem('moments', JSON.stringify(moments));
-			deferred.resolve(true);
+			var log = "Moment Expired - moment.checkAndDeleteExpiredMoment" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
+			logFile(log, 'logs.txt').then(function() {
+				deferred.resolve(true);
+			});
+			
 		}, function(error) {
-			console.log("ERROR: Check and delete expired moments");
-			console.log(error);
 			deferred.reject(error);
 		});
 	}
@@ -230,8 +238,6 @@ function getStates(north, south, west, east) {
 		});
 	}, function(error) {
 		deferred.reject(error);
-		console.log("COULD NOT GET LOCATION");
-		console.log(error);
 	});
 	return deferred.promise;
 };
@@ -268,24 +274,22 @@ function calculateNearbyStates() {
 function getMomentsByState(states) {
 	var deferred = $q.defer();
 	var result = [];
-	for(var i = 0; i < states.length; i++) {
-		(function(i) {
-			var params = {
-				Bucket: constants.BUCKET_NAME,
-				Prefix: constants.MOMENT_PREFIX + states[i]
-			};
-			awsServices.getMoments(constants.MOMENT_PREFIX + states[i]).then(function(moments) {
-				result.push(moments);
-				if(result.length === states.length) {
-					deferred.resolve(result);
-				}
-			}, function(error) {
-				console.log("ERROR - momentService.getMomentsByState");
-				console.log(error);
-				deferred.reject(error);
-			});
-		})(i);
-	}
+	return Promise.all(states.map(state =>
+		awsServices.getMoments(constants.MOMENT_PREFIX + state)
+		));
+
+	// for(var i = 0; i < states.length; i++) {
+	// 	(function(i) {
+	// 		awsServices.getMoments(constants.MOMENT_PREFIX + states[i]).then(function(moments) {
+	// 			result.push(moments);
+	// 			if(result.length === states.length) {
+	// 				deferred.resolve(result);
+	// 			}
+	// 		}, function(error) {
+	// 			deferred.reject(error);
+	// 		});
+	// 	})(i);
+	// }
 	return deferred.promise;
 };
 

@@ -25,7 +25,6 @@
 		vm.getLatMileRadius = getLatMileRadius;
 		vm.getLngMileRadius = getLngMileRadius;
 		vm.getDeviceLocation = getDeviceLocation;
-		vm.initiateBucket = initiateBucket;
 		vm.getHardCodedMoments = getHardCodedMoments;
 
 		vm.remove = remove;
@@ -49,24 +48,6 @@
 			moment_radius_in_miles = newRadius;
 		};
 
-		function initiateBucket() {
-			var albumBucketName = 'mng-moment';
-			var bucketRegion = 'us-east-1';
-			var IdentityPoolId = 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4';
-
-			AWS.config.update({
-				region: bucketRegion,
-				credentials: new AWS.CognitoIdentityCredentials({
-					IdentityPoolId: IdentityPoolId
-				})
-			});
-
-			return new AWS.S3({
-				apiVersion: '2006-03-01',
-				params: {Bucket: albumBucketName}
-			});
-		};
-
 		function splitUrlOff(key) {
 			var result = "";
 			var keySplit = key.split('/');
@@ -81,33 +62,38 @@
 			}
 		};
 
-		function getImagePath(key) {
-			var result = key.split('/');
-			result = result[4] + '/' + result[5] + '/' + result[6];
-			return result;
-		};
-
 		function remove(moment) {
 			var deferred = $q.defer();
-			var imagePath = getImagePath(moment.key);
-			awsServices.remove(imagePath).then(function() {
+			var path = splitUrlOff(moment.key);
+			awsServices.remove(path).then(function() {
 				deferred.resolve();
 			}, function(error) {
-				console.log("FAILED TO REMOVE");
-				deferred.reject();
+				error = "FAILURE - aws_services.remove" + "\r\n" + "PATH: " + path + "\r\n" + error;
+				console.log("FAILURE IN aws_services.remove");
+				console.log(error);
+				logFile(error, 'errors.txt').then(function() {
+					deferred.reject(error);	
+				});
 			});
 			return deferred.promise;
 		};
 
 		var verifyMetaData = function(moment) {
-			return (
-				moment.location &&
+			if(	moment.location &&
 				moment.likes &&
 				moment.description !== undefined &&
 				moment.time &&
 				moment.views &&
-				moment.uuids
-				);
+				moment.uuids)
+				return true;
+			else {
+				var error = "FAILURE - core.verifyMetaData" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
+				console.log("FAILURE IN aws_services.getMoments");
+				console.log(error);
+				logFile(error, 'errors.txt').then(function() {
+					return false;
+				});
+			}
 		}
 
 		function edit(moment){
@@ -118,14 +104,15 @@
 				awsServices.copyObject(key, key, moment, "REPLACE").then(function() {
 					deferred.resolve();
 				}, function(error) {
-					console.log("ERROR");
+					error = "FAILURE - aws_services.copyObject" + "\r\n" + "KEY: " + key + " | copySource: " + copySource + " | META DATA: " + metaData + " | DIRECTIVE: " + directive + "\r\n" + error;
+					console.log("FAILURE IN aws_services.copyObject");
 					console.log(error);
-					deferred.reject();
+					logFile(error, 'errors.txt').then(function() {
+						deferred.reject(error);	
+					});
 				});
 			}
 			else {
-				console.log("Invalid MetaData");
-				console.log(moment);
 				deferred.reject();
 			}
 			return deferred.promise;
@@ -140,10 +127,10 @@
 				Key: key
 			};
 			awsServices.getObject(key).then(function(data) {
-				message = Date() + ': ' + message + "\r\n" + data.toString();
+				message = Date() + ': ' + message + "\r\n" + data;
 				var blob = new Blob([message], {type: "text"});
 				var file =  new File([blob], key);
-				vm.upload(file, moment).then(function() {
+				upload(file, moment).then(function() {
 					deferred.resolve();
 				}, function(error) {
 					deferred.reject();
@@ -164,16 +151,18 @@
 			if(verifyMetaData(moment) || moment.key.includes('reports')) {
 				var key = splitUrlOff(moment.key);
 				delete moment.key;
-				awsServices.upload(file, key, moment).then(function(data) {
+				awsServices.upload(file, key, moment).then(function() {
 					deferred.resolve();
-				}, function(error) {
-					console.log("FAILURE");
-					deferred.reject();
+				},function(error) {
+					error = "FAILURE - aws_services.upload" + "\r\n" + "FILE: " + file + " KEY: " + key + " | MOMENT: " + moment + "\r\n" + error;
+					console.log("FAILURE IN aws_services.upload");
+					console.log(error);
+					core.logFile(error, 'errors.txt').then(function() {
+						deferred.reject(error);	
+					});
 				});
 			}
 			else {
-				console.log("Invalid MetaData");
-				console.log(metaData);
 				deferred.reject("invalid MetaData");
 			}
 			return deferred.promise;
@@ -184,6 +173,9 @@
 		};
 
 		function timeElapsed(time) {
+			if(str.match(/[a-z]/i)) { //It is already in the correct format
+				return time;
+			}
 			time = parseInt(time);
 			var currentTime = new Date().getTime();
 			var minute = 60;
@@ -239,9 +231,12 @@
 				deferred.reject(error.message);
 			});
 		}, function(error) {
-			console.log("ERROR");
-			console.log(error.message);
-			deferred.reject(error.message)
+			error = "FAILURE - core.initializeUserLocation" + "\r\n" + error;
+			console.log("FAILURE IN core.initializeUserLocation");
+			console.log(error);
+			logFile(error, 'logs.txt').then(function() {
+				deferred.reject(error);	
+			});
 		});
 		return deferred.promise;
 	};
@@ -255,9 +250,12 @@
 			var lng = position.coords.longitude;
 			deferred.resolve({lat: lat, lng: lng});
 		}, function(error) {
-			deferred.reject(error);
-			console.log("ERROR");
-			console.log(error.message);
+			error = "FAILURE - core.getCurrentLatLong" + "\r\n" + error;
+			console.log("FAILURE IN core.getCurrentLatLong");
+			console.log(error);
+			logFile(error, 'logs.txt').then(function() {
+				deferred.reject(error);	
+			});
 		});
 		return deferred.promise;
 	};
@@ -295,8 +293,6 @@ function getHardCodedMoments() {
 				views: metaData.views
 			}))
 			));
-	}, function(error) {
-
 	});
 };
 

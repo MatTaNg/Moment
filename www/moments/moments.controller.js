@@ -5,24 +5,27 @@
 
 	function MomentsController (momentsService, $stateParams, $ionicContentBanner, $window, core, $rootScope, constants) {
 		// if(constants.DEV_MODE) {
-			localStorage.setItem('timeSinceLastMoment', "0m");
+			// localStorage.setItem('timeSinceLastMoment', "0m");
 		// }
 
 		var vm = this;
 		vm.currentImage;
 		vm.moment = {toggleDescription: "expanded"};
-		localStorage.setItem('moments', JSON.stringify([]));
-		if(JSON.parse(localStorage.getItem('moments')).length > 0) {
-			vm.imageArray = JSON.parse(localStorage.getItem('moments'));
-			for(var i = 0; i < vm.imageArray.length; i++) {
-				vm.imageArray[i].class = "layer-bottom";
-				vm.imageArray[i].time = core.timeElapsed(vm.imageArray[i].time);
+		// localStorage.setItem('moments', JSON.stringify([]));
+		getMomentsFromLocalStorage();
+		function getMomentsFromLocalStorage() {
+			if(JSON.parse(localStorage.getItem('moments'))) {
+				vm.imageArray = JSON.parse(localStorage.getItem('moments'));
+				for(var i = 0; i < vm.imageArray.length; i++) {
+					vm.imageArray[i].class = "layer-bottom";
+					vm.imageArray[i].time = core.timeElapsed(vm.imageArray[i].time);
+				}
+				vm.imageArray[0].class = "layer-top";
 			}
-			vm.imageArray[0].class = "layer-top";
-		}
-		else {
-			vm.imageArray = [];
-		}
+			else {
+				vm.imageArray = [];
+			}
+		};
 		vm.counter = 0;
 		vm.showHR = false;
 		vm.cardCSSClass = "layer-bottom";

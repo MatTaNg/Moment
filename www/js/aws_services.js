@@ -35,144 +35,120 @@
  		function upload(file, key, metaData) {
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
-		// // uploadToBestMoments(file, key, metaData);
-		// // var key = moment_prefix + file.name;
-		s3.upload({
-			Key: key,
-			Body: file,
-			ACL: 'public-read',
-			Metadata: metaData
-		}, function(err, data) {
-			if (err) {
-				console.log("FAILURE IN aws_services");
-				console.log(err.message);
-				deferred.reject();
-			}
-			else {
-				deferred.resolve();
-			}
-		});
-		return deferred.promise;
-	};
+ 			var params = {	
+ 				Key: key,
+ 				Body: file,
+ 				ACL: 'public-read',
+ 				Metadata: metaData
+ 			};
+ 			s3.upload(params, function(error, data) {
+ 				if(error) {
+ 					deferred.reject(error);
+ 				}
+ 				else {
+ 					deferred.resolve();
+ 				}
+ 			});
+ 			return deferred.promise;
+ 		};
 
-	function remove(path){
-		var deferred = $q.defer();
-		var params = {
-			Bucket: constants.BUCKET_NAME,
-			Key: path
-		};
-		var s3 = vm.initiateBucket();
-		s3.deleteObject(params, function(error, data) {
-			if(!error) {
-				deferred.resolve();
-			}
-			else {
-				console.log("ERROR");
-				console.log(error.stack);
-				deferred.reject(error);
-			}
-		})
-		return deferred.promise;
-	};
+ 		function remove(path){
+ 			var deferred = $q.defer();
+ 			var params = {
+ 				Bucket: constants.BUCKET_NAME,
+ 				Key: path
+ 			};
+ 			var s3 = vm.initiateBucket();
+ 			s3.deleteObject(params, function(error, data) {
+ 				if(error) {
+ 					deferred.reject(error);
+ 				}
+ 				else {
+ 					deferred.resolve();
+ 				}
+ 			});
+ 			return deferred.promise;
+ 		};
 
-	function copyObject(key, copySource, metaData, directive) {
-		console.log("COPY OBJECT");
-		console.log(key);
-		console.log(copySource);
-		console.log(metaData);
-		console.log(directive);
-		var deferred = $q.defer();
-		var s3 = vm.initiateBucket();
-		var params = {
-			Bucket: constants.BUCKET_NAME,
-			CopySource: constants.BUCKET_NAME + '/' + copySource,
-			Key: key,
-			Metadata: metaData,
-			MetadataDirective: directive
-		};
+ 		function copyObject(key, copySource, metaData, directive) {
+ 			var deferred = $q.defer();
+ 			var s3 = vm.initiateBucket();
+ 			var params = {
+ 				Bucket: constants.BUCKET_NAME,
+ 				CopySource: constants.BUCKET_NAME + '/' + copySource,
+ 				Key: key,
+ 				Metadata: metaData,
+ 				MetadataDirective: directive
+ 			};
 
-		s3.copyObject(params, function(err, data) {
-			if (err) {
-  				console.log(err, err.stack); // an error occurred
-  				console.log("KEY:");
-  				console.log(key);
-  				console.log("META:");
-  				console.log(metaData);
-  				deferred.reject();
-  			}
-  			else {
-  				deferred.resolve();
-  			}
-  		});
-		return deferred.promise;
-	};
+ 			s3.copyObject(params, function(error, data) {
+ 				if(error) {
+ 					deferred.reject(error);
+ 				}
+ 				else {
+ 					deferred.resolve();
+ 				}
+ 			});
+ 			return deferred.promise;
+ 		};
 
-	function getMomentMetaData(key) {
-		var deferred = $q.defer();
-		var s3 = vm.initiateBucket();
-		var params = {
-			Bucket: constants.BUCKET_NAME,
-			Key: key
-		};
+ 		function getMomentMetaData(key) {
+ 			var deferred = $q.defer();
+ 			var s3 = vm.initiateBucket();
+ 			var params = {
+ 				Bucket: constants.BUCKET_NAME,
+ 				Key: key
+ 			};
+ 			s3.headObject(params, function(error, data) {
+ 				if(error) {
+ 					deferred.reject(error);
+ 				}
+ 				else {
+ 					deferred.resolve(data.Metadata);
+ 				}
+ 			});
+ 			return deferred.promise;
+ 		};
 
-		s3.headObject(params, function(error, data) {
-			if(data) {
-				deferred.resolve(data.Metadata);
-			}
-			else {
-				deferred.reject();
-			}
-		});
+ 		function getMoments(prefix) {
+ 			var deferred = $q.defer();
+ 			var s3 = vm.initiateBucket();
+ 			var params = {
+ 				Bucket: constants.BUCKET_NAME,
+ 				Prefix: prefix
+ 			};
+ 			s3.listObjectsV2(params, function(error, data) {
+ 				if(error) {
+ 					deferred.reject(error);
+ 				}
+ 				else {
+ 					deferred.resolve(data.Contents);
+ 				}
+ 			});
+ 			return deferred.promise;
+ 		};
 
-		return deferred.promise;
-	};
+ 		function getObject(key) {
+ 			console.log("GET OBJECT KEY");
+ 			console.log(key);
+ 			var deferred = $q.defer();
+ 			var s3 = vm.initiateBucket();
+ 			var params = {
+ 				Bucket: constants.BUCKET_NAME,
+ 				Key: key
+ 			};
 
-	function getMoments(prefix) {
-		var deferred = $q.defer();
-		var s3 = vm.initiateBucket();
-		var params = {
-			Bucket: constants.BUCKET_NAME,
-			Prefix: prefix
-		};
-
-		s3.listObjectsV2(params, function(error, data) {
-			if(data) {
-				deferred.resolve(data.Contents);
-			}
-			else {
-				console.log("ERROR");
-				console.log(error);
-				deferred.reject();
-			}
-		});
-
-		return deferred.promise;
-	};
-
-	function getObject(key) {
-		console.log("KEY");
-		console.log(key);
-
-		var deferred = $q.defer();
-		var s3 = vm.initiateBucket();
-		var params = {
-			Bucket: constants.BUCKET_NAME,
-			Key: key
-		};
-
-		s3.getObject(params, function(error, data) {
-			if(error) {
-				console.log(JSON.stringify(key));
-				console.log(error, error.stack);
-				deferred.reject(error);
-			}
-			else {
-				console.log("ASDSADSA");
-				console.log(data);
-				deferred.resolve(data.Body);
-			}
-		});
-		return deferred.promise;
-	};
-};
-})();
+ 			s3.getObject(params, function(error, data) {
+ 				if(error) {
+ 					deferred.reject(error);
+ 				}
+ 				else {
+ 					console.log("RESOLVED");
+ 					console.log(data);
+ 					deferred.resolve(data.Metadata);
+ 				}
+ 			});
+ 			return deferred.promise;
+ 		};
+ 	};
+ })();
