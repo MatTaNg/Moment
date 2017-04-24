@@ -79,6 +79,9 @@
 		};
 
 		var verifyMetaData = function(moment) {
+			if(moment.key.includes('reports')) {
+				return true;
+			}
 			if(	moment.location &&
 				moment.likes &&
 				moment.description !== undefined &&
@@ -121,6 +124,9 @@
 		function logFile(message, key) {
 			var deferred = $q.defer();
 			var key = 'reports/' + key;
+			console.log("KEY");
+			console.log(key);
+			console.log(moment);
 			var moment = {key: key};
 			var params = {
 				Bucket: constants.BUCKET_NAME,
@@ -148,7 +154,7 @@
 			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
 				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
 			}
-			if(verifyMetaData(moment) || moment.key.includes('reports')) {
+			if(verifyMetaData(moment)) {
 				var key = splitUrlOff(moment.key);
 				delete moment.key;
 				awsServices.upload(file, key, moment).then(function() {
@@ -173,7 +179,7 @@
 		};
 
 		function timeElapsed(time) {
-			if(str.match(/[a-z]/i)) { //It is already in the correct format
+			if(time.match(/[a-z]/i)) { //It is already in the correct format
 				return time;
 			}
 			time = parseInt(time);
@@ -231,12 +237,7 @@
 				deferred.reject(error.message);
 			});
 		}, function(error) {
-			error = "FAILURE - core.initializeUserLocation" + "\r\n" + error;
-			console.log("FAILURE IN core.initializeUserLocation");
-			console.log(error);
-			logFile(error, 'logs.txt').then(function() {
-				deferred.reject(error);	
-			});
+			deferred.reject(error);	
 		});
 		return deferred.promise;
 	};
@@ -271,6 +272,12 @@
 			response = response.replace(/[0-9]/g, '');
 			deferred.resolve(response);
 		}, function(error) {
+			error = "FAILURE - core.getDeviceLocation" + "\r\n" + "LAT: " + lat + "| " + "LNG: " + lng + "\r\n" + error;
+			console.log("FAILURE IN core.getDeviceLocation");
+			console.log(error);
+			logFile(error, 'logs.txt').then(function() {
+				deferred.reject(error);	
+			});
 			deferred.reject(error);
 		});
 		return deferred.promise;

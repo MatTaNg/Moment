@@ -61,10 +61,6 @@
   .ion-close {
     font-size: 50px;
   }
-  .ion-flag {
-    color:black;
-    font-size: 20px;
-  }
   .ion-happy-outline {
     font-size:20px;
   }
@@ -92,7 +88,6 @@
     width: 95%;
     height: 95%;
     background-color: white;
-    /*border: solid #fff 2px;*/
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -116,6 +111,21 @@
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+  .ion-ios-flag {
+    position:fixed;
+    left: 94%;
+    top: 93%;
+    width:75%;
+    font-size: 30px;
+    color: red;
+  }
+  .ion-ios-flag-outline {
+    position:fixed;
+    left: 94%;
+    top: 93%;
+    width:75%;
+    font-size: 30px;
   }
   </style>
 
@@ -161,13 +171,13 @@
       <ion-nav-buttons side="left">
       <div class="ion-ios-upload" disabled = "momentTimer !== '0m'" ng-click="indexController.gallery()"></div>
     </ion-nav-buttons>
-        <ion-nav-buttons side="right">
+    <ion-nav-buttons side="right">
     <div class="ion-person" ui-sref="tabsController.myMoments"></div>
   </ion-nav-buttons>
-  </ion-nav-bar>
+</ion-nav-bar>
 <!-- </ion-nav-buttons> -->
 <ion-nav-view></ion-nav-view>
-    <!-- <ion-nav-view name="tab4"></ion-nav-view> -->
+<!-- <ion-nav-view name="tab4"></ion-nav-view> -->
 
 </div>
 </div>

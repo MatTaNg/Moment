@@ -25,8 +25,10 @@
 		this.updateMoment = updateMoment;
 		this.incrementCounter = incrementCounter;
 		this.calculateNearbyStates = calculateNearbyStates;
+		this.uploadReport = uploadReport;
 
 		function initializeView() {
+			console.log("INITALIZE VIEW");
 			var deferred = $q.defer();
 			momentArray = [];
 			var ionicLoading = $ionicLoading.show({
@@ -48,6 +50,8 @@
 					}
 				}
 				getMomentsWithinRadius(momentsInStates).then(function(moments) {
+					console.log("TEST");
+					console.log(moments);
 					uploadToBestMoments(moments).then(function() {
 						var temp = createTempVariable(moments);
 						momentArray = moments;
@@ -80,6 +84,8 @@ else {
 	core.getHardCodedMoments().then(function(moments) {
 		var temp = createTempVariable(moments);
 		momentArray = moments;
+		console.log("TEST");
+		console.log(temp);
 		$ionicLoading.hide().then(function() {
 			localStorage.setItem("moments", JSON.stringify(temp));
 			deferred.resolve(temp);		
@@ -93,11 +99,26 @@ else {
 return deferred.promise;
 };
 
+function uploadReport(report, moment) {
+	console.log("UPLOAD REPORT");
+	var defered = $q.defer();
+	core.logFile(report, "flagged.txt").then(function() {
+		console.log("RESOLVED");
+		defered.resolve();
+	}, function(error) {
+		defered.reject(error);
+	});
+	return defered.promise;
+};
+
 function updateMoment(liked) {
+	console.log("UPDATE MOMENT");
 	var temp = createTempVariable(momentArray);
 	var deferred = $q.defer();
 	var views = (parseInt(temp[0].views) + 1).toString();
 	checkAndDeleteExpiredMoment(momentArray[0]).then(function(deleted) {
+		console.log("deleted");
+		console.log(deleted);
 		if(!deleted) {
 			temp[0].views = views;
 			if(liked) {
@@ -132,6 +153,8 @@ function updateMoment(liked) {
 function incrementCounter(){
 	var deferred = $q.defer();
 	var temp = createTempVariable(momentArray);
+	console.log("MOMENT ARRAY LENGTH");
+	console.log(momentArray.length);
 	if(momentArray.length > 0) {
 		deferred.resolve(temp);
 	}
@@ -158,8 +181,6 @@ function uploadToBestMoments(moments) {
 				var copySource = splitUrlOff(moment.key);
 				var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
 				var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-				console.log("New BestMoment - moment.uploadToBestMoments");
-				console.log(log);
 				logFile(log, 'logs.txt').then(function() {
 					awsServices.copyObject(key, copySource, moment, "COPY");
 				});
@@ -278,18 +299,6 @@ function getMomentsByState(states) {
 		awsServices.getMoments(constants.MOMENT_PREFIX + state)
 		));
 
-	// for(var i = 0; i < states.length; i++) {
-	// 	(function(i) {
-	// 		awsServices.getMoments(constants.MOMENT_PREFIX + states[i]).then(function(moments) {
-	// 			result.push(moments);
-	// 			if(result.length === states.length) {
-	// 				deferred.resolve(result);
-	// 			}
-	// 		}, function(error) {
-	// 			deferred.reject(error);
-	// 		});
-	// 	})(i);
-	// }
 	return deferred.promise;
 };
 
