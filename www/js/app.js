@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices'])
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices'])
 
 .config(function($ionicConfigProvider, $sceDelegateProvider){
   $ionicConfigProvider.tabs.position('bottom');
@@ -14,15 +14,18 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
 
 })
 
-.run(function($ionicPlatform, $ionicPopup, $rootScope, constants, core) {
+.run(function($ionicPlatform, $ionicPopup, $rootScope, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
   $ionicPlatform.ready(function() {
+    initializeApp().then(function() {
+
+    });
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
-  if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
-    cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-    cordova.plugins.Keyboard.disableScroll(true);
-  }
-  if (window.StatusBar) {
+if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
+  cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+  cordova.plugins.Keyboard.disableScroll(true);
+}
+if (window.StatusBar) {
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
     }
@@ -37,8 +40,31 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
             ionic.Platform.exitApp();
           }
         });
+      } else {
+        initializeApp().then(function() {
+
+        });
       }
     } //window.connection
+
+    function initializeApp() {
+      console.log("INIT APP");
+      var deferred = $q.defer();
+      momentsService.initializeView().then(function(moments) {
+        console.log(moments);
+        localStorage.setItem('moments', JSON.stringify(moments));
+        bestMomentsService.initializeView().then(function(bestmoments) {
+          localStorage.setItem('bestMoments', JSON.stringify(bestmoments));
+          if(JSON.parse(localStorage.getItem('myMoments'))) {
+            myMomentsService.initialize(JSON.parse(localStorage.getItem('myMoments'))).then(function() {
+              deferred.resolve();
+            });
+          }
+        }); //End of bestMoments Init
+      }); //End of moments Init
+      return deferred.promise;
+    };
+
   });
 })
 

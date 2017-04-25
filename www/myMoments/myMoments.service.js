@@ -5,6 +5,7 @@
 
 	function myMomentsService(core, $q, awsServices) {
 		var findMoment = findMoment,
+		oldLocalStorage = {};
 		createKey = createKey;
 
 		this.removeFromLocalStorage = removeFromLocalStorage;
@@ -12,6 +13,7 @@
 		this.initialize = initialize;
 
 		function initialize(moments) {
+			oldLocalStorage = JSON.parse(localStorage.getItem('myMoments'));
 			return Promise.all(moments.map(moment => 
 				awsServices.getObject(core.splitUrlOff(moment.key)).then(object => (
 					{

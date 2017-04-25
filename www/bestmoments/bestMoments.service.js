@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.bestMomentsService', [])
 
-	.service('bestMomentsService', ['core', '$q', '$ionicLoading', 'constants', 'awsServices', bestMomentsService]);
+	.service('bestMomentsService', ['core', '$q', 'constants', 'awsServices', bestMomentsService]);
 
-	function bestMomentsService(core, $q, $ionicLoading, constants, awsServices){
+	function bestMomentsService(core, $q, constants, awsServices){
 		var momentArray = [];
 		var initiateMoments = initiateMoments;
 		this.initializeView = initializeView;
@@ -12,12 +12,8 @@
 			var deferred = $q.defer();
 			initiateMoments()
 			.then(function(moments) {
-				$ionicLoading.hide().then(function() {
-					console.log("MOMENTS");
-					console.log(moments);
 					momentArray.push({ moments });
 					deferred.resolve(moments);				
-				});
 
 			}, function(error) {
 				deferred.reject(error);
@@ -29,9 +25,6 @@
 		function initiateMoments() {
 			var deferred = $q.defer();
 			var metaData;
-			$ionicLoading.show({
-				template: '<ion-spinner></ion-spinner>'
-			});
 			momentArray = [];
 			var deferred = $q.defer();
 			awsServices.getMoments(constants.BEST_MOMENT_PREFIX).then(function(moments) {
