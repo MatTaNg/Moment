@@ -1,30 +1,39 @@
 (function() {
 	angular.module('app.BestMomentsController', [])
 
-	.controller('BestMomentsController', ['$stateParams', 'bestMomentsService', BestMomentsController]);
-	function BestMomentsController ($stateParams, bestMomentsService) {
+	.controller('BestMomentsController', ['$stateParams', '$ionicLoading','bestMomentsService', BestMomentsController]);
+	function BestMomentsController ($stateParams, $ionicLoading, bestMomentsService) {
 		var vm = this;
 		vm.imageArray = [];
 		vm.selectedOrder = "likes";
-		vm.options = ['likes', 'location', 'time'];
-
-		initialize();
+		vm.options = ['Likes', 'Location', 'Time'];
+		if(JSON.parse(localStorage.getItem('bestMoments'))) {
+			vm.imageArray = JSON.parse(localStorage.getItem('bestMoments'));
+		}
+		else {
+			initialize();
+		}
 
 		function initialize() {
-			bestMomentsService.initializeView()
-			.then(function(moments){
-				console.log("MOMENTS");
-				console.log(moments);
-				if(moments.length > 0) {
-					vm.imageArray = moments;
-				}
-				else {
-					console.log("MOMENTS");
-					vm.noMoments = true;
-				}
-			}, function(error) {
-				vm.noMoments = true;
-				console.log(error);
+			$ionicLoading.show({
+				template: '<ion-spinner></ion-spinner>'
+			}).then(function() {
+				bestMomentsService.initializeView()
+				.then(function(moments){
+					$ionicLoading.hide().then(function() {
+						if(moments.length > 0) {
+							vm.imageArray = moments;
+						}
+						else {
+							vm.noMoments = true;
+						}
+					});
+				}, function(error) {
+					$ionicLoading.hide().then(function() {
+						vm.noMoments = true;
+						console.log(error);
+					});
+				});
 			});
 		};
 	};

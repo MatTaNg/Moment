@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', '$ionicLoading', 'constants', 'awsServices', momentsService]);
+	.service('momentsService', ['core', '$q', 'constants', 'awsServices', '$ionicLoading', momentsService]);
 
-	function momentsService(core, $q, $ionicLoading, constants, awsServices){
+	function momentsService(core, $q, constants, awsServices, $ionicLoading){
 		if(localStorage.getItem('moments')) {
 			var momentArray = JSON.parse(localStorage.getItem('moments'));
 		}
@@ -28,15 +28,11 @@
 		this.uploadReport = uploadReport;
 
 		function initializeView() {
-			console.log("INITALIZE VIEW");
 			var deferred = $q.defer();
 			momentArray = [];
-			var ionicLoading = $ionicLoading.show({
-				template: '<ion-spinner></ion-spinner>'
-			}).then(function() {
-				if(!constants.DEV_MODE) {
+			if(!constants.DEV_MODE) {
 
-					calculateNearbyStates().then(function(states) {
+				calculateNearbyStates().then(function(states) {
 			//We cannot load all the images in the AWS database.
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
@@ -50,60 +46,39 @@
 					}
 				}
 				getMomentsWithinRadius(momentsInStates).then(function(moments) {
-					console.log("TEST");
-					console.log(moments);
 					uploadToBestMoments(moments).then(function() {
 						var temp = createTempVariable(moments);
 						momentArray = moments;
-						$ionicLoading.hide().then(function() {
-							localStorage.setItem("moments", JSON.stringify(temp));
-							deferred.resolve(temp);		
-						});
+						localStorage.setItem("moments", JSON.stringify(temp));
+						deferred.resolve(temp);		
 					});
 				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
-					$ionicLoading.hide().then(function() {
-						deferred.reject(error);
-					});
-				});
-			}, function(error) {
-				$ionicLoading.hide().then(function() {
 					deferred.reject(error);
 				});
-			});
-		}, function(error) {
-			console.log("CALCULATE NEARBY STATES ERROR");
-			console.log(error.message);
-			$ionicLoading.hide().then(function() {
+			}, function(error) {
 				deferred.reject(error);
 			});
+		}, function(error) {
+			deferred.reject(error);
 		});
 } //End of DEV_MODE
 else {
 	core.getHardCodedMoments().then(function(moments) {
 		var temp = createTempVariable(moments);
 		momentArray = moments;
-		console.log("TEST");
-		console.log(temp);
-		$ionicLoading.hide().then(function() {
-			localStorage.setItem("moments", JSON.stringify(temp));
-			deferred.resolve(temp);		
-		});
+		localStorage.setItem("moments", JSON.stringify(temp));
+		deferred.resolve(temp);		
 	},function(error) {
 		console.log("ERROR");
 		console.log(error);
 	});
 }
-});
 return deferred.promise;
 };
 
 function uploadReport(report, moment) {
-	console.log("UPLOAD REPORT");
 	var defered = $q.defer();
 	core.logFile(report, "flagged.txt").then(function() {
-		console.log("RESOLVED");
 		defered.resolve();
 	}, function(error) {
 		defered.reject(error);
@@ -112,13 +87,10 @@ function uploadReport(report, moment) {
 };
 
 function updateMoment(liked) {
-	console.log("UPDATE MOMENT");
 	var temp = createTempVariable(momentArray);
 	var deferred = $q.defer();
 	var views = (parseInt(temp[0].views) + 1).toString();
 	checkAndDeleteExpiredMoment(momentArray[0]).then(function(deleted) {
-		console.log("deleted");
-		console.log(deleted);
 		if(!deleted) {
 			temp[0].views = views;
 			if(liked) {
@@ -153,18 +125,20 @@ function updateMoment(liked) {
 function incrementCounter(){
 	var deferred = $q.defer();
 	var temp = createTempVariable(momentArray);
-	console.log("MOMENT ARRAY LENGTH");
-	console.log(momentArray.length);
 	if(momentArray.length > 0) {
 		deferred.resolve(temp);
 	}
 	else {
-		initializeView().then(function(moments) {
-			momentArray = moments;
-			var temp = createTempVariable(moments);
-			deferred.resolve(temp);
-		}, function(error) {
-			deferred.reject();
+		var ionicLoading = $ionicLoading.show({
+			template: '<ion-spinner></ion-spinner>'
+		}).then(function() {
+			initializeView().then(function(moments) {
+				momentArray = moments;
+				var temp = createTempVariable(moments);
+				deferred.resolve(temp);
+			}, function(error) {
+				deferred.reject();
+			});
 		});
 	}
 	return deferred.promise;
@@ -184,7 +158,7 @@ function uploadToBestMoments(moments) {
 				logFile(log, 'logs.txt').then(function() {
 					awsServices.copyObject(key, copySource, moment, "COPY");
 				});
-				
+
 			}
 		}
 		));
@@ -206,7 +180,7 @@ function checkAndDeleteExpiredMoment(moment) {
 			logFile(log, 'logs.txt').then(function() {
 				deferred.resolve(true);
 			});
-			
+
 		}, function(error) {
 			deferred.reject(error);
 		});

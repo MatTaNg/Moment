@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', '$stateParams', '$scope', '$ionicContentBanner', '$window', 'core', '$rootScope', '$ionicPopup', '$q', 'constants', MomentsController]);
+	.controller('MomentsController', ['momentsService', '$stateParams', '$scope', '$ionicContentBanner', '$window', 'core', '$rootScope', '$ionicPopup', '$ionicLoading', '$q', 'constants', MomentsController]);
 
-	function MomentsController (momentsService, $stateParams, $scope, $ionicContentBanner, $window, core, $rootScope, $ionicPopup, $q, constants) {
+	function MomentsController (momentsService, $stateParams, $scope, $ionicContentBanner, $window, core, $rootScope, $ionicPopup, $ionicLoading, $q, constants) {
 		// if(constants.DEV_MODE) {
 			// localStorage.setItem('timeSinceLastMoment', "0m");
 		// }
@@ -67,51 +67,68 @@
 
 		function updateView() {
 			vm.imageArray = [];
-			momentsService.initializeView()
-			.then(function(moments){
-				if(moments.length > 0) {
-					vm.imageArray = updateObject(moments);
-				}
-			}, function(error) {
-				vm.currentImage = undefined;
-			});
+			var ionicLoading = $ionicLoading.show({
+				template: '<ion-spinner></ion-spinner>'
+			}).then(function() {
+				momentsService.initializeView()
+				.then(function(moments){
+					$ionicLoading.hide().then(function() {
+						if(moments.length > 0) {
+							vm.imageArray = updateObject(moments);
+						}
+					}, function(error) {
+						vm.currentImage = undefined;
+					}); 
+				}, function(error) {
+					$ionicContentBanner.show({
+						text: ["We apologize; there was a problem getting the moments"],
+						type: "error",
+						autoClose: 3000
+					})
+				}); //End of initializeView
+			}); //End of ionicLoading
 		};
 
 		function liked(liked) {
-			console.log("LIKED");
 			sendReport().then(function() {
 				console.log("SEND REPORT");
 				momentsService.updateMoment(liked).then(function(moments) {
-					vm.flagClass = "ion-ios-flag-outline";
-					if(moments.length > 0) {
-						vm.imageArray = updateObject(moments);
-					}
-					else {
-						vm.imageArray = [];
-					}
-				}, function(error) {
-					updateView();
-				});
-			});
-
-
+					$ionicLoading.hide().then(function(){
+						vm.flagClass = "ion-ios-flag-outline";
+						if(moments.length > 0) {
+							vm.imageArray = updateObject(moments);
+						}
+						else {
+							vm.imageArray = [];
+						}
+					}, function(error) {
+						updateView();
+						}); //End of ionic Hide
+					});//End of updateMoment
+					});//End of sendReport
 		};
 
 		function sendReport() {
 			var deferred = $q.defer();
 			if(vm.disableFlag) {
-				momentsService.uploadReport(vm.report, vm.imageArray[0]).then(function() {
-					deferred.resolve();
-				}, function() {
-					$ionicContentBanner.show({
-						text: ["Something went wrong while uploading your flag.  Our fault - We apologize"],
-						autoClose: 3000
-					});
-				})
+				var ionicLoading = $ionicLoading.show({
+					template: '<ion-spinner></ion-spinner>'
+				}).then(function() {
+					momentsService.uploadReport(vm.report, vm.imageArray[0]).then(function() {
+						deferred.resolve();
+					}, function() {
+						$ionicContentBanner.show({
+							text: ["Something went wrong while uploading your flag.  Our fault - We apologize"],
+							type: "error",
+							autoClose: 3000
+						});
+					})
+					vm.disableFlag = false;
+					return deferred.promise;
+			}); //End of ionic Loading
 			} else {
 				deferred.resolve();
 			}
-			vm.disableFlag = false;
 			return deferred.promise;
 		};
 
@@ -175,5 +192,5 @@
 				});
 			}
 		};
-	};
+	}
 })();

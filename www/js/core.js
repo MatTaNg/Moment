@@ -179,10 +179,11 @@
 		};
 
 		function timeElapsed(time) {
-			if(time.match(/[a-z]/i)) { //It is already in the correct format
+			if(time.toString().match(/[a-z]/i)) { //It is already in the correct format
 				return time;
 			}
 			time = parseInt(time);
+
 			var currentTime = new Date().getTime();
 			var minute = 60;
 			var hour = 3600;
@@ -266,7 +267,6 @@
 		var url = constants.GEOLOCATION_URL + lat + ',' + lng;
 
 		$http.get(url).then(function(response) {
-			// key = constants.MOMENT_PREFIX + response.data.results[6].formatted_address + '/' + key + '.jpeg';
 			response = response.data.results[2].formatted_address;
 			response = response.slice(0, response.lastIndexOf(','));
 			response = response.replace(/[0-9]/g, '');
