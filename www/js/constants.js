@@ -6,6 +6,8 @@
 		"BUCKET_REGION": 'us-east-1',
 		"KEY_ID": 'AKIAIBIANXR773ZDLRMQ',
 		"IDENTITY_POOL_ID": 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4',
+		"ONE_PUSH_APP_ID": "53f08046-7a86-4d99-b95f-e74349b4dd0b",
+
 		"IMAGE_URL": 'https://s3.amazonaws.com/' + "mng-moment" + '/',
 
 		"MOMENT_PREFIX": "test/",
