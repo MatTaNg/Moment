@@ -16,6 +16,8 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
 
 .run(function($ionicPlatform, $ionicPopup, $rootScope, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
   $ionicPlatform.ready(function() {
+
+    oneSignalSetup();
     initializeApp().then(function() {
 
     });
@@ -64,8 +66,26 @@ if (window.StatusBar) {
       }); //End of moments Init
       return deferred.promise;
     };
+    
+    function oneSignalSetup() {
+          // Enable to debug issues.
+  // window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
+  
+  var notificationOpenedCallback = function(jsonData) {
+    console.log('notificationOpenedCallback: ' + JSON.stringify(jsonData));
+  };
 
-  });
+  window.plugins.OneSignal
+  .startInit("53f08046-7a86-4d99-b95f-e74349b4dd0b")
+  .handleNotificationOpened(notificationOpenedCallback)
+  .endInit();
+  
+  // Call syncHashedEmail anywhere in your app if you have the user's email.
+  // This improves the effectiveness of OneSignal's "best-time" notification scheduling feature.
+  // window.plugins.OneSignal.syncHashedEmail(userEmail);
+};
+
+});
 })
 
 /*
