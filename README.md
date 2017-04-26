@@ -5,12 +5,18 @@ https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md
 
 Moment's AWS S3 Database is set up like so:
 
-1.  Every Moment is a .jpg image and it is named as such: <State>/<lat>_<lng>_<timeStamp_of_whenThePictureWasTaken>
+1.  Every Moment is a .jpg image and it is named as such: <state>/<lat>_<lng>_<timeStamp_of_whenThePictureWasTaken>
+
           Ex: PA/40.0103647_-75.2625353_1493079258676.jpg
+          
           -The object is named like this for efficiency.
+          
           -In order to know which Moment to load based on a users location we need to first get the object from the database and compare it to the users location.  Rather than load every Moment in the entire database, it is more efficient to load only those Moments in those states close to the user.  
+          
           -After loading all these Moments we then compare the Moments to the users location and remove the ones too far away.
+          
           -The timeStamp is there simply to make the file unique.
+          
 2.  Every Moment has metaData as such:
           -Likes, description, key, location, time, uuids, views.
           
