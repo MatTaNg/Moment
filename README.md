@@ -1,4 +1,8 @@
-Stuff you should know:
+<b>Stuff you should know:</b>
+
+Go to www.oneSignal.com to send notifications
+
+To configure the app easily go to www/js/constant.js
 
 We try to follow John Papa's AngularJS style guide as closely as possible:
 https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md
