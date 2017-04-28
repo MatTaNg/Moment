@@ -43,3 +43,4 @@ Moment's AWS S3 Database is set up like so:
 3.  Reports, feedback, logs and error messages can be found in the reports folder.
 4.  The code will remove Moments which have expired when the User tries to grab an image from the database.
 5.  For a high level summary of how the code works you can go to www.draw.io.com and open the xml diagrams contained in this repository.
+6.  In constants.js there is a variable called "DEV_MODE"; setting this to false allows you to use ionic serve by shutting off anything having to do with location tracking.
