@@ -49,7 +49,7 @@
 
 		function uploadFeedback(feedback, isBug) {
 			var defered = $q.defer();
-			core.logFile(feedback, createKey(isBug)).then(function() {
+			core.logReport(feedback, createKey(isBug)).then(function() {
 				defered.resolve();
 			}, function(error) {
 				defered.reject(error);

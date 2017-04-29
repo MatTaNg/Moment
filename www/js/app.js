@@ -5,18 +5,20 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices'])
+angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'geolocation'])
 
-.config(function($ionicConfigProvider, $sceDelegateProvider){
+.config(function($ionicConfigProvider, $sceDelegateProvider, ionGalleryConfigProvider, constants){
+  ionGalleryConfigProvider.setGalleryConfig({
+    row_size: constants.ION_GALLERY_ROW_SIZE
+  });
   $ionicConfigProvider.tabs.position('bottom');
 
   $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**']);
 
 })
 
-.run(function($ionicPlatform, $ionicPopup, $rootScope, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
+.run(function($ionicPlatform, $ionicPopup, $rootScope, geolocation, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
   $ionicPlatform.ready(function() {
-
     oneSignalSetup();
     initializeApp().then(function() {
 
@@ -50,10 +52,12 @@ if (window.StatusBar) {
     } //window.connection
 
     function initializeApp() {
-      console.log("INIT APP");
       var deferred = $q.defer();
+      if(!localStorage.getItem('momentRadiusInMiles')) {
+        localStorage.setItem('momentRadiusInMiles', JSON.stringify(constants.DEFAULT_MOMENT_RADIUS_IN_MILES));
+      } 
+
       momentsService.initializeView().then(function(moments) {
-        console.log(moments);
         localStorage.setItem('moments', JSON.stringify(moments));
         bestMomentsService.initializeView().then(function(bestmoments) {
           localStorage.setItem('bestMoments', JSON.stringify(bestmoments));
@@ -75,14 +79,14 @@ if (window.StatusBar) {
     console.log('notificationOpenedCallback: ' + JSON.stringify(jsonData));
   };
 
-  window.plugins.OneSignal
-  .startInit("53f08046-7a86-4d99-b95f-e74349b4dd0b")
-  .handleNotificationOpened(notificationOpenedCallback)
-  .endInit();
-  
-  // Call syncHashedEmail anywhere in your app if you have the user's email.
-  // This improves the effectiveness of OneSignal's "best-time" notification scheduling feature.
-  // window.plugins.OneSignal.syncHashedEmail(userEmail);
+//   window.plugins.OneSignal
+//   .startInit(constants.ONE_PUSH_APP_ID)
+//   .handleNotificationOpened(notificationOpenedCallback)
+//   .endInit();
+
+//   // Call syncHashedEmail anywhere in your app if you have the user's email.
+//   // This improves the effectiveness of OneSignal's "best-time" notification scheduling feature.
+//   // window.plugins.OneSignal.syncHashedEmail(userEmail);
 };
 
 });

@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', 'constants', 'awsServices', '$ionicLoading', momentsService]);
+	.service('momentsService', ['core', '$q', 'constants', 'awsServices', '$ionicLoading', 'logger', 'geolocation', momentsService]);
 
-	function momentsService(core, $q, constants, awsServices, $ionicLoading){
+	function momentsService(core, $q, constants, awsServices, $ionicLoading, logger, geolocation){
 		if(localStorage.getItem('moments')) {
 			var momentArray = JSON.parse(localStorage.getItem('moments'));
 		}
@@ -24,7 +24,6 @@
 		this.filterMoments = filterMoments;
 		this.updateMoment = updateMoment;
 		this.incrementCounter = incrementCounter;
-		this.calculateNearbyStates = calculateNearbyStates;
 		this.uploadReport = uploadReport;
 
 		function initializeView() {
@@ -32,11 +31,11 @@
 			momentArray = [];
 			if(!constants.DEV_MODE) {
 
-				calculateNearbyStates().then(function(states) {
+				geolocation.calculateNearbyStates().then(function(states) {
 			//We cannot load all the images in the AWS database.
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
-			getMomentsByState(states).then(function(moments) {
+			geolocation.getMomentsByState(states).then(function(moments) {
 				var momentsInStates = [];
 				for(var i = 0; i < moments.length; i++) {
 					for(var x = 0; x < moments[i].length; x++) {
@@ -45,7 +44,7 @@
 						}
 					}
 				}
-				getMomentsWithinRadius(momentsInStates).then(function(moments) {
+				geolocation.getMomentsWithinRadius(momentsInStates).then(function(moments) {
 					uploadToBestMoments(moments).then(function() {
 						var temp = createTempVariable(moments);
 						momentArray = moments;
@@ -78,7 +77,7 @@ return deferred.promise;
 
 function uploadReport(report, moment) {
 	var defered = $q.defer();
-	core.logFile(report, "flagged.txt").then(function() {
+	core.logReport(report, 'flagged.txt').then(function() {
 		defered.resolve();
 	}, function(error) {
 		defered.reject(error);
@@ -154,8 +153,8 @@ function uploadToBestMoments(moments) {
 			if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO) {
 				var copySource = splitUrlOff(moment.key);
 				var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
-				var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-				logFile(log, 'logs.txt').then(function() {
+				// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
+				logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, error, 'logs.txt').then(function() {
 					awsServices.copyObject(key, copySource, moment, "COPY");
 				});
 
@@ -176,8 +175,8 @@ function checkAndDeleteExpiredMoment(moment) {
 			var moments = JSON.parse(localStorage.getItem('moments'));
 			moments.splice(moments.indexOf(moment), 1);
 			localStorage.setItem('moments', JSON.stringify(moments));
-			var log = "Moment Expired - moment.checkAndDeleteExpiredMoment" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-			logFile(log, 'logs.txt').then(function() {
+			// var log = "Moment Expired - moment.checkAndDeleteExpiredMoment" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
+			logger.logFile("Moment Expired - moment.checkAndDeleteExpiredMoment", {Moment: moment}, {}, 'logs.txt').then(function() {
 				deferred.resolve(true);
 			});
 
@@ -214,80 +213,6 @@ function filterImage(key) {
 else {
 	return false;
 }
-};
-
-function getStates(north, south, west, east) {
-	var deferred = $q.defer();
-	var nearbyStates = {};
-	core.getDeviceLocation(this.max_north.lat, this.max_north.lng).then(function(location) {
-		nearbyStates.north = location.split(',')[1].trim();
-		core.getDeviceLocation(max_south.lat, max_south.lng).then(function(location) {
-			nearbyStates.south = location.split(',')[1].trim();
-			core.getDeviceLocation(max_west.lat, max_west.lng).then(function(location) {
-				nearbyStates.west = location.split(',')[1].trim();
-				core.getDeviceLocation(max_east.lat, max_east.lng).then(function(location) {
-					nearbyStates.east = location.split(',')[1].trim();
-					deferred.resolve(nearbyStates);
-				});
-			});
-		});
-	}, function(error) {
-		deferred.reject(error);
-	});
-	return deferred.promise;
-};
-function calculateNearbyStates() {
-	var deferred = $q.defer();
-
-	core.initializeUserLocation().then(function(locationData) {
-		this.max_north = { lat: locationData.lat + core.getLatMileRadius(), lng: locationData.lng }; 
-		this.max_south = { lat: locationData.lat - core.getLatMileRadius(), lng: locationData.lng }; 
-		this.max_west = {  lat: locationData.lat, lng: locationData.lng - core.getLngMileRadius() };
-		this.max_east = {  lat: locationData.lat, lng: locationData.lng + core.getLngMileRadius() };
-
-		var nearbyState = {north: "", south: "", west: "", east: ""};
-		var result = [];
-		getStates(this.max_north, this.max_south, this.max_west, this.max_east).then(function(nearbyStates) {
-
-			result.push(nearbyStates.north);
-			if(result.indexOf(nearbyStates.south) === -1) {
-				result.push(nearbyStates.south);
-			}
-			if(!result.indexOf(nearbyStates.west) === -1) {
-				result.push(nearbyStates.west);
-			}
-			if(!result.indexOf(nearbyStates.east) === -1) {
-				result.push(nearbyStates.east);
-			}
-			deferred.resolve(result);
-		});
-	})
-
-	return deferred.promise;
-};
-
-function getMomentsByState(states) {
-	var deferred = $q.defer();
-	var result = [];
-	return Promise.all(states.map(state =>
-		awsServices.getMoments(constants.MOMENT_PREFIX + state)
-		));
-
-	return deferred.promise;
-};
-
-function getMomentsWithinRadius(momentsInStates) {
-	return Promise.all(momentsInStates.map(moment =>
-		awsServices.getMomentMetaData(moment.Key).then(metaData => ({
-			key: constants.IMAGE_URL + moment.Key, 
-			description: metaData.description,
-			likes: metaData.likes,
-			location: metaData.location,
-			time: metaData.time,
-			uuids: metaData.uuids,
-			views: metaData.views
-		}))
-		));
 };
 
 function createTempVariable(moments) {

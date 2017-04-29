@@ -6,6 +6,7 @@
     "angular-mocks": "^1.6.2"
   },
   "dependencies": {
-    "jr-crop": "^1.1.2"
+    "jr-crop": "^1.1.2",
+    "ion-gallery": "^0.1.14"
   }
 }

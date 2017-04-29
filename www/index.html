@@ -8,19 +8,32 @@
   <script src="lib/ionic-content-banner/dist/ionic.content.banner.js"></script>
   <script src="lib/ionic-ion-tinder-cards/ionic.tdcards.js"></script>
   <script src="lib/collide/collide.js"></script>
+  <script src="lib/ion-gallery/dist/ion-gallery.min.js"></script>
   <!-- cordova script (this will be a 404 during development) -->
   <script src="cordova.js"></script>
+
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
     <link href="css/ionic.app.css" rel="stylesheet">
   -->
   <link rel="stylesheet" href="lib/ionic-content-banner/dist/ionic.content.banner.css">
   <link rel="stylesheet" href="lib/ionic-ion-tinder-cards/ionic.tdcards.css">
-
+  <link href="lib/ion-gallery/dist/ion-gallery.css" rel="stylesheet">
   <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+  <link href="css/moment.css" rel="stylesheet">
 
 
-  <style type="text/css">
+  <!--<style type="text/css">
+  .wrapword{
+    white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    white-space: pre-wrap;       /* css-3 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+    white-space: normal;
+  }
+
   .platform-ios .manual-ios-statusbar-padding{
     padding-top:20px;
   }
@@ -128,7 +141,7 @@
     width:75%;
     font-size: 30px;
   }
-  </style>
+  </style>-->
 
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.27.min.js"></script>
 
@@ -158,6 +171,9 @@
   <script src="js/routes.js"></script>
   <script src="js/ng-cordova.min.js"></script>
   <script src="js/aws_services.js"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/geolocation.js"></script>
+  <!--<script src="js/exceptionHandling.js"></script>-->
 
     <!-- Only required for Tab projects w/ pages in multiple tabs 
     <script src="lib/ionicuirouter/ionicUIRouter.js"></script>

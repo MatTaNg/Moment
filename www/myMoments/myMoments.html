@@ -1,18 +1,59 @@
-<ion-view title="My Moments" id="page4">
+<ion-view title="Moment" id="page4">
 <ion-content padding="true" class="has-header">
-<div ng-show="vm.errorMessage" style="text-align: center; text-font: 18pt; margin: 10px">
-	No Moments to Show
-</div>
-<div ng-repeat="image in vm.myImages">
-	<mng-mainview moment="image"></mng-mainview>
-	<hr style="margin: 2px">
-	<div class="row">
-		<button class="col button button-assertive" data-ng-click="vm.remove(image)" style="margin: 5px">Remove</button>
-		<div class="col" style="margin: 5px"> {{image.description}} </div>
+<ion-refresher
+	on-refresh="vm.initialize()">
+</ion-refresher>
+	<div ng-show="vm.errorMessage" class="myMoments_NotFound">
+		No Moments to Show
 	</div>
-</div> <!--End of ng-repeat -->
-<div class = "row">
-	<button class="col button button-assertive" data-ng-click="vm.feedback()" style="margin: 5px">Feedback</button>
+<div class = "item range range-energized" style="margin-bottom: 10px">
+	<i>5</i>
+	<input type = "range" name = "range" min="5" max="50" ng-model="vm.distance">
+	<i> {{vm.distance}} Miles</i>
 </div>
+
+</ion-range>
+<div class="row">
+	<div class="col">
+		<div class="ion-happy-outline">{{vm.totalLikes}}<span style="color:green" ng-if="vm.numberOfExtraLikes > 0"> (+{{vm.numberOfExtraLikes}})</span></div>
+	</div>
+	<div class = "col">
+		<input value="{{vm.userLocation}}"></input>
+	</div>
+</div> <!--End of Row-->
+<br>
+<!-- <hr style="margin: 10px"> -->
+	<ion-list>
+		<div ng-repeat="image in vm.myImages">
+			<ion-item-sliding>
+				<ion-item ng-click="vm.toggleDescription(image)">
+					<ion-thumbnail item-left>
+						<img src="{{image.key}}" width="30%" height="30%" style="float: left;">
+					</ion-thumbnail>
+					<div class="myMoments_metaData">
+						<div class="ion-happy-outline" class="myMoments_likes">{{image.likes}} <span style="color:green" ng-if="image.gainedLikes > 0"> (+{{image.gainedLikes}})</span></div>
+						<div class="myMoments_time">{{image.time}}</div>
+						<div class="myMoments_description">
+							<div ng-show="image.showShortDescription">{{image.shortDescription}}<br>
+								<div class="myMoments_toggleDescription">show more...</div>
+							</div>
+							<div ng-show="!image.showShortDescription">{{image.description}}<br> 			
+								<div class="myMoments_toggleDescription">show less</div> 
+							</div>
+							 <br>
+						</div>
+					</div>
+				</ion-item>
+				<ion-item-options slide="left">
+					<button ion-button color="danger">
+						Remove
+					</button>
+				</ion-item-options>
+			</ion-item-sliding>
+		</div> <!--End of ng-repeat -->
+	</ion-list>
+	<div class = "row">
+		<button class="col button button-assertive" data-ng-click="vm.feedback()" style="margin: 5px">Feedback</button>
+	</div>
 </ion-content>
 </ion-view>
