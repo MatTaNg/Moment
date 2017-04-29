@@ -14,7 +14,7 @@
 		// localStorage.setItem('moments', JSON.stringify([]));
 		getMomentsFromLocalStorage();
 		function getMomentsFromLocalStorage() {
-			if(JSON.parse(localStorage.getItem('moments'))) {
+			if(JSON.parse(localStorage.getItem('moments')).length > 0) {
 				vm.imageArray = JSON.parse(localStorage.getItem('moments'));
 				for(var i = 0; i < vm.imageArray.length; i++) {
 					vm.imageArray[i].class = "layer-bottom";
@@ -91,7 +91,6 @@
 
 		function liked(liked) {
 			sendReport().then(function() {
-				console.log("SEND REPORT");
 				momentsService.updateMoment(liked).then(function(moments) {
 					$ionicLoading.hide().then(function(){
 						vm.flagClass = "ion-ios-flag-outline";

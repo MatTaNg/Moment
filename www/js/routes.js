@@ -46,7 +46,6 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
 
   .state('tabsController.myMoments', {
     url: '/myMoments',
-    cache:false,
     views: {
       'tab3': {
         templateUrl: 'myMoments/myMoments.html',
@@ -64,6 +63,5 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
   })
 
   $urlRouterProvider.otherwise('/page1/moments')
-  
 
-});
+ });

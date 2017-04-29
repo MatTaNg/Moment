@@ -1,0 +1,147 @@
+.platform-ios .manual-ios-statusbar-padding{
+  padding-top:20px;
+}
+.manual-remove-top-padding{
+  padding-top:0px; 
+}
+.manual-remove-top-padding .scroll{
+  padding-top:0px !important;
+}
+ion-list.manual-list-fullwidth div.list, .list.card.manual-card-fullwidth {
+  margin-left:-10px;
+  margin-right:-10px;
+}
+ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidth > .item {
+  border-radius:0px;
+  border-left:0px;
+  border-right: 0px;
+}
+.show-list-numbers-and-dots ul{
+  list-style-type: disc;
+  padding-left:40px;
+}
+.show-list-numbers-and-dots ol{
+  list-style-type: decimal;
+  padding-left:40px;
+}
+.ion-ios-upload {
+  font-size: 35px;
+}
+.ion-person {
+  font-size: 35px;
+}
+.ion-ios-camera-outline {
+  font-size: 35px;
+}
+.ion-happy {
+  font-size: 50px;
+}
+.ion-close {
+  font-size: 50px;
+}
+.ion-happy-outline {
+  font-size:20px;
+}
+.ion-ios-clock-outline {
+  font-size:20px;
+}
+.ion-ios-location-outline {
+  font-size:20px;
+}
+.on-drag-next {
+  position: absolute;
+  left: 65%;
+  top: 3%;
+  z-index: 10;
+}
+.on-drag-liked {
+  position: absolute;
+  left: 5%;
+  top: 3%;
+  z-index: 10;
+}
+.layer-top {
+  position: absolute;
+  z-index: 2;
+  width: 95%;
+  height: 95%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+.layer-next {
+  position: absolute;
+  z-index: 1;
+  width: 95%;
+  height: 95%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+.layer-bottom {
+  position: absolute;
+  z-index: 0;
+  width: 95%;
+  height: 95%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+.ion-ios-flag {
+  position:fixed;
+  left: 94%;
+  top: 93%;
+  width:75%;
+  font-size: 30px;
+  color: red;
+}
+.ion-ios-flag-outline {
+  position:fixed;
+  left: 94%;
+  top: 93%;
+  width:75%;
+  font-size: 30px;
+}
+/**My Moment**/
+ .myMoments_description{
+  white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  white-space: pre-wrap;       /* css-3 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+  white-space: normal;
+  margin-top: 5px;
+}
+.myMoments_NotFound {
+  text-align: center; 
+  text-font: 18pt;
+}
+.myMoments_metaData {
+  padding: 5px;
+  width:70%; 
+  margin-left: 30%;
+}
+.myMoments_likes {
+  float:left; 
+  font-size: 16pt;
+}
+.myMoments_time {
+  margin-top: -20px;
+  text-align: right; 
+  font-size: 16pt;
+}
+.myMoments_toggleDescription {
+  font-style: italic; 
+  font-size: 12px;
+}
+
+/**Best Moments**/
+.trending_Moments {
+  text-align: center; 
+  font-size: 14pt;
+  margin: 10px;
+}

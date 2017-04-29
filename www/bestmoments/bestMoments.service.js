@@ -12,8 +12,8 @@
 			var deferred = $q.defer();
 			initiateMoments()
 			.then(function(moments) {
-					momentArray.push({ moments });
-					deferred.resolve(moments);				
+				momentArray.push({ moments });
+				deferred.resolve(moments);				
 
 			}, function(error) {
 				deferred.reject(error);
@@ -40,9 +40,9 @@
 						views: metaData.views
 					}))
 					)));
-		}, function(error) {
-			deferred.reject(error);
-		});
+			}, function(error) {
+				deferred.reject(error);
+			});
 			return deferred.promise;
 		};
 

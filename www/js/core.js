@@ -1,15 +1,11 @@
  (function() {
  	angular.module('core', [])
 
- 	.service('core', ['$cordovaGeolocation', '$q', '$http', 'constants', 'awsServices', core]);
+ 	.service('core', ['$cordovaGeolocation', '$q', '$http', 'constants', 'awsServices', 'logger', 'geolocation', core]);
 
- 	function core($cordovaGeolocation, $q, $http, constants, awsServices){
+ 	function core($cordovaGeolocation, $q, $http, constants, awsServices, logger, geolocation){
  		var vm = this,
  		deferred = $q.defer();
-
- 		var moment_radius_in_miles = 25,
-		lat_mile_radius = 0.016880283 * moment_radius_in_miles, //1 mile distance between two points * perferred radius
-		lng_mile_radius = 0.019158007 * moment_radius_in_miles, //1 mile distance between two points * perferred radius
 
 		verifyMetaData = verifyMetaData;
 		vm.splitUrlOff = splitUrlOff;
@@ -17,36 +13,14 @@
 		vm.userLocation = undefined;
 		vm.moments = [];
 
-		vm.initializeUserLocation = initializeUserLocation,
 		vm.timeElapsed = timeElapsed,
 		vm.getCurrentTime = getCurrentTime;
-		vm.getCurrentLatLong = getCurrentLatLong;
 		vm.getUUID = getUUID;
-		vm.getLatMileRadius = getLatMileRadius;
-		vm.getLngMileRadius = getLngMileRadius;
-		vm.getDeviceLocation = getDeviceLocation;
 		vm.getHardCodedMoments = getHardCodedMoments;
 
 		vm.remove = remove;
 		vm.edit = edit;
 		vm.upload = upload;
-		vm.logFile = logFile;
-
-		function getLatMileRadius() {
-			return lat_mile_radius;
-		};
-
-		function getLngMileRadius() {
-			return lng_mile_radius;
-		};
-
-		function getMomentRadiusInMiles() {
-			return moment_radius_in_miles
-		};
-
-		function setMomentRadiusInMiles(newRadius) {
-			moment_radius_in_miles = newRadius;
-		};
 
 		function splitUrlOff(key) {
 			var result = "";
@@ -68,10 +42,7 @@
 			awsServices.remove(path).then(function() {
 				deferred.resolve();
 			}, function(error) {
-				error = "FAILURE - aws_services.remove" + "\r\n" + "PATH: " + path + "\r\n" + error;
-				console.log("FAILURE IN aws_services.remove");
-				console.log(error);
-				logFile(error, 'errors.txt').then(function() {
+				logger.logFile('aws_services.remove', {Path: path}, error, 'errors.txt').then(function() {
 					deferred.reject(error);	
 				});
 			});
@@ -90,10 +61,7 @@
 				moment.uuids)
 				return true;
 			else {
-				var error = "FAILURE - core.verifyMetaData" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-				console.log("FAILURE IN aws_services.getMoments");
-				console.log(error);
-				logFile(error, 'errors.txt').then(function() {
+				logger.logFile('core.verifyMetaData', {Moment: moment}, error, 'errors.txt').then(function() {
 					return false;
 				});
 			}
@@ -107,10 +75,14 @@
 				awsServices.copyObject(key, key, moment, "REPLACE").then(function() {
 					deferred.resolve();
 				}, function(error) {
-					error = "FAILURE - aws_services.copyObject" + "\r\n" + "KEY: " + key + " | copySource: " + copySource + " | META DATA: " + metaData + " | DIRECTIVE: " + directive + "\r\n" + error;
-					console.log("FAILURE IN aws_services.copyObject");
-					console.log(error);
-					logFile(error, 'errors.txt').then(function() {
+					var parameters = {
+						Key: key,
+						CopySource: copySource,
+						MetaData: metaData,
+						Directive: directive
+					};
+					// error = "FAILURE - aws_services.copyObject" + "\r\n" + "KEY: " + key + " | copySource: " + copySource + " | META DATA: " + metaData + " | DIRECTIVE: " + directive + "\r\n" + error;
+					logger.logFile("aws_services.copyObject", parameters, error, 'errors.txt').then(function() {
 						deferred.reject(error);	
 					});
 				});
@@ -121,64 +93,38 @@
 			return deferred.promise;
 		};
 
-		function logFile(message, key) {
-			var deferred = $q.defer();
-			var key = 'reports/' + key;
-			console.log("KEY");
-			console.log(key);
-			console.log(moment);
-			var moment = {key: key};
-			var params = {
-				Bucket: constants.BUCKET_NAME,
-				Key: key
+			function upload(file, moment) {
+				var deferred = $q.defer();
+				if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
+					moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
+				}
+				if(verifyMetaData(moment)) {
+					var key = splitUrlOff(moment.key);
+					delete moment.key;
+					awsServices.upload(file, key, moment).then(function() {
+						deferred.resolve();
+					},function(error) {
+						var parameters = {
+							File: file,
+							Key: key,
+							Moment: moment
+						}
+						logger.logFile("aws_services.upload", parameters, error, 'errors.txt').then(function() {
+							deferred.reject(error);	
+						});
+					});
+				}
+				else {
+					deferred.reject("invalid MetaData");
+				}
+				return deferred.promise;
 			};
-			awsServices.getObject(key).then(function(data) {
-				message = Date() + ': ' + message + "\r\n" + data;
-				var blob = new Blob([message], {type: "text"});
-				var file =  new File([blob], key);
-				upload(file, moment).then(function() {
-					deferred.resolve();
-				}, function(error) {
-					deferred.reject();
-				});
-			}, function(error) {
-				console.log("ERROR");
-				console.log(error);
-				deferred.reject();
-			});
-			return deferred.promise;
-		};
 
-		function upload(file, moment) {
-			var deferred = $q.defer();
-			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
-				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
-			}
-			if(verifyMetaData(moment)) {
-				var key = splitUrlOff(moment.key);
-				delete moment.key;
-				awsServices.upload(file, key, moment).then(function() {
-					deferred.resolve();
-				},function(error) {
-					error = "FAILURE - aws_services.upload" + "\r\n" + "FILE: " + file + " KEY: " + key + " | MOMENT: " + moment + "\r\n" + error;
-					console.log("FAILURE IN aws_services.upload");
-					console.log(error);
-					core.logFile(error, 'errors.txt').then(function() {
-						deferred.reject(error);	
-					});
-				});
-			}
-			else {
-				deferred.reject("invalid MetaData");
-			}
-			return deferred.promise;
-		};
+			function getCurrentTime() {
+				return new Date().getTime();
+			};
 
-		function getCurrentTime() {
-			return new Date().getTime();
-		};
-
-		function timeElapsed(time) {
+			function timeElapsed(time) {
 			if(time.toString().match(/[a-z]/i)) { //It is already in the correct format
 				return time;
 			}
@@ -221,66 +167,6 @@
 		else {
 			return "0m"
 		}
-	};
-
-	function initializeUserLocation() {
-		var deferred = $q.defer();
-
-		getCurrentLatLong().then(function(response) {
-			var lat = response.lat;
-			var lng = response.lng;
-			getDeviceLocation(lat, lng).then(function(response) {
-				var town = response.split(',')[0].trim();
-				var state = response.split(',')[1].trim();
-				vm.userLocation = {lat: lat, lng: lng, town: town, state: state}; 
-				deferred.resolve(vm.userLocation);
-			}, function(error) {
-				deferred.reject(error.message);
-			});
-		}, function(error) {
-			deferred.reject(error);	
-		});
-		return deferred.promise;
-	};
-
-	function getCurrentLatLong() {
-		var deferred = $q.defer();
-		var posOptions = {timeout: 10000, enableHighAccuracy: false};
-		$cordovaGeolocation.getCurrentPosition(posOptions)
-		.then(function(position) {
-			var lat = position.coords.latitude;
-			var lng = position.coords.longitude;
-			deferred.resolve({lat: lat, lng: lng});
-		}, function(error) {
-			error = "FAILURE - core.getCurrentLatLong" + "\r\n" + error;
-			console.log("FAILURE IN core.getCurrentLatLong");
-			console.log(error);
-			logFile(error, 'logs.txt').then(function() {
-				deferred.reject(error);	
-			});
-		});
-		return deferred.promise;
-	};
-
-	function getDeviceLocation(lat, lng) {
-		var deferred = $q.defer();
-		var url = constants.GEOLOCATION_URL + lat + ',' + lng;
-
-		$http.get(url).then(function(response) {
-			response = response.data.results[2].formatted_address;
-			response = response.slice(0, response.lastIndexOf(','));
-			response = response.replace(/[0-9]/g, '');
-			deferred.resolve(response);
-		}, function(error) {
-			error = "FAILURE - core.getDeviceLocation" + "\r\n" + "LAT: " + lat + "| " + "LNG: " + lng + "\r\n" + error;
-			console.log("FAILURE IN core.getDeviceLocation");
-			console.log(error);
-			logFile(error, 'logs.txt').then(function() {
-				deferred.reject(error);	
-			});
-			deferred.reject(error);
-		});
-		return deferred.promise;
 	};
 
 //DEV MODE
