@@ -2,8 +2,8 @@
 
   angular.module('app.SubmitMomentController', [])
 
-  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'submitMomentService', 'constants', '$http', '$ionicLoading', '$ionicContentBanner', '$ionicPopup', SubmitMomentController]);
-  function SubmitMomentController($stateParams, $state, core, submitMomentService, constants, $http, $ionicLoading, $ionicContentBanner, $ionicPopup) {
+  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'geolocation', 'submitMomentService', 'constants', '$http', '$ionicLoading', '$ionicContentBanner', '$ionicPopup', SubmitMomentController]);
+  function SubmitMomentController($stateParams, $state, core, geolocation, submitMomentService, constants, $http, $ionicLoading, $ionicContentBanner, $ionicPopup) {
     var vm = this,
     key = '',
     updateMetaData = updateMetaData;
@@ -14,7 +14,8 @@
       time: "",
       description: "",
       views: "0",
-      uuids: core.getUUID()
+      uuids: core.getUUID(),
+      creator: core.getUUID()
     };
 
     vm.picture = $stateParams.picture;
@@ -25,11 +26,11 @@
     vm.charLimit = charLimit;
     vm.submit = submit;
 
-    if(!core.userLocation) {
+    if(!geolocation.userLocation) {
       $ionicLoading.show({
         template: '<ion-spinner></ion-spinner>'
       });
-      core.initializeUserLocation().then(function(response) {
+      geolocation.initializeUserLocation().then(function(response) {
         $ionicLoading.hide();
       }, function(error) {
         console.log("ERROR");
@@ -65,7 +66,7 @@
       });
       if(vm.moment.description.length <= vm.maxChars) {
         updateMetaData();
-          var key = constants.MOMENT_PREFIX + core.userLocation.state + '/' + core.userLocation.lat + '_' + core.userLocation.lng;
+          var key = constants.MOMENT_PREFIX + geolocation.userLocation.state + '/' + geolocation.userLocation.lat + '_' + geolocation.userLocation.lng;
           vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
           submitMomentService.uploadToLocalStorage(vm.moment);
           submitMomentService.uploadToAWS(vm.picture, vm.moment).then(function() {
@@ -94,8 +95,10 @@
       };
 
       function updateMetaData() {
+        console.log("TEST");
+        console.log(geolocation.userLocation);
         if(vm.location)
-          vm.moment.location = core.userLocation.town + ", " + core.userLocation.state;
+          vm.moment.location = geolocation.userLocation.town + ", " + geolocation.userLocation.state;
         vm.moment.time = new Date().getTime().toString();
         vm.moment.description = vm.moment.description;
       };

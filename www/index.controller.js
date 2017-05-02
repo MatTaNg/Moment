@@ -13,6 +13,7 @@
     indexController.redirectMyMoments = redirectMyMoments;
 
     function redirectMyMoments() {
+      console.log("REDIRECTING");
       $state.go("tabsController.myMoments");
     }
 

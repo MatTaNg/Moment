@@ -27,15 +27,17 @@
 		this.uploadReport = uploadReport;
 
 		function initializeView() {
+			console.log("INITIALIZE");
 			var deferred = $q.defer();
-			momentArray = [];
-			if(!constants.DEV_MODE) {
+				momentArray = [];
+				if(!constants.DEV_MODE) {
 
-				geolocation.calculateNearbyStates().then(function(states) {
+					geolocation.calculateNearbyStates().then(function(states) {
 			//We cannot load all the images in the AWS database.
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
 			geolocation.getMomentsByState(states).then(function(moments) {
+				console.log(moments);
 				var momentsInStates = [];
 				for(var i = 0; i < moments.length; i++) {
 					for(var x = 0; x < moments[i].length; x++) {
@@ -45,6 +47,7 @@
 					}
 				}
 				geolocation.getMomentsWithinRadius(momentsInStates).then(function(moments) {
+					console.log(moments);
 					uploadToBestMoments(moments).then(function() {
 						var temp = createTempVariable(moments);
 						momentArray = moments;
@@ -58,6 +61,8 @@
 				deferred.reject(error);
 			});
 		}, function(error) {
+			console.log("ERROR");
+			console.log(error);
 			deferred.reject(error);
 		});
 } //End of DEV_MODE
@@ -72,6 +77,8 @@ else {
 		console.log(error);
 	});
 }
+
+
 return deferred.promise;
 };
 
@@ -206,8 +213,8 @@ function filterImage(key) {
 	var coordinates = extractCoordinatesFromKey(key);
 	var lat = coordinates.latitude;
 	var lng = coordinates.longitude;
-	if((lat < max_north.lat && lat > max_south.lat) &&
-		(lng > max_west.lng && lng < max_east.lng )) {
+	if((lat < geolocation.max_north.lat && lat > geolocation.max_south.lat) &&
+		(lng > geolocation.max_west.lng && lng < geolocation.max_east.lng )) {
 		return true;
 }
 else {

@@ -14,7 +14,8 @@
 		// localStorage.setItem('moments', JSON.stringify([]));
 		getMomentsFromLocalStorage();
 		function getMomentsFromLocalStorage() {
-			if(JSON.parse(localStorage.getItem('moments')).length > 0) {
+			if(JSON.parse(localStorage.getItem('moments')).length > 0 && !core.didUserChangeRadius) {
+				console.log("GET MOMETNS FROM LOCAL STORAGE");
 				vm.imageArray = JSON.parse(localStorage.getItem('moments'));
 				for(var i = 0; i < vm.imageArray.length; i++) {
 					vm.imageArray[i].class = "layer-bottom";
@@ -58,7 +59,7 @@
 			}
 		};		
 
-		if(vm.imageArray.length === 0) {
+		if(vm.imageArray.length === 0 || core.didUserChangeRadius) {
 			initialize();
 		}
 		function initialize() { 
@@ -66,6 +67,7 @@
 		};
 
 		function updateView() {
+			console.log("UPDATE VIEW");
 			vm.imageArray = [];
 			var ionicLoading = $ionicLoading.show({
 				template: '<ion-spinner></ion-spinner>'
@@ -73,6 +75,7 @@
 				momentsService.initializeView()
 				.then(function(moments){
 					$ionicLoading.hide().then(function() {
+						core.didUserChangeRadius = false;
 						if(moments.length > 0) {
 							vm.imageArray = updateObject(moments);
 						}
@@ -80,11 +83,14 @@
 						vm.currentImage = undefined;
 					}); 
 				}, function(error) {
-					$ionicContentBanner.show({
-						text: ["We apologize; there was a problem getting the moments"],
-						type: "error",
-						autoClose: 3000
-					})
+					console.log("ERRROR");
+					$ionicLoading.hide().then(function() {
+						$ionicContentBanner.show({
+							text: ["We apologize; there was a problem getting the moments"],
+							type: "error",
+							autoClose: 3000
+						});
+					});
 				}); //End of initializeView
 			}); //End of ionicLoading
 		};

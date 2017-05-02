@@ -129,8 +129,6 @@
  		};
 
  		function getObject(key) {
- 			console.log("GET OBJECT KEY");
- 			console.log(key);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -140,7 +138,7 @@
 
  			s3.getObject(params, function(error, data) {
  				if(error) {
- 					deferred.reject(error);
+ 					deferred.resolve([]);
  				}
  				else {
  					console.log("RESOLVED");

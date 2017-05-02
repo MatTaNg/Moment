@@ -21,7 +21,10 @@ angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core'
   $ionicPlatform.ready(function() {
     oneSignalSetup();
     initializeApp().then(function() {
-
+      console.log("RETURNED");
+    }, function(error) {
+      console.log("ASDF");
+      console.log(error);
     });
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -57,16 +60,31 @@ if (window.StatusBar) {
         localStorage.setItem('momentRadiusInMiles', JSON.stringify(constants.DEFAULT_MOMENT_RADIUS_IN_MILES));
       } 
 
+      localStorage.setItem('moments', JSON.stringify([]));
+      localStorage.setItem('bestMoments', JSON.stringify([]));
+
       momentsService.initializeView().then(function(moments) {
         localStorage.setItem('moments', JSON.stringify(moments));
         bestMomentsService.initializeView().then(function(bestmoments) {
+          console.log("INIT VIEW");
+          console.log(JSON.parse(localStorage.getItem('moments')));
+          console.log(JSON.parse(localStorage.getItem('bestMoments')));
+          deferred.resolve();
           localStorage.setItem('bestMoments', JSON.stringify(bestmoments));
-          if(JSON.parse(localStorage.getItem('myMoments'))) {
-            myMomentsService.initialize(JSON.parse(localStorage.getItem('myMoments'))).then(function() {
+          if(JSON.parse(localStorage.getItem('myMoments')).length > 0) {
+            myMomentsService.initialize(JSON.parse(localStorage.getItem('myMoments'))).then(function(moments) {
+              console.log("INIT");
+              console.log(moments);
+              localStorage.setItem('myMoments', JSON.stringify(moments));
               deferred.resolve();
             });
           }
+          else {
+            deferred.resolve();
+          }
         }); //End of bestMoments Init
+      }, function(error) {
+        deferred.reject(error);
       }); //End of moments Init
       return deferred.promise;
     };

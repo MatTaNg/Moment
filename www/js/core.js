@@ -10,13 +10,12 @@
 		verifyMetaData = verifyMetaData;
 		vm.splitUrlOff = splitUrlOff;
 
-		vm.userLocation = undefined;
 		vm.moments = [];
-
 		vm.timeElapsed = timeElapsed,
 		vm.getCurrentTime = getCurrentTime;
 		vm.getUUID = getUUID;
 		vm.getHardCodedMoments = getHardCodedMoments;
+		vm.didUserChangeRadius = false;
 
 		vm.remove = remove;
 		vm.edit = edit;
