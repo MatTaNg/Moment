@@ -1,11 +1,11 @@
 <ion-view title="Moment" id="page4">
 <ion-content padding="true" class="has-header">
 <ion-refresher
-	on-refresh="vm.initialize()">
+on-refresh="vm.refresh()">
 </ion-refresher>
-	<div ng-show="vm.errorMessage" class="myMoments_NotFound">
-		No Moments to Show
-	</div>
+<div ng-show="vm.errorMessage" class="myMoments_NotFound">
+	No Moments to Show
+</div>
 <div class = "item range range-energized" style="margin-bottom: 10px">
 	<i>5</i>
 	<input type = "range" name = "range" min="5" max="50" ng-model="vm.distance">
@@ -14,46 +14,54 @@
 
 </ion-range>
 <div class="row">
-	<div class="col">
+	<div class="col-40">
 		<div class="ion-happy-outline">{{vm.totalLikes}}<span style="color:green" ng-if="vm.numberOfExtraLikes > 0"> (+{{vm.numberOfExtraLikes}})</span></div>
 	</div>
 	<div class = "col">
-		<input value="{{vm.userLocation}}"></input>
+		<div style="width: 160px; float:left; margin-right: 10px; padding: 2px;" ng-hide="vm.editing">{{vm.userLocation}}</div> 
+		<div ng-show="vm.editing">
+			<input style="float:left; margin-right: 10px" size="18" ng-model="vm.customUserLocation"></input>
+			<span ng-click="vm.editLocation()" style="margin-right: 2px" class="ion-checkmark-round"></span>
+			<span ng-click="vm.edit(false)" class="ion-close-round"></span>
+			<br><br>
+			<span style="color: red; font-size:12px" ng-if="vm.locationErrorMsg">We could not find this location</span>
+		</div>
+		<button ng-click="vm.edit(true)"  ng-hide="vm.editing">Edit</button>
 	</div>
 </div> <!--End of Row-->
 <br>
 <!-- <hr style="margin: 10px"> -->
-	<ion-list>
-		<div ng-repeat="image in vm.myImages">
-			<ion-item-sliding>
-				<ion-item ng-click="vm.toggleDescription(image)">
-					<ion-thumbnail item-left>
-						<img src="{{image.key}}" width="30%" height="30%" style="float: left;">
-					</ion-thumbnail>
-					<div class="myMoments_metaData">
-						<div class="ion-happy-outline" class="myMoments_likes">{{image.likes}} <span style="color:green" ng-if="image.gainedLikes > 0"> (+{{image.gainedLikes}})</span></div>
-						<div class="myMoments_time">{{image.time}}</div>
-						<div class="myMoments_description">
-							<div ng-show="image.showShortDescription">{{image.shortDescription}}<br>
-								<div class="myMoments_toggleDescription">show more...</div>
-							</div>
-							<div ng-show="!image.showShortDescription">{{image.description}}<br> 			
-								<div class="myMoments_toggleDescription">show less</div> 
-							</div>
-							 <br>
-						</div>
-					</div>
-				</ion-item>
-				<ion-item-options slide="left">
-					<button ion-button color="danger">
-						Remove
-					</button>
-				</ion-item-options>
-			</ion-item-sliding>
-		</div> <!--End of ng-repeat -->
-	</ion-list>
-	<div class = "row">
-		<button class="col button button-assertive" data-ng-click="vm.feedback()" style="margin: 5px">Feedback</button>
+<ion-list>
+<div ng-repeat="image in vm.myImages">
+	<ion-item-sliding>
+	<ion-item ng-click="vm.toggleDescription(image)">
+	<ion-thumbnail item-left>
+	<img src="{{image.key}}" width="30%" height="30%" style="float: left;">
+</ion-thumbnail>
+<div class="myMoments_metaData">
+	<div class="ion-happy-outline" class="myMoments_likes">{{image.likes}} <span style="color:green" ng-if="image.gainedLikes > 0"> (+{{image.gainedLikes}})</span></div>
+	<div class="myMoments_time">{{image.time}}</div>
+	<div class="myMoments_description">
+		<div ng-show="image.showShortDescription">{{image.shortDescription}}<br>
+			<div class="myMoments_toggleDescription">show more...</div>
+		</div>
+		<div ng-show="!image.showShortDescription">{{image.description}}<br> 			
+			<div class="myMoments_toggleDescription">show less</div> 
+		</div>
+		<br>
 	</div>
+</div>
+</ion-item>
+<ion-item-options slide="left">
+<button ion-button color="danger">
+	Remove
+</button>
+</ion-item-options>
+</ion-item-sliding>
+</div> <!--End of ng-repeat -->
+</ion-list>
+<div class = "row">
+	<button class="col button button-assertive" data-ng-click="vm.feedback()" style="margin: 5px">Feedback</button>
+</div>
 </ion-content>
 </ion-view>

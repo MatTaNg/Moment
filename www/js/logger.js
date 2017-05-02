@@ -58,7 +58,10 @@
 				var moment = {key: key};
 				var deferred = $q.defer();
 				awsServices.getObject(key).then(function(data) {
+					console.log(data);
+					console.log(JSON.stringify(message));
 					message = message + '\r\n\r\n' + data;
+					console.log(JSON.stringify(message));
 					var blob = new Blob([message], {type: "text"});
 					var file =  new File([blob], key);
 					awsServices.upload(file, moment.key, moment).then(function() {
@@ -75,12 +78,14 @@
 			};
 
 			function createLogMessage(failed_function, parameters, error, key) {
+				console.log("LOG ERROR MESSAGE");
+				console.log(error);
 				var result = Date() + '\r\n' +
 				failed_function + ":\r\n";
 				for(var k in parameters) {
 					result = result + k + ": " + parameters[k] + "\r\n";
 				}
-				result = result + error.toString();
+				result = result + error.message;
 				return result;
 			};
 		};
