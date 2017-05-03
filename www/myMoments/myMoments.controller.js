@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['core', 'constants', '$q', '$scope', 'momentsService', '$interval', 'myMomentsService', '$ionicPopup', '$ionicLoading', '$scope', 'geolocation', MyMomentsController]);
-	function MyMomentsController(core, constants, $q, $scope, momentsService, $interval, myMomentsService, $ionicPopup, $ionicLoading, $scope, geolocation) {
+	.controller('MyMomentsController', ['core', 'constants', '$q', '$scope', 'momentsService', '$interval', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', MyMomentsController]);
+	function MyMomentsController(core, constants, $q, $scope, momentsService, $interval, myMomentsService, $ionicPopup, components, $scope, geolocation) {
 		var vm = this;
 		vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
 		vm.totalLikes = 0;
@@ -18,6 +18,7 @@
 		vm.editLocation = editLocation;
 		vm.edit = edit;
 		vm.locationErrorMsg = false;
+		vm.getCurrentLocation = getCurrentLocation;
 
 		vm.distance = localStorage.getItem('momentRadiusInMiles');
 		initialize();
@@ -30,9 +31,16 @@
 			}
 		});
 
+		function getCurrentLocation() {
+			geolocation.initializeUserLocation().then(function(location) {
+				vm.userLocation = location.town;
+			});
+		};
+
 		function edit(editing) {
 			var popUp = $ionicPopup.show({
 				template: '<input ng-model="vm.customUserLocation"> </input>' +
+							'<span style="font-size: 14px" ng-click="vm.getCurrentLocation()">Get Current Location</span>' +
 							'<span style="color: red; font-size:12px" ng-if="vm.locationErrorMsg">We could not find this location</span>',
 				title: 'Location',
 				scope: $scope,
@@ -64,14 +72,12 @@
 		function editLocation() {
 			var deferred = $q.defer();
 			if(vm.customUserLocation.length > 3) {
-				$ionicLoading.show({
-					template: '<ion-spinner></ion-spinner>'
-				}).then(function() {
-					console.log(vm.customUserLocation);
+				components.showLoader()
+				.then(function() {
 					geolocation.getLocationFromTown(vm.customUserLocation).then(function(response) {
 						geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
 						momentsService.initializeView().then(function(moments) {
-							$ionicLoading.hide().then(function() {
+							components.hideLoader().then(function() {
 								localStorage.setItem('moments', JSON.stringify(moments));
 								vm.userLocation = response.town;
 								vm.customUserLocation = "";
@@ -79,14 +85,14 @@
 								deferred.resolve();
 							})
 						}, function(error) {
-							$ionicLoading.hide();
+							components.hideLoader();
 							deferred.reject();
 						});
 			}, function(error) {	//Town DNE
 				console.log("ERROR");
 				vm.locationErrorMsg = true;
 				deferred.reject();
-				$ionicLoading.hide();
+				components.hideLoader();
 			});
 				})
 
@@ -132,13 +138,12 @@
 				});
 			} else {
 				if(vm.myImages) {
-					$ionicLoading.show({
-						template: '<ion-spinner></ion-spinner>'
-					}).then(function() {
+					components.showLoader()
+					.then(function() {
 						setOldLikes();
 						myMomentsService.initialize(vm.myImages).then(function(moments) {
 							vm.refresh = false;
-							$ionicLoading.hide().then(function() {
+							components.hideLoader().then(function() {
 								localStorage.setItem('myMoments', JSON.stringify(moments));
 								calculateNumberOfExtraLikes();
 								vm.errorMessage = false;
