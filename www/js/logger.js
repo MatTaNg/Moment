@@ -58,10 +58,8 @@
 				var moment = {key: key};
 				var deferred = $q.defer();
 				awsServices.getObject(key).then(function(data) {
-					console.log(data);
-					console.log(JSON.stringify(message));
+					data = data.Body;
 					message = message + '\r\n\r\n' + data;
-					console.log(JSON.stringify(message));
 					var blob = new Blob([message], {type: "text"});
 					var file =  new File([blob], key);
 					awsServices.upload(file, moment.key, moment).then(function() {

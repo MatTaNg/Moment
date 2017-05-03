@@ -1,8 +1,8 @@
 (function() {
 	angular.module('app.BestMomentsController', [])
 
-	.controller('BestMomentsController', ['$stateParams', '$scope', '$ionicLoading','bestMomentsService', BestMomentsController]);
-	function BestMomentsController ($stateParams, $scope, $ionicLoading, bestMomentsService) {
+	.controller('BestMomentsController', ['$stateParams', '$scope', 'components','bestMomentsService', BestMomentsController]);
+	function BestMomentsController ($stateParams, $scope, components, bestMomentsService) {
 		var vm = this;
 		vm.initialize = initialize;
 
@@ -20,11 +20,10 @@
 			}
 		}
 		else {
-			$ionicLoading.show({
-				template: '<ion-spinner></ion-spinner>'
-			}).then(function() {
+			components.showLoader()
+			.then(function() {
 				initialize().then(function() {
-					$ionicLoading.hide();
+					components.hideLoader();
 				});
 			});
 			vm.temp = imageArray[0];
@@ -34,7 +33,7 @@
 			bestMomentsService.initializeView()
 			.then(function(moments){
 				$scope.$broadcast('scroll.refreshComplete');
-				$ionicLoading.hide().then(function() {
+				components.hideLoader().then(function() {
 					if(moments.length > 0) {
 						vm.imageArray = moments;
 					}
@@ -43,7 +42,7 @@
 					}
 				});
 			}, function(error) {
-				$ionicLoading.hide().then(function() {
+				components.hideLoader().then(function() {
 					vm.noMoments = true;
 					console.log(error);
 				});

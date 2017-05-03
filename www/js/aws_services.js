@@ -143,7 +143,7 @@
  				else {
  					console.log("RESOLVED");
  					console.log(data);
- 					deferred.resolve(data.Metadata);
+ 					deferred.resolve(data);
  				}
  			});
  			return deferred.promise;

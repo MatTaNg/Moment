@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', 'constants', 'awsServices', '$ionicLoading', 'logger', 'geolocation', momentsService]);
+	.service('momentsService', ['core', '$q', 'constants', 'awsServices', 'components', 'logger', 'geolocation', momentsService]);
 
-	function momentsService(core, $q, constants, awsServices, $ionicLoading, logger, geolocation){
+	function momentsService(core, $q, constants, awsServices, components, logger, geolocation){
 		if(localStorage.getItem('moments')) {
 			var momentArray = JSON.parse(localStorage.getItem('moments'));
 		}
@@ -27,7 +27,6 @@
 		this.uploadReport = uploadReport;
 
 		function initializeView() {
-			console.log("INITIALIZE");
 			var deferred = $q.defer();
 				momentArray = [];
 				if(!constants.DEV_MODE) {
@@ -37,7 +36,6 @@
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
 			geolocation.getMomentsByState(states).then(function(moments) {
-				console.log(moments);
 				var momentsInStates = [];
 				for(var i = 0; i < moments.length; i++) {
 					for(var x = 0; x < moments[i].length; x++) {
@@ -47,7 +45,6 @@
 					}
 				}
 				geolocation.getMomentsWithinRadius(momentsInStates).then(function(moments) {
-					console.log(moments);
 					uploadToBestMoments(moments).then(function() {
 						var temp = createTempVariable(moments);
 						momentArray = moments;
@@ -135,9 +132,7 @@ function incrementCounter(){
 		deferred.resolve(temp);
 	}
 	else {
-		var ionicLoading = $ionicLoading.show({
-			template: '<ion-spinner></ion-spinner>'
-		}).then(function() {
+		components.showLoader().then(function() {
 			initializeView().then(function(moments) {
 				momentArray = moments;
 				var temp = createTempVariable(moments);

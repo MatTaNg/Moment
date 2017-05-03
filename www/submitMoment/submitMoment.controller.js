@@ -2,8 +2,8 @@
 
   angular.module('app.SubmitMomentController', [])
 
-  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'geolocation', 'submitMomentService', 'constants', '$http', '$ionicLoading', '$ionicContentBanner', '$ionicPopup', SubmitMomentController]);
-  function SubmitMomentController($stateParams, $state, core, geolocation, submitMomentService, constants, $http, $ionicLoading, $ionicContentBanner, $ionicPopup) {
+  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'geolocation', 'submitMomentService', 'constants', '$ionicContentBanner', 'component', SubmitMomentController]);
+  function SubmitMomentController($stateParams, $state, core, geolocation, submitMomentService, constants, $ionicContentBanner, component) {
     var vm = this,
     key = '',
     updateMetaData = updateMetaData;
@@ -27,11 +27,9 @@
     vm.submit = submit;
 
     if(!geolocation.userLocation) {
-      $ionicLoading.show({
-        template: '<ion-spinner></ion-spinner>'
-      });
+      component.showLoader();
       geolocation.initializeUserLocation().then(function(response) {
-        $ionicLoading.hide();
+        component.hideLoader();
       }, function(error) {
         console.log("ERROR");
         console.log(error.message);
@@ -61,30 +59,28 @@
     };
 
     function submit() {
-      $ionicLoading.show({
-        template: '<ion-spinner></ion-spinner>'
-      });
-      if(vm.moment.description.length <= vm.maxChars) {
-        updateMetaData();
+      component.showLoader().then(function() {
+        if(vm.moment.description.length <= vm.maxChars) {
+          updateMetaData();
           var key = constants.MOMENT_PREFIX + geolocation.userLocation.state + '/' + geolocation.userLocation.lat + '_' + geolocation.userLocation.lng;
           vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
           submitMomentService.uploadToLocalStorage(vm.moment);
           submitMomentService.uploadToAWS(vm.picture, vm.moment).then(function() {
             popUp();
-            $ionicLoading.hide().then(function() {
+            component.hideLoader().then(function() {
               submitMomentService.updateTime();
               localStorage.setItem('timeSinceLastMoment', new Date().getTime().toString());
               $state.go('tabsController.moments');
             });
           }, function(error) {
-            $ionicLoading.hide().then(function() {
+            component.hideLoader().then(function() {
               console.log("SUBMITION FAILED"); 
             });
           });
 
         }
         else {
-          $ionicLoading.hide().then(function() {
+          component.hideLoader().then(function() {
             console.log("SUBMITION FAILED");  
           });
           $ionicContentBanner.show({
@@ -92,11 +88,11 @@
             autoClose: 3000
           });
         }
+      })
+
       };
 
       function updateMetaData() {
-        console.log("TEST");
-        console.log(geolocation.userLocation);
         if(vm.location)
           vm.moment.location = geolocation.userLocation.town + ", " + geolocation.userLocation.state;
         vm.moment.time = new Date().getTime().toString();

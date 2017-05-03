@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'geolocation'])
+angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'components', 'geolocation'])
 
 .config(function($ionicConfigProvider, $sceDelegateProvider, ionGalleryConfigProvider, constants){
   ionGalleryConfigProvider.setGalleryConfig({
@@ -21,10 +21,7 @@ angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core'
   $ionicPlatform.ready(function() {
     oneSignalSetup();
     initializeApp().then(function() {
-      console.log("RETURNED");
     }, function(error) {
-      console.log("ASDF");
-      console.log(error);
     });
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
