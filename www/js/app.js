@@ -17,10 +17,11 @@ angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core'
 
 })
 
-.run(function($ionicPlatform, $ionicPopup, $rootScope, geolocation, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
+.run(function($ionicPlatform, $ionicPopup, $state, $rootScope, geolocation, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
   $ionicPlatform.ready(function() {
     oneSignalSetup();
     initializeApp().then(function() {
+      $state.go("tabsController.moments", {}, {reload: true});
     }, function(error) {
     });
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -46,7 +47,6 @@ if (window.StatusBar) {
         });
       } else {
         initializeApp().then(function() {
-
         });
       }
     } //window.connection
@@ -56,22 +56,16 @@ if (window.StatusBar) {
       if(!localStorage.getItem('momentRadiusInMiles')) {
         localStorage.setItem('momentRadiusInMiles', JSON.stringify(constants.DEFAULT_MOMENT_RADIUS_IN_MILES));
       } 
-
       localStorage.setItem('moments', JSON.stringify([]));
       localStorage.setItem('bestMoments', JSON.stringify([]));
+      // localStorage.setItem('myMoments', JSON.stringify([]));
 
       momentsService.initializeView().then(function(moments) {
         localStorage.setItem('moments', JSON.stringify(moments));
         bestMomentsService.initializeView().then(function(bestmoments) {
-          console.log("INIT VIEW");
-          console.log(JSON.parse(localStorage.getItem('moments')));
-          console.log(JSON.parse(localStorage.getItem('bestMoments')));
-          deferred.resolve();
           localStorage.setItem('bestMoments', JSON.stringify(bestmoments));
           if(JSON.parse(localStorage.getItem('myMoments')).length > 0) {
             myMomentsService.initialize(JSON.parse(localStorage.getItem('myMoments'))).then(function(moments) {
-              console.log("INIT");
-              console.log(moments);
               localStorage.setItem('myMoments', JSON.stringify(moments));
               deferred.resolve();
             });
@@ -91,7 +85,6 @@ if (window.StatusBar) {
   // window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
   
   var notificationOpenedCallback = function(jsonData) {
-    console.log('notificationOpenedCallback: ' + JSON.stringify(jsonData));
   };
 
 //   window.plugins.OneSignal

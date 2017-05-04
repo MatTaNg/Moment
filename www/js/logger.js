@@ -3,7 +3,7 @@
 
 			.service('logger', ['$q', 'constants', 'awsServices', '$ionicContentBanner', logger]);
 
-			function logger($q, constants, awsServices) {
+			function logger($q, constants, awsServices, $ionicContentBanner) {
 				var vm = this;
 				vm.logFile = logFile;
 				vm.logReport = logReport;

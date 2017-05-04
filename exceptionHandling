@@ -7,8 +7,8 @@
             };
             //Here is where we do what we want to do with the exceptionhandler
             
-            var logger = $injector.get("logger"); //Use the injector to get our alerting service (alerting is our own ommitted AngularJS service).
-            logger.logFile("EXCEPTION HANDLER", {}, {}, "error.txt");
+            var alerting = $injector.get("alerting"); //Use the injector to get our alerting service (alerting is our own ommitted AngularJS service).
+            
             });
 
         $provide.decorator("$interpolate", function($delegate, $log){
@@ -33,4 +33,4 @@
             }); //Any binding expression we have, Angular uses the interpolate service to parse that expression when it needs to update the DOM
 
         });
-});
+})

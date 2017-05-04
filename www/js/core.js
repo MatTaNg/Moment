@@ -76,9 +76,9 @@
 				}, function(error) {
 					var parameters = {
 						Key: key,
-						CopySource: copySource,
-						MetaData: metaData,
-						Directive: directive
+						CopySource: key,
+						MetaData: moment,
+						Directive: "REPLACE"
 					};
 					// error = "FAILURE - aws_services.copyObject" + "\r\n" + "KEY: " + key + " | copySource: " + copySource + " | META DATA: " + metaData + " | DIRECTIVE: " + directive + "\r\n" + error;
 					logger.logFile("aws_services.copyObject", parameters, error, 'errors.txt').then(function() {
@@ -99,7 +99,6 @@
 				}
 				if(verifyMetaData(moment)) {
 					var key = splitUrlOff(moment.key);
-					delete moment.key;
 					awsServices.upload(file, key, moment).then(function() {
 						deferred.resolve();
 					},function(error) {

@@ -21,12 +21,14 @@
 
 		function uploadToLocalStorage(moment) {
 			moment.key = constants.IMAGE_URL + moment.key;
-			var localMomenets = [];
-			if(localStorage.getItem('myMoments') != null) {
-				localMomenets = JSON.parse(localStorage.getItem('myMoments'));
+			var localMoments = [];
+			if(JSON.parse(localStorage.getItem('myMoments')).length > 0) {
+				localMoments = JSON.parse(localStorage.getItem('myMoments'));
 			}
-			localMomenets.push(moment);
-			localStorage.setItem('myMoments', JSON.stringify(localMomenets));
+			localMoments.push(moment);
+			console.log("LOCAL MOMENTS");
+			console.log(JSON.stringify(localMoments));
+			localStorage.setItem('myMoments', JSON.stringify(localMoments));
 		};
 
 		function dataURItoBlob(dataURI) {

@@ -5,6 +5,15 @@
 	function MyMomentsController(core, constants, $q, $scope, momentsService, $interval, myMomentsService, $ionicPopup, components, $scope, geolocation) {
 		var vm = this;
 		vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
+		for(var i = 0; i < vm.myImages.length; i) {
+			if(!vm.myImages[i].key) {
+				vm.myImages.splice(i, 1);
+			}
+			else {
+				vm.myImages[i].time = core.timeElapsed(vm.myImages[i].time);
+				i++;
+			}
+		}
 		vm.totalLikes = 0;
 		vm.oldLikes = 0;
 		vm.remove = remove;
@@ -14,14 +23,14 @@
 		vm.initialize = initialize;
 		vm.userLocation = "Narberth, PA";
 		vm.customUserLocation = "";
-		vm.refresh = refresh;
+		vm.refreshing = refreshing;
 		vm.editLocation = editLocation;
 		vm.edit = edit;
 		vm.locationErrorMsg = false;
 		vm.getCurrentLocation = getCurrentLocation;
 
 		vm.distance = localStorage.getItem('momentRadiusInMiles');
-		initialize();
+		// initialize();
 
 		$scope.$on("$locationChangeStart", function(event, next, current) { 
 			if(current.indexOf("myMoments") !== -1 && vm.distance !== localStorage.getItem('momentRadiusInMiles')) {
@@ -40,8 +49,8 @@
 		function edit(editing) {
 			var popUp = $ionicPopup.show({
 				template: '<input ng-model="vm.customUserLocation"> </input>' +
-							'<span style="font-size: 14px" ng-click="vm.getCurrentLocation()">Get Current Location</span>' +
-							'<span style="color: red; font-size:12px" ng-if="vm.locationErrorMsg">We could not find this location</span>',
+				'<span style="font-size: 14px" ng-click="vm.getCurrentLocation()">Get Current Location</span>' +
+				'<span style="color: red; font-size:12px" ng-if="vm.locationErrorMsg">We could not find this location</span>',
 				title: 'Location',
 				scope: $scope,
 				buttons: [ 
@@ -104,7 +113,8 @@
 			return deferred.promise;
 		};
 
-		function refresh() {
+		function refreshing() {
+			console.log("REFRESH");
 			initialize().then(function() {
 				$scope.$broadcast('scroll.refreshComplete');
 			}, function(error) {
@@ -140,10 +150,32 @@
 				if(vm.myImages) {
 					components.showLoader()
 					.then(function() {
-						setOldLikes();
+						// setOldLikes();
 						myMomentsService.initialize(vm.myImages).then(function(moments) {
+							for(var i = 0; i < moments.length; i) {
+								if(moments[i].Metadata !== undefined) {
+									moments[i] = moments[i].Metadata;
+									i++;
+								} else {
+									moments.splice(i, 1);
+									localStorage.setItem('myMoments', JSON.stringify(moments));
+								}
+							}
+
 							vm.refresh = false;
 							components.hideLoader().then(function() {
+								vm.myImages = moments;
+								setOldLikes();
+								for(var i = 0; i < vm.myImages.length; i++) {
+									vm.totalLikes = vm.totalLikes + parseInt(vm.myImages[i].likes);
+									vm.myImages[i].time = core.timeElapsed(vm.myImages[i].time);
+									vm.myImages[i].description = "This text is 60 characters long This text is 60 characters l This text is 60 characters long This text is 60 characters l This text is 60 characters long This text is 60 characters l";
+									if(vm.myImages[i].description.length > 0) {
+										vm.myImages[i].shortDescription = vm.myImages[i].description.substring(0,50);
+										vm.myImages[i].showShortDescription = true;
+									}
+								}
+								calculateNumberOfExtraLikes();
 								localStorage.setItem('myMoments', JSON.stringify(moments));
 								calculateNumberOfExtraLikes();
 								vm.errorMessage = false;
@@ -157,73 +189,73 @@
 							});
 							deferred.reject();
 						});
-					});
-				}
-				else {
+});
+}
+else {
+	vm.errorMessage = true;
+	deferred.reject();
+}
+}
+return deferred.promise;
+};
+
+function setOldLikes() {
+	for(var i = 0; i < vm.myImages.length; i++){
+		vm.oldLikes = vm.oldLikes + parseInt(vm.myImages[i].likes);
+	}
+};
+
+function calculateNumberOfExtraLikes() {
+	vm.numberOfExtraLikes = vm.totalLikes - vm.oldLikes;
+};
+
+function remove(moment) {
+	$ionicPopup.confirm({
+		title: 'Are you sure you want to delete this moment?'
+	})
+	.then(function(confirm) {
+		if(confirm) {
+			core.remove(moment).then(function() {
+				myMomentsService.removeFromLocalStorage(moment);
+				vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
+
+				if(vm.myImages.length === 0) {
 					vm.errorMessage = true;
-					deferred.reject();
-				}
-			}
-			return deferred.promise;
-		};
-
-		function setOldLikes() {
-			for(var i = 0; i < vm.myImages.length; i++){
-				vm.oldLikes = vm.oldLikes + parseInt(vm.myImages[i].likes);
-			}
-		};
-
-		function calculateNumberOfExtraLikes() {
-			vm.numberOfExtraLikes = vm.totalLikes - vm.oldLikes;
-		};
-
-		function remove(moment) {
-			$ionicPopup.confirm({
-				title: 'Are you sure you want to delete this moment?'
-			})
-			.then(function(confirm) {
-				if(confirm) {
-					core.remove(moment).then(function() {
-						myMomentsService.removeFromLocalStorage(moment);
-						vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
-
-						if(vm.myImages.length === 0) {
-							vm.errorMessage = true;
-						}	
-					}, function(error) {
-						console.log("REMOVE FAILED");
-						console.log(error);
-					});
-
-				}
-				else{
-					console.log("!CONFIRM");
-				}
+				}	
+			}, function(error) {
+				console.log("REMOVE FAILED");
+				console.log(error);
 			});
-		};
-		function toggleDescription(image) {
-			if(image.showShortDescription) {
-				image.showShortDescription = false;
-			} else {
-				image.showShortDescription = true;
-			}
-		};
-		function feedback() {
-			$scope.moment = {};
 
-			$ionicPopup.show({
-				template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
-				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox> {{vm.moment.feedback}}',
-				title: 'Feedback',
-				scope: $scope,
-				subTitle: 'How can we improve?',
-				buttons: [ 
-				{ text: 'Cancel' },
-				{
-					text: '<b>Submit</b>',
-					type: 'button-positive',
-					onTap: function(e) {
-						if(!vm.moment.feedback) { 
+		}
+		else{
+			console.log("!CONFIRM");
+		}
+	});
+};
+function toggleDescription(image) {
+	if(image.showShortDescription) {
+		image.showShortDescription = false;
+	} else {
+		image.showShortDescription = true;
+	}
+};
+function feedback() {
+	$scope.moment = {};
+
+	$ionicPopup.show({
+		template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
+		'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox> {{vm.moment.feedback}}',
+		title: 'Feedback',
+		scope: $scope,
+		subTitle: 'How can we improve?',
+		buttons: [ 
+		{ text: 'Cancel' },
+		{
+			text: '<b>Submit</b>',
+			type: 'button-positive',
+			onTap: function(e) {
+				if(!vm.moment.feedback) { 
 								//Does nothing if user has not entered anything
 								e.preventDefault();
 							}
@@ -248,4 +280,4 @@
 				});
 };
 };
-})();
+}());
