@@ -45,20 +45,15 @@
 		};
 
 		function readZipCodeFile() {
-			console.log("READ ZIP CODE FILE");
 			var rawFile = new XMLHttpRequest();
 			rawFile.open("GET", '../zipCodes.txt', false);
 			rawFile.onreadystatechange = function ()
 			{
-				console.log("On ready state change");
-				console.log(rawFile.readyState);
 				if(rawFile.readyState === 4)
 				{
-					console.log(rawFile.status);
 					if(rawFile.status === 200 || rawFile.status == 0)
 					{
 						var allText = rawFile.responseText;
-						console.log(allText);
 						return allText;
 					}
 				}
@@ -104,27 +99,20 @@
 		};
 
 		function initializeUserLocation() {
-			console.log("INIT USER LOCATION");
 			var deferred = $q.defer();
 			var town = "";
 
 			getCurrentLatLong().then(function(response) {
-				console.log(JSON.stringify(response));
 				var lat = response.lat;
 				var lng = response.lng;
 				getLocationFromCoords(lat, lng).then(function(response) {
-					console.log(JSON.stringify(response));
-					console.log("vm.customLocation");
-					console.log(vm.customLocation);
 					if(vm.customLocation.town) { //If the user has entered his own location use that instead
-						console.log("TEST");
 						town = vm.customLocation.town;
 						lat = vm.customLocation.lat;
 						lng = vm.customLocation.lng;
 					} else {
 						town = response.town;
 					}
-					console.log(town);
 					vm.userLocation = {lat: lat, lng: lng, town: town}; 
 					deferred.resolve(vm.userLocation);
 				}, function(error) {
@@ -158,7 +146,6 @@
 					if(!result.indexOf(nearbyStates.east) === -1) {
 						result.push(nearbyStates.east);
 					}
-					console.log(result);
 					deferred.resolve(result);
 				});
 			}, function(error) {
@@ -177,8 +164,8 @@ function getMomentsByState(states) {
 };
 
 function getMomentsWithinRadius(momentsInStates) {
-	console.log("moment_radius_in_miles");
-	console.log(moment_radius_in_miles);
+	console.log("MOMENTS IN STATES");
+	console.log(momentsInStates);
 	return Promise.all(momentsInStates.map(moment =>
 		awsServices.getMomentMetaData(moment.Key).then(metaData => ({
 			key: constants.IMAGE_URL + moment.Key, 
@@ -203,15 +190,10 @@ function getLocationFromTown(town) {
 
 	$http.get(constants.GEOLOCATION_URL + "address=" + town).then(function(response) {
 		response = response.data.results;
-		console.log(response);
-		console.log(response[0].formatted_address);
-		console.log(town.toString());
 		//We only want one response and the address should at least begin with the town name and should not be a road
 		if(response.length === 1 && response[0].formatted_address.startsWith(town.toString()) && response[0].formatted_address.indexOf("Rd") === -1) { 
 			var lat = response[0].geometry.location.lat;
 			var lng = response[0].geometry.location.lng;
-			console.log("QWEWQEWQ");
-			console.log(response)
 			town = extractAddressFrom_FormattedAddress(response[0].formatted_address);
 			var coordinates = {lat: lat, lng:lng, town: town};
 			deferred.resolve(coordinates);
@@ -231,7 +213,6 @@ function getLocationFromTown(town) {
 };
 
 function getCoordsFromZipCode(zipCode) {
-	console.log("GET COORDS FROM ZIP");
 // 	var deferred = $q.defer();
 // 	var xhr = new XMLHttpRequest();
 // 	xhr.open("GET", "zipCodes.txt", true);
@@ -269,24 +250,16 @@ function getCoordsFromZipCode(zipCode) {
 };
 
 function extractAddressFrom_FormattedAddress(address) {
-	console.log("ADDRESS");
-	console.log(address);
 	address = address.toString();
 	address = address.slice(0, address.lastIndexOf(','));
-	console.log(address);
 	address = address.replace(/[0-9]/g, '');
-	console.log(address.replace(/[0-9]/g, ''));
 	return address
 };
 
 function getLocationFromCoords(latitude, longitude) {
-	console.log("LAT");
-	console.log(latitude);
-	console.log(constants.GEOLOCATION_URL + "latlng=" + latitude + "," + longitude);
 	var deferred = $q.defer();
 	var latLng = ({lat: latitude, lng: longitude});
 	$http.get(constants.GEOLOCATION_URL + "latlng=" + latitude + "," + longitude).then(function(response) {
-		console.log(response);
 		response = response.data.results
 		var town = extractAddressFrom_FormattedAddress(response[1].formatted_address);
 		deferred.resolve({lat: latitude, lng: longitude, town: town});

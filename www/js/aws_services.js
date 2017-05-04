@@ -43,6 +43,7 @@
  			};
  			s3.upload(params, function(error, data) {
  				if(error) {
+ 					console.log("ERROR");
  					deferred.reject(error);
  				}
  				else {
@@ -141,8 +142,6 @@
  					deferred.resolve([]);
  				}
  				else {
- 					console.log("RESOLVED");
- 					console.log(data);
  					deferred.resolve(data);
  				}
  			});

@@ -20,65 +20,8 @@
 					awsServices.getObject(core.splitUrlOff(moments[i].key))
 					);
 			}
-			return Promise.all(promises).then(function(results) {
-				for(var i = 0; i < results.length; i) {
-					console.log("TYPE");
-					console.log(JSON.stringify(results));
-					console.log(results[i].constructor === Array);
-					if(results[i].constructor === Array) { //An empty array is returned is the object is not found, remove it
-						console.log("SPLIT");
-						results.splice(i, 1);
-						console.log(JSON.stringify(results));
-					} else {
-						i++;
-					}
-				}
-				console.log("RESULTS");
-				console.log(results);
-				return results;
-			});
-		};
-			// return Promise.all(moments.map(moment => 
-			// 	awsServices.getObject(core.splitUrlOff(moment.key)).then(function(object) {
-			// 		if(object !== undefined) {
-			// 			// return 				
-			// 			{
-			// 				key: moment.key,
-			// 				description: object.description,
-			// 				likes: object.likes,
-			// 				location: object.location,
-			// 				time: core.timeElapsed(object.time),
-			// 				uuids: object.uuids,
-			// 				views: object.views
-			// 			};
-			// 		}
-			// 	});
-
-				// object => (
-				// {
-				// 	key: moment.key,
-				// 	description: object.description,
-				// 	likes: object.likes,
-				// 	location: object.location,
-				// 	time: core.timeElapsed(object.time),
-				// 	uuids: object.uuids,
-				// 	views: object.views
-				// }))
-			// )).then(function(moments) {
-			// 	for(var i = 0; i < oldLocalStorage.length; i++) {
-			// 		var gainedLikes = moments[i].likes - oldLocalStorage[i].likes;
-			// 		oldLocalStorage[i] = moments[i];
-			// 		oldLocalStorage[i].gainedLikes = gainedLikes;
-			// 		vm.totalLikes = vm.totalLikes + parseInt(oldLocalStorage[i].likes);
-			// 		calculateNumberOfExtraLikes();
-			// 		oldLocalStorage[i].time = core.timeElapsed(oldLocalStorage[i].time);
-			// 		if(oldLocalStorage[i].description.length > 0) {
-			// 			oldLocalStorage[i].shortDescription = oldLocalStorage[i].description.substring(0, 50);
-			// 			oldLocalStorage[i].showShortDescription = true;
-			// 		}
-			// 	}
-			// });
-		// };
+			return Promise.all(promises);
+};
 
 		function removeFromLocalStorage(location) {
 			var localMoments = JSON.parse(localStorage.getItem('myMoments'));

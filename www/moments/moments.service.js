@@ -39,7 +39,7 @@
 				var momentsInStates = [];
 				for(var i = 0; i < moments.length; i++) {
 					for(var x = 0; x < moments[i].length; x++) {
-						if(x > 0 && filterImage(moments[i][x].Key)) { //The first key listed is always the folder, skip that.
+						if(filterImage(moments[i][x].Key)) { //The first key listed is always the folder, skip that.
 							momentsInStates.push(moments[i][x]);
 						}
 					}
@@ -90,6 +90,8 @@ function uploadReport(report, moment) {
 };
 
 function updateMoment(liked) {
+	console.log("MOMENT ARRAY");
+	console.log(momentArray);
 	var temp = createTempVariable(momentArray);
 	var deferred = $q.defer();
 	var views = (parseInt(temp[0].views) + 1).toString();
@@ -108,8 +110,11 @@ function updateMoment(liked) {
 					deferred.resolve(temp);
 				});
 			}, function(error) {
-				console.log("ERROR - MomentService.edit");
-				deferred.reject(error);
+				momentArray.splice(0, 1);
+				incrementCounter().then(function(moments) {
+					temp = createTempVariable(moments);
+					deferred.resolve(temp);
+				});
 			});
 		}
 		else {
@@ -153,10 +158,11 @@ function uploadToBestMoments(moments) {
 	return Promise.all(moments.map(
 		function(moment) {
 			if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO) {
-				var copySource = splitUrlOff(moment.key);
+				var copySource = core.splitUrlOff(moment.key);
 				var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
 				// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-				logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, error, 'logs.txt').then(function() {
+				logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
+				.then(function() {
 					awsServices.copyObject(key, copySource, moment, "COPY");
 				});
 
