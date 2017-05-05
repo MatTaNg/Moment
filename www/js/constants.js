@@ -27,7 +27,7 @@
 		"BEST_MOMENTS_RATIO": 0.5,
 		"DEFAULT_MOMENT_RADIUS_IN_MILES": 25,
 
-		"DEV_MODE": false
+		"DEV_MODE": true
 	})
 })();
 // AIJvTx/0jXboCBh5PtuUQwRKde4zTchmUKYjcCIF

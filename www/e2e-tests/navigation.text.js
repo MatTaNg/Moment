@@ -1,4 +1,4 @@
-describe('Clicking on the login button ', function(){  
+describe('The user should be able to navigate to different tabs ', function(){  
 
     beforeEach(function() {
         browser.get('/#/page1/moments');
@@ -8,8 +8,9 @@ describe('Clicking on the login button ', function(){
         // loginButton = element(by.linkText('Log in'));
     });
 
-    it('should validate the credentials for a successful login and display the My Dinners view', function() {
+    it('should take the user to the moments page', function() {
         // TODO: test successful login
+        
         expect(true).toEqual(true);
     })
 

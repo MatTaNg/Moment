@@ -48,16 +48,33 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 .ion-ios-location-outline {
   font-size:20px;
 }
+
+/**Moment**/
+.momentLocation {
+  text-align: left; 
+  margin: 5px; 
+  font-size: 18pt
+}
+.momentTime {
+  text-align: left; 
+  margin: 5px; 
+  font-size: 12pt
+}
+.momentLikes {
+  text-align: center; 
+  margin-top: 10px; 
+  font-size: 32pt
+}
 .on-drag-next {
   position: absolute;
-  left: 65%;
-  top: 3%;
+  left: 60%;
+  top: 15%;
   z-index: 10;
 }
 .on-drag-liked {
   position: absolute;
-  left: 5%;
-  top: 3%;
+  left: 15%;
+  top: 15%;
   z-index: 10;
 }
 .layer-top {
@@ -144,4 +161,39 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   text-align: center; 
   font-size: 14pt;
   margin: 10px;
+}
+
+/**My Moments**/
+.centerLikes {
+  margin-left: 40%;
+}
+.totalLikesImage {
+  float:left; 
+  margin-right: 15px
+}
+.totalLikesText {
+  margin-top: 15px;
+  vertical-align: middle;
+  font-size:24pt;
+}
+.numberOfExtraLikes {
+  color:green;
+}
+.location {
+  font-size:14pt; 
+  font-weight: bold;
+  margin-top: 10px;
+}
+.editButton {
+  line-height: 10px; 
+  min-height: 30px;
+}
+.searchRadiusText {
+  font-size:14pt; 
+  font-weight: bold;
+  margin-left: -2px;
+}
+.radiusRange {
+  border: 0px;
+  margin: 10;
 }
