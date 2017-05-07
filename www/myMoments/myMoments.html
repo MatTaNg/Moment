@@ -6,15 +6,34 @@ on-refresh="vm.refreshing()">
 <div ng-show="vm.errorMessage" class="myMoments_NotFound">
 	No Moments to Show
 </div>
-<div class = "item range range-energized" style="margin-bottom: 10px">
-	<i>5</i>
-	<input type = "range" name = "range" min="5" max="50" ng-model="vm.distance">
-	<i> {{vm.distance}} Miles</i>
-</div>
-
-</ion-range>
-<div class="row">
+<div class="centerLikes">
+	<img src="img/logo.png" class="totalLikesImage" height="50px" width="50px"></img></div>
+	<div class="totalLikesText">1{{vm.totalLikes}}<span class="numberOfExtraLikes" ng-if="vm.numberOfExtraLikes > 0"> (+{{vm.numberOfExtraLikes}})</span></div>
+	<br>
+	<hr>
+	<div class="row">
+		<div class="col-75">
+			<div class="location">Narberth, PA{{vm.userLocation}}</div>
+		</div>
+		<div class="col">
+			<button class="editButton col button button-energized " ng-click="vm.edit(true)"  ng-hide="vm.editing">Edit</button>
+		</div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col">
+			<span class="searchRadiusText">Search Radius:</span><br>
+			<div class = "radiusRange item range range-energized">
+					<i>5</i>
+					<input type = "range" name = "range" min="5" max="50" ng-model="vm.distance">
+					<i> {{vm.distance}} Miles</i>
+			</div>
+		</div>
+	</div>
+	<hr>
+<!--<div class="row">
 	<div class="col-40">
+		<img src="img/logo.png" height="50px" width="50px"> </img>
 		<div class="ion-happy-outline">{{vm.totalLikes}}<span style="color:green" ng-if="vm.numberOfExtraLikes > 0"> (+{{vm.numberOfExtraLikes}})</span></div>
 	</div>
 	<div class = "col">
@@ -32,7 +51,7 @@ on-refresh="vm.refreshing()">
 <br>
 <!-- <hr style="margin: 10px"> -->
 <ion-list>
-<div ng-repeat="image in vm.myImages">
+<div ng-repeat="image in ::vm.myImages">
 	<ion-item-sliding>
 	<ion-item ng-click="vm.toggleDescription(image)">
 	<ion-thumbnail item-left>

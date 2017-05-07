@@ -15,7 +15,6 @@
 			*/
 			function logFile(failed_function, parameters, error, key) {
 				var deferred = $q.defer();
-				console.log(key);
 				if(key === "errors.txt") {
 					$ionicContentBanner.show({
 						text: ["An unexpected error has occured.  We are looking into it"],
@@ -25,8 +24,6 @@
 				}
 				var key = 'reports/' + key;
 				var msg = createLogMessage(failed_function, parameters, error, key);
-				console.log("msg");
-				console.log(msg);
 				var moment = {key: key};
 				var params = {
 					Bucket: constants.BUCKET_NAME,

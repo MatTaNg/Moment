@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "jr-crop": "^1.1.2",
-    "ion-gallery": "^0.1.14"
+    "ion-gallery": "^0.1.14",
+    "animate.css": "^3.5.2"
   }
 }
