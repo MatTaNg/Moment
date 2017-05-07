@@ -22,6 +22,7 @@
   <link href="lib/ion-gallery/dist/ion-gallery.css" rel="stylesheet">
   <link href="lib/ionic/css/ionic.css" rel="stylesheet">
   <link href="css/moment.css" rel="stylesheet">
+  <link rel="stylesheet" href="animate.min.css">
 
 
 
@@ -70,7 +71,7 @@
       <div class="ion-ios-upload" ng-disabled = "true" ng-click="indexController.gallery()"></div>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
-    <div class="ion-person" ui-sref="tabsController.myMoments"></div>
+    <div class="ion-person" id="myMoments" ui-sref="tabsController.myMoments"></div>
   </ion-nav-buttons>
 </ion-nav-bar>
 <ion-nav-view></ion-nav-view>

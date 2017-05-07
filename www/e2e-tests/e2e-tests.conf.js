@@ -1,5 +1,4 @@
 exports.config = {  
-        framework: 'jasmine2',
         capabilities: {
             'browserName': 'chrome',
             'chromeOptions': {                

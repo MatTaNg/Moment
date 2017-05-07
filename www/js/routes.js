@@ -25,7 +25,7 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
     url: '/moments',
     cache: false,
     views: {
-      'tab1': {
+      'moments': {
         templateUrl: 'moments/moments.html',
         controller: 'MomentsController',
         controllerAs: 'vm'
@@ -36,7 +36,7 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
   .state('tabsController.bestMoments', {
     url: '/bestMoments',
     views: {
-      'tab2': {
+      'bestMoments': {
         templateUrl: 'bestMoments/bestMoments.html',
         controller: 'BestMomentsController',
         controllerAs: 'vm'
@@ -48,7 +48,7 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
     url: '/myMoments',
     cache: false,
     views: {
-      'tab3': {
+      'myMoments': {
         templateUrl: 'myMoments/myMoments.html',
         controller: 'MyMomentsController',
         controllerAs: 'vm'
