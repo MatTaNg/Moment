@@ -1,9 +1,9 @@
 		(function() {
 			angular.module('logger', [])
 
-			.service('logger', ['$q', 'constants', 'awsServices', '$ionicContentBanner', logger]);
+			.service('logger', ['$q', 'constants', 'awsServices', logger]);
 
-			function logger($q, constants, awsServices, $ionicContentBanner) {
+			function logger($q, constants, awsServices) {
 				var vm = this;
 				vm.logFile = logFile;
 				vm.logReport = logReport;
@@ -15,13 +15,6 @@
 			*/
 			function logFile(failed_function, parameters, error, key) {
 				var deferred = $q.defer();
-				if(key === "errors.txt") {
-					$ionicContentBanner.show({
-						text: ["An unexpected error has occured.  We are looking into it"],
-						autoClose: 3000,
-						type: "error"
-					});
-				}
 				var key = 'reports/' + key;
 				var msg = createLogMessage(failed_function, parameters, error, key);
 				var moment = {key: key};

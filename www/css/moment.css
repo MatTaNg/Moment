@@ -7,6 +7,9 @@
 .manual-remove-top-padding .scroll{
   padding-top:0px !important;
 }
+.button.button-positive{
+  background-color: #2695c0;
+}
 ion-list.manual-list-fullwidth div.list, .list.card.manual-card-fullwidth {
   margin-left:-10px;
   margin-right:-10px;
@@ -24,10 +27,18 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   list-style-type: decimal;
   padding-left:40px;
 }
-.ion-ios-upload {
+.ion-ios-person {
+  font-size: 35px;
+  color: #2695c0;
+}
+.ion-ios-person-outline {
   font-size: 35px;
 }
-.ion-person {
+.ion-ios-upload {
+  font-size: 35px;
+  color: #2695c0;
+}
+.ion-ios-upload-outline {
   font-size: 35px;
 }
 .ion-ios-camera-outline {
@@ -50,10 +61,18 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 
 /**Moment**/
+.noDescription {
+  height: 20%;
+  line-height: 90px;
+  text-align: center;
+
+  font-size: 14pt;
+  font-style: oblique;
+}
 .momentLocation {
   text-align: left; 
   margin: 5px; 
-  font-size: 18pt
+  font-size: 18pt;
 }
 .momentTime {
   text-align: left; 
@@ -123,7 +142,7 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   font-size: 30px;
 }
 /**My Moment**/
- .myMoments_description{
+.myMoments_description{
   white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
   white-space: -pre-wrap;      /* Opera 4-6 */
   white-space: -o-pre-wrap;    /* Opera 7 */
@@ -145,9 +164,10 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 .myMoments_likes {
   float:left; 
   font-size: 16pt;
+  margin-top: 0px;
 }
 .myMoments_time {
-  margin-top: -20px;
+  margin-top: 0px;
   text-align: right; 
   font-size: 16pt;
 }
@@ -166,6 +186,8 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 /**My Moments**/
 .centerLikes {
   margin-left: 40%;
+  margin-top: 25px;
+  margin-bottom: 40px;
 }
 .totalLikesImage {
   float:left; 
@@ -181,19 +203,27 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 .location {
   font-size:14pt; 
-  font-weight: bold;
-  margin-top: 10px;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 .editButton {
   line-height: 10px; 
   min-height: 30px;
+  margin-top: 20px;
+  margin-bottom: 30px;
 }
 .searchRadiusText {
-  font-size:14pt; 
-  font-weight: bold;
   margin-left: -2px;
+  font-size:14pt; 
 }
 .radiusRange {
   border: 0px;
   margin: 10;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.toggle input:checked + .track {
+    background-color: #8577b5;
+    border-color: #8577b5;
 }

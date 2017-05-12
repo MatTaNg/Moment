@@ -10,12 +10,17 @@
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
     indexController.camera = camera;
     indexController.gallery = gallery;
-    indexController.redirectMyMoments = redirectMyMoments;
 
-    function redirectMyMoments() {
-      console.log("REDIRECTING");
-      $state.go("tabsController.myMoments");
-    }
+    indexController.myMomentsLogo = "ion-ios-person-outline";
+    indexController.uploadLogo = "ion-ios-upload-outline";
+
+    $rootScope.$on('myMomentLogo', function(event, data) {
+      indexController.myMomentsLogo = data;
+    });
+
+    $rootScope.$on('uploadLogo', function(event, data) {
+      indexController.uploadLogo = data;
+    });
 
     function camera() { 
       navigator.camera.getPicture(onSuccess, onFail, 
