@@ -4,28 +4,33 @@
 	.service('bestMomentsService', ['core', '$q', 'constants', 'awsServices', bestMomentsService]);
 
 	function bestMomentsService(core, $q, constants, awsServices){
-		var momentArray = [];
+		this.momentArray = JSON.parse(localStorage.getItem('bestMoments'));
 		var initiateMoments = initiateMoments;
 		this.initializeView = initializeView;
 
 		function initializeView() {
 			var deferred = $q.defer();
-			initiateMoments()
-			.then(function(moments) {
-				momentArray.push({ moments });
-				deferred.resolve(moments);				
-
-			}, function(error) {
-				deferred.reject(error);
-			});
-
+			if(this.momentArray.length === 0) {
+				initiateMoments()
+				.then(function(moments) {
+					this.momentArray.push({ moments });
+					localStorage.setItem('bestMoments', JSON.stringify(moments));
+					deferred.resolve(moments);		
+				}, function(error) {
+					console.log("ERROR");
+					deferred.reject(error);
+				});
+			}
+			else {
+				deferred.resolve();
+			}
 			return deferred.promise;	
 		};
 
 		function initiateMoments() {
 			var deferred = $q.defer();
 			var metaData;
-			momentArray = [];
+			this.momentArray = [];
 			var deferred = $q.defer();
 			awsServices.getMoments(constants.BEST_MOMENT_PREFIX).then(function(moments) {
 				moments.splice(0,1); //The first key listed is always the folder, skip that.
@@ -37,7 +42,9 @@
 						location: metaData.location,
 						time: core.timeElapsed(metaData.time),
 						uuids: metaData.uuids,
-						views: metaData.views
+						views: metaData.views,
+						src: constants.IMAGE_URL + moment.Key, //For the gallery directive
+						sub: metaData.description
 					}))
 					)));
 			}, function(error) {

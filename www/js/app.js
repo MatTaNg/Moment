@@ -19,11 +19,17 @@ angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core'
 
 .run(function($ionicPlatform, $ionicPopup, $state, $rootScope, geolocation, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
   $ionicPlatform.ready(function() {
+    console.log("SET UP");
+    console.log(JSON.parse(localStorage.getItem('moments')));
+    console.log(JSON.parse(localStorage.getItem('bestMoments')));
+    console.log(JSON.parse(localStorage.getItem('myMoments')));
     oneSignalSetup();
-    initializeApp().then(function() {
+    // initializeApp().then(function() {
+      if(navigator.splashscreen)
+        navigator.splashscreen.hide();
       $state.go("tabsController.moments", {}, {reload: true});
-    }, function(error) {
-    });
+    // }, function(error) {
+    // });
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
 if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
@@ -52,18 +58,16 @@ if (window.StatusBar) {
     } //window.connection
 
     function initializeApp() {
+      console.log("INIT");
       var deferred = $q.defer();
       if(!localStorage.getItem('momentRadiusInMiles')) {
         localStorage.setItem('momentRadiusInMiles', JSON.stringify(constants.DEFAULT_MOMENT_RADIUS_IN_MILES));
       } 
       localStorage.setItem('moments', JSON.stringify([]));
       localStorage.setItem('bestMoments', JSON.stringify([]));
-      // localStorage.setItem('myMoments', JSON.stringify([]));
 
       momentsService.initializeView().then(function(moments) {
-        localStorage.setItem('moments', JSON.stringify(moments));
         bestMomentsService.initializeView().then(function(bestmoments) {
-          localStorage.setItem('bestMoments', JSON.stringify(bestmoments));
           if(JSON.parse(localStorage.getItem('myMoments')).length > 0) {
             myMomentsService.initialize(JSON.parse(localStorage.getItem('myMoments'))).then(function(moments) {
               localStorage.setItem('myMoments', JSON.stringify(moments));
@@ -75,6 +79,7 @@ if (window.StatusBar) {
           }
         }); //End of bestMoments Init
       }, function(error) {
+        console.log("ERRROR");
         deferred.reject(error);
       }); //End of moments Init
       return deferred.promise;

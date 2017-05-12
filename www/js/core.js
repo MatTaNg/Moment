@@ -172,7 +172,7 @@ function getHardCodedMoments() {
 	var key = "test/PA/"
 	var temp = [];
 	return awsServices.getMoments(key).then(function(moments) {
-		moments.splice(0,1);
+		// moments.splice(0,1);
 		return Promise.all(moments.map(moment =>
 			awsServices.getMomentMetaData(moment.Key).then(metaData => ({
 				key: constants.IMAGE_URL + moment.Key, 

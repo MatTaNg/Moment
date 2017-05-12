@@ -164,8 +164,6 @@ function getMomentsByState(states) {
 };
 
 function getMomentsWithinRadius(momentsInStates) {
-	console.log("MOMENTS IN STATES");
-	console.log(momentsInStates);
 	return Promise.all(momentsInStates.map(moment =>
 		awsServices.getMomentMetaData(moment.Key).then(metaData => ({
 			key: constants.IMAGE_URL + moment.Key, 

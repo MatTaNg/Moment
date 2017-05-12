@@ -7,9 +7,9 @@
 		var dataURItoBlob = dataURItoBlob;
 		this.uploadToAWS = uploadToAWS;
 		this.uploadToLocalStorage = uploadToLocalStorage;
-		this.updateTime = updateTime;
+		this.updateTimeSinceLastMoment = updateTimeSinceLastMoment;
 
-		function updateTime() {
+		function updateTimeSinceLastMoment() {
 			localStorage.setItem('timeSinceLastMoment', new Date().getTime());
 		};
 
@@ -26,8 +26,6 @@
 				localMoments = JSON.parse(localStorage.getItem('myMoments'));
 			}
 			localMoments.push(moment);
-			console.log("LOCAL MOMENTS");
-			console.log(JSON.stringify(localMoments));
 			localStorage.setItem('myMoments', JSON.stringify(localMoments));
 		};
 
