@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', '$stateParams', '$scope', '$ionicContentBanner', '$window', 'core', '$rootScope', 'components', '$q', '$ionicPopup', 'constants', MomentsController]);
+	.controller('MomentsController', ['momentsService', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', MomentsController]);
 
-	function MomentsController (momentsService, $stateParams, $scope, $ionicContentBanner, $window, core, $rootScope, components, $q, $ionicPopup, constants) {
+	function MomentsController (momentsService, $scope, $ionicContentBanner, core, components, $q, $ionicPopup) {
 		var vm = this;
 		vm.liked = liked;		
 		vm.dragRight = dragRight;

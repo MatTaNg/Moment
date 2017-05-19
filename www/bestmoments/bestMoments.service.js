@@ -13,7 +13,7 @@
 			if(this.momentArray.length === 0) {
 				initiateMoments()
 				.then(function(moments) {
-					this.momentArray.push({ moments });
+					this.momentArray.push(moments);
 					localStorage.setItem('bestMoments', JSON.stringify(moments));
 					deferred.resolve(moments);		
 				}, function(error) {
@@ -27,15 +27,11 @@
 			return deferred.promise;	
 		};
 
-		function initiateMoments() {
-			var deferred = $q.defer();
-			var metaData;
-			this.momentArray = [];
-			var deferred = $q.defer();
-			awsServices.getMoments(constants.BEST_MOMENT_PREFIX).then(function(moments) {
-				moments.splice(0,1); //The first key listed is always the folder, skip that.
-				deferred.resolve(Promise.all(moments.map(moment => 
-					awsServices.getMomentMetaData(moment.Key).then(metaData => ({
+		function createPromiseObjects(moments) {
+			var promises = [];
+			for(var i = 0; i < moments.length; i++) {
+				promises.push(awsServices.getMomentMetaData(moments[i].Key).then(function(metaData){
+					return {
 						key: constants.IMAGE_URL + moment.Key, 
 						description: metaData.description,
 						likes: metaData.likes,
@@ -45,8 +41,21 @@
 						views: metaData.views,
 						src: constants.IMAGE_URL + moment.Key, //For the gallery directive
 						sub: metaData.description
-					}))
-					)));
+					}	
+				}));
+			}
+			return promises;
+		};
+
+		function initiateMoments() {
+			var deferred = $q.defer();
+			var metaData;
+			this.momentArray = [];
+			var deferred = $q.defer();
+			awsServices.getMoments(constants.BEST_MOMENT_PREFIX).then(function(moments) {
+				moments.splice(0,1); //The first key listed is always the folder, skip that.
+				var promises = createPromiseObjects(moments);
+				deferred.resolve(promises);
 			}, function(error) {
 				deferred.reject(error);
 			});
