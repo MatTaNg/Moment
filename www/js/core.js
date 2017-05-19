@@ -7,122 +7,122 @@
  		var vm = this,
  		deferred = $q.defer();
 
-		verifyMetaData = verifyMetaData;
-		vm.splitUrlOff = splitUrlOff;
+ 		verifyMetaData = verifyMetaData;
+ 		vm.splitUrlOff = splitUrlOff;
 
-		vm.moments = [];
-		vm.timeElapsed = timeElapsed,
-		vm.getCurrentTime = getCurrentTime;
-		vm.getUUID = getUUID;
-		vm.getHardCodedMoments = getHardCodedMoments;
-		vm.didUserChangeRadius = false;
+ 		vm.moments = [];
+ 		vm.timeElapsed = timeElapsed,
+ 		vm.getCurrentTime = getCurrentTime;
+ 		vm.getUUID = getUUID;
+ 		vm.getHardCodedMoments = getHardCodedMoments;
+ 		vm.didUserChangeRadius = false;
 
-		vm.remove = remove;
-		vm.edit = edit;
-		vm.upload = upload;
+ 		vm.remove = remove;
+ 		vm.edit = edit;
+ 		vm.upload = upload;
 
-		function splitUrlOff(key) {
-			var result = "";
-			var keySplit = key.split('/');
-			if(keySplit.length > 4) {
-				for(var i = 4; i < keySplit.length; i++) {
-					result = result + keySplit[i] + '/';
-				}
-				return result.substring(0, result.length-1);
-			}
-			else {
-				return key;
-			}
-		};
+ 		function splitUrlOff(key) {
+ 			var result = "";
+ 			var keySplit = key.split('/');
+ 			if(keySplit.length > 4) {
+ 				for(var i = 4; i < keySplit.length; i++) {
+ 					result = result + keySplit[i] + '/';
+ 				}
+ 				return result.substring(0, result.length-1);
+ 			}
+ 			else {
+ 				return key;
+ 			}
+ 		};
 
-		function remove(moment) {
-			var deferred = $q.defer();
-			var path = splitUrlOff(moment.key);
-			awsServices.remove(path).then(function() {
-				deferred.resolve();
-			}, function(error) {
-				logger.logFile('aws_services.remove', {Path: path}, error, 'errors.txt').then(function() {
-					deferred.reject(error);	
-				});
-			});
-			return deferred.promise;
-		};
+ 		function remove(moment) {
+ 			var deferred = $q.defer();
+ 			var path = splitUrlOff(moment.key);
+ 			awsServices.remove(path).then(function() {
+ 				deferred.resolve();
+ 			}, function(error) {
+ 				logger.logFile('aws_services.remove', {Path: path}, error, 'errors.txt').then(function() {
+ 					deferred.reject(error);	
+ 				});
+ 			});
+ 			return deferred.promise;
+ 		};
 
-		var verifyMetaData = function(moment) {
-			if(moment.key.includes('reports')) {
-				return true;
-			}
-			if(	moment.location &&
-				moment.likes &&
-				moment.description !== undefined &&
-				moment.time &&
-				moment.views &&
-				moment.uuids)
-				return true;
-			else {
-				logger.logFile('core.verifyMetaData', {Moment: moment}, error, 'errors.txt').then(function() {
-					return false;
-				});
-			}
-		}
+ 		var verifyMetaData = function(moment) {
+ 			if(moment.key.includes('reports')) {
+ 				return true;
+ 			}
+ 			if(	moment.location &&
+ 				moment.likes &&
+ 				moment.description !== undefined &&
+ 				moment.time &&
+ 				moment.views &&
+ 				moment.uuids)
+ 				return true;
+ 			else {
+ 				logger.logFile('core.verifyMetaData', {Moment: moment}, error, 'errors.txt').then(function() {
+ 					return false;
+ 				});
+ 			}
+ 		}
 
-		function edit(moment){
-			var deferred = $q.defer();
-			var key = moment.key;
-			if(verifyMetaData(moment)) {
-				key = splitUrlOff(key);
-				awsServices.copyObject(key, key, moment, "REPLACE").then(function() {
-					deferred.resolve();
-				}, function(error) {
-					var parameters = {
-						Key: key,
-						CopySource: key,
-						MetaData: moment,
-						Directive: "REPLACE"
-					};
+ 		function edit(moment){
+ 			var deferred = $q.defer();
+ 			var key = moment.key;
+ 			if(verifyMetaData(moment)) {
+ 				key = splitUrlOff(key);
+ 				awsServices.copyObject(key, key, moment, "REPLACE").then(function() {
+ 					deferred.resolve();
+ 				}, function(error) {
+ 					var parameters = {
+ 						Key: key,
+ 						CopySource: key,
+ 						MetaData: moment,
+ 						Directive: "REPLACE"
+ 					};
 					// error = "FAILURE - aws_services.copyObject" + "\r\n" + "KEY: " + key + " | copySource: " + copySource + " | META DATA: " + metaData + " | DIRECTIVE: " + directive + "\r\n" + error;
 					logger.logFile("aws_services.copyObject", parameters, error, 'errors.txt').then(function() {
 						deferred.reject(error);	
 					});
 				});
-			}
-			else {
-				deferred.reject();
-			}
-			return deferred.promise;
-		};
+ 			}
+ 			else {
+ 				deferred.reject();
+ 			}
+ 			return deferred.promise;
+ 		};
 
-			function upload(file, moment) {
-				var deferred = $q.defer();
-				if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
-					moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
-				}
-				if(verifyMetaData(moment)) {
-					var key = splitUrlOff(moment.key);
-					awsServices.upload(file, key, moment).then(function() {
-						deferred.resolve();
-					},function(error) {
-						var parameters = {
-							File: file,
-							Key: key,
-							Moment: moment
-						}
-						logger.logFile("aws_services.upload", parameters, error, 'errors.txt').then(function() {
-							deferred.reject(error);	
-						});
-					});
-				}
-				else {
-					deferred.reject("invalid MetaData");
-				}
-				return deferred.promise;
-			};
+ 		function upload(file, moment) {
+ 			var deferred = $q.defer();
+ 			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
+ 				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
+ 			}
+ 			if(verifyMetaData(moment)) {
+ 				var key = splitUrlOff(moment.key);
+ 				awsServices.upload(file, key, moment).then(function() {
+ 					deferred.resolve();
+ 				},function(error) {
+ 					var parameters = {
+ 						File: file,
+ 						Key: key,
+ 						Moment: moment
+ 					}
+ 					logger.logFile("aws_services.upload", parameters, error, 'errors.txt').then(function() {
+ 						deferred.reject(error);	
+ 					});
+ 				});
+ 			}
+ 			else {
+ 				deferred.reject("invalid MetaData");
+ 			}
+ 			return deferred.promise;
+ 		};
 
-			function getCurrentTime() {
-				return new Date().getTime();
-			};
+ 		function getCurrentTime() {
+ 			return new Date().getTime();
+ 		};
 
-			function timeElapsed(time) {
+ 		function timeElapsed(time) {
 			if(time.toString().match(/[a-z]/i)) { //It is already in the correct format
 				return time;
 			}
@@ -172,18 +172,22 @@ function getHardCodedMoments() {
 	var key = "test/PA/"
 	var temp = [];
 	return awsServices.getMoments(key).then(function(moments) {
+		var promises = [];
+		for(var i = 0; i < moments.length; i++) {
+			promises.push(awsServices.getMomentMetaDatamoments[i].Key).then(function(metaData) {
+				return {
+					key: constants.IMAGE_URL + moment.Key, 
+					description: metaData.description,
+					likes: metaData.likes,
+					location: metaData.location,
+					time: metaData.time,
+					uuids: metaData.uuids,
+					views: metaData.views
+				}
+			});
+		}
 		// moments.splice(0,1);
-		return Promise.all(moments.map(moment =>
-			awsServices.getMomentMetaData(moment.Key).then(metaData => ({
-				key: constants.IMAGE_URL + moment.Key, 
-				description: metaData.description,
-				likes: metaData.likes,
-				location: metaData.location,
-				time: metaData.time,
-				uuids: metaData.uuids,
-				views: metaData.views
-			}))
-			));
+		return Promise.all(promises);
 	});
 };
 

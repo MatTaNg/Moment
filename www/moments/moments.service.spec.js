@@ -2,6 +2,8 @@ describe('Moment Service', function() {
 	var service_Mock, core_Mock,
 	momentArray_Mock = [1, 2, 3, 4, 5];
 
+	beforeEach(module('app'));
+
 	beforeEach(function() {
 		// var deferred = $q.defer();
 

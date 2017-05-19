@@ -156,34 +156,34 @@
 };
 
 function getMomentsByState(states) {
-	var deferred = $q.defer();
 	var result = [];
-	return Promise.all(states.map(state =>
-		awsServices.getMoments(constants.MOMENT_PREFIX + state)
-		));
+	var promises = [];
+	for(var i = 0; i < states.length; i++){
+		promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i]));
+	}
+	return Promise.all(promises);
 };
 
 function getMomentsWithinRadius(momentsInStates) {
-	return Promise.all(momentsInStates.map(moment =>
-		awsServices.getMomentMetaData(moment.Key).then(metaData => ({
-			key: constants.IMAGE_URL + moment.Key, 
-			description: metaData.description,
-			likes: metaData.likes,
-			location: metaData.location,
-			time: metaData.time,
-			uuids: metaData.uuids,
-			views: metaData.views
+	var promises = [];
+	for(var i = 0; i < momentsInStates.length; i++) {
+		promises.push(awsServices.getMomentMetaData(momentsInStates[i]).then(function(metaData) {
+			return {
+				key: constants.IMAGE_URL + moment.Key, 
+				description: metaData.description,
+				likes: metaData.likes,
+				location: metaData.location,
+				time: metaData.time,
+				uuids: metaData.uuids,
+				views: metaData.views
+			};
 		}))
-		));
+	}
+	return Promise.all(promises);
 };
 
 function getLocationFromTown(town) {
-	if(town.indexOf(',') !== -1) {
-		var temp = town.split(',');
-		temp[1] = temp[1].toUpperCase();
-		town = temp[0] + ',' + temp[1];
-	}
-	town = town.charAt(0).toUpperCase() + town.slice(1);
+	town = makeSureTownIsRightFormat(town);
 	var deferred = $q.defer();
 
 	$http.get(constants.GEOLOCATION_URL + "address=" + town).then(function(response) {
@@ -208,6 +208,15 @@ function getLocationFromTown(town) {
 		deferred.reject(error);
 	});
 	return deferred.promise;
+};
+
+function makeSureTownIsRightFormat(town) {
+	if(town.indexOf(',') !== -1) {
+		var temp = town.split(',');
+		temp[1] = temp[1].toUpperCase();
+		town = temp[0] + ',' + temp[1];
+	}
+	return town.charAt(0).toUpperCase() + town.slice(1);
 };
 
 function getCoordsFromZipCode(zipCode) {
@@ -271,7 +280,8 @@ function getLocationFromCoords(latitude, longitude) {
 		});
 		deferred.reject(error);
 	});
-
+	return deferred.promise;
+};
 
 	// var geocoder = new google.maps.Geocoder();
 	// geocoder.geocode({location: latLng }, function(response, status) {
@@ -308,7 +318,5 @@ function getLocationFromCoords(latitude, longitude) {
 	// 	});
 	// 	deferred.reject(error);
 	// });
- return deferred.promise;
-};
 }
 })();
