@@ -44,3 +44,6 @@ Moment's AWS S3 Database is set up like so:
 4.  The code will remove Moments which have expired when the User tries to grab an image from the database.
 5.  For a high level summary of how the code works you can go to www.draw.io.com and open the xml diagrams contained in this repository.
 6.  In constants.js there is a variable called "DEV_MODE"; setting this to false allows you to use ionic serve by shutting off anything having to do with location tracking.
+
+<b> Known Issues </b>
+1.  Seems like JavaScript enjoys to torture me by setting a global variable to undefined for no reason at all.  Two examples are in moments.controller and moments.service.  You will see an angry line with a comment perplexed as to this behavior.
