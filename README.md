@@ -48,3 +48,7 @@ Moment's AWS S3 Database is set up like so:
 <b> Known Issues </b>
 1.  Seems like JavaScript enjoys to torture me by setting a global variable to undefined for no reason at all.  Two examples are in moments.controller and moments.service.  You will see an angry line with a comment perplexed as to this behavior.
 1a. I was able to solve some of these problems by creating a temp variable although it did not always work.
+
+2.  $ionicPopUp takes up quite a lot of space in the code.  It would be nice to find a way to refactor this code into some kind of custom directive along with the $ionicContentBanner.
+
+3.  Errors can probably be handled better.
