@@ -10,11 +10,11 @@
  		verifyMetaData = verifyMetaData;
  		vm.splitUrlOff = splitUrlOff;
 
+ 		vm.appInitialized = false;
  		vm.moments = [];
  		vm.timeElapsed = timeElapsed,
  		vm.getCurrentTime = getCurrentTime;
  		vm.getUUID = getUUID;
- 		vm.getHardCodedMoments = getHardCodedMoments;
  		vm.didUserChangeRadius = false;
 
  		vm.remove = remove;
@@ -23,21 +23,29 @@
 
  		function splitUrlOff(key) {
  			var result = "";
- 			var keySplit = key.split('/');
- 			if(keySplit.length > 4) {
+ 			if(key !== undefined) {
+ 				var keySplit = key.split('/');
  				for(var i = 4; i < keySplit.length; i++) {
  					result = result + keySplit[i] + '/';
  				}
  				return result.substring(0, result.length-1);
  			}
  			else {
+ 				console.log("INVALID KEY");
+ 				console.log(key);
  				return key;
  			}
  		};
 
  		function remove(moment) {
+ 			console.log("REMOVING");
+ 			console.log(moment);
  			var deferred = $q.defer();
- 			var path = splitUrlOff(moment.key);
+ 			if(moment.key !== undefined) {
+ 				var path = splitUrlOff(moment.key);
+ 			} else { //AWS S3 SDK returns a key with a capital 'K'
+ 				var path = moment.Key;
+ 			}
  			awsServices.remove(path).then(function() {
  				deferred.resolve();
  			}, function(error) {
@@ -166,30 +174,6 @@
 			return "0m"
 		}
 	};
-
-//DEV MODE
-function getHardCodedMoments() {
-	var key = "test/PA/"
-	var temp = [];
-	return awsServices.getMoments(key).then(function(moments) {
-		var promises = [];
-		for(var i = 0; i < moments.length; i++) {
-			promises.push(awsServices.getMomentMetaDatamoments[i].Key).then(function(metaData) {
-				return {
-					key: constants.IMAGE_URL + moment.Key, 
-					description: metaData.description,
-					likes: metaData.likes,
-					location: metaData.location,
-					time: metaData.time,
-					uuids: metaData.uuids,
-					views: metaData.views
-				}
-			});
-		}
-		// moments.splice(0,1);
-		return Promise.all(promises);
-	});
-};
 
 function getUUID() {
 		// console.log("window.device.uuid");

@@ -11,7 +11,7 @@
     vm.submit = submit;
 
     var key = '',
-        updateMetaData = updateMetaData;
+    updateMetaData = updateMetaData;
     vm.moment = {
       key: '',
       location: 'Unknown',
@@ -63,8 +63,10 @@
       components.showLoader().then(function() {
         if(vm.moment.description.length <= vm.maxChars) {
           updateMomentObject();
-          submitMomentService.uploadToLocalStorage(vm.moment);
+          console.log("UPLOAD TO AWS");
+          console.log(JSON.stringify(vm.moment));
           submitMomentService.uploadToAWS(vm.picture, vm.moment).then(function() {
+            submitMomentService.uploadToLocalStorage(vm.moment);
             thankUserForSubmission();
             components.hideLoader().then(function() {
               submitMomentService.updateTimeSinceLastMoment();
@@ -73,6 +75,12 @@
             });
           }, function(error) {
             components.hideLoader().then(function() {
+              $ionicContentBanner.show({
+                text: ["An error has occured"],
+                type: "error",
+                autoClose: 3000
+              });
+              $state.go('tabsController.moments');
               console.log("SUBMITION FAILED"); 
             });
           });
@@ -97,7 +105,7 @@ function updateMomentObject() {
   }
   vm.moment.time = new Date().getTime().toString();
   vm.moment.description = vm.moment.description;
-  var key = constants.MOMENT_PREFIX + geolocation.userLocation.town.split(',')[1].trim() + '/' + geolocation.userLocation.lat + '_' + geolocation.userLocation.lng;
+  var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + geolocation.userLocation.town.split(',')[1].trim() + '/' + geolocation.userLocation.lat + '_' + geolocation.userLocation.lng;
   vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
 };
 };

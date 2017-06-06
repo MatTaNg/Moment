@@ -31,6 +31,7 @@
 			};
 
 			function logReport(report, key) {
+				console.log("LOG REPORT");
 				var deferred = $q.defer();
 				var params = {
 					Bucket: constants.BUCKET_NAME,
@@ -45,9 +46,12 @@
 			};
 
 			function uploadLog(message, key) {
+				console.log("LOGGING");
 				var moment = {key: key};
 				var deferred = $q.defer();
 				awsServices.getObject(key).then(function(data) {
+					console.log("LOGGER UPLOAD");
+					console.log(data);
 					data = data.Body;
 					message = message + '\r\n\r\n' + data;
 					var blob = new Blob([message], {type: "text"});

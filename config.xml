@@ -10,13 +10,13 @@
   <content src="index.html"/>
   <access origin="*"/>
   <access origin="tel:*" launch-external="yes"/>
+  <access origin="*"/>
   <allow-navigation href="*"/>
   <allow-navigation href="http://*/*"/>
   <allow-navigation href="https://*/*"/>
   <allow-navigation href="data:*"/>
+  <allow-navigation href="http://192.168.0.6:8100"/>
   <allow-intent href="*"/>
-  <access origin="*"/>
-
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
@@ -26,40 +26,32 @@
   <preference name="BackupWebStorage" value="none"/>
   <preference name="loadUrlTimeoutValue" value="700000"/>
   <preference name="phonegap-version" value="3.7.0"/>
-
   <platform name="android">
-    <!-- Portrait -->
-    <splash src="resources/screen/android/splash-portrait-ldpi.png" density="port-ldpi" width="320" height="426" />
-    <splash src="resources/screen/android/splash-portrait-mdpi.png" density="port-mdpi" width="320" height="470" />
-    <splash src="resources/screen/android/splash-portrait-hdpi.png" density="port-hdpi" width="480" height="640" />
-    <splash src="resources/screen/android/splash-portrait-xhdpi.png" density="port-xhdpi" width="720" height="960" />
-    <!-- Landscape -->
-    <splash src="resources/screen/android/splash-ldpi.png" density="land-ldpi" width="426" height="320" />
-    <splash src="resources/screen/android/splash-mdpi.png" density="land-mdpi" width="470" height="320" />
-    <splash src="resources/screen/android/splash-hdpi.png" density="land-hdpi" width="640" height="480" />
-    <splash src="resources/screen/android/splash-xhdpi.png" density="land-xhdpi" width="960" height="720" />
-
-    <preference name="AutoHideSplashScreen" value="true" />
-    <preference name="SplashScreenDelay" value="60000" />
+    <splash src="resources/screen/android/splash-portrait-ldpi.png" density="port-ldpi" width="320" height="426"/>
+    <splash src="resources/screen/android/splash-portrait-mdpi.png" density="port-mdpi" width="320" height="470"/>
+    <splash src="resources/screen/android/splash-portrait-hdpi.png" density="port-hdpi" width="480" height="640"/>
+    <splash src="resources/screen/android/splash-portrait-xhdpi.png" density="port-xhdpi" width="720" height="960"/>
+    <splash src="resources/screen/android/splash-ldpi.png" density="land-ldpi" width="426" height="320"/>
+    <splash src="resources/screen/android/splash-mdpi.png" density="land-mdpi" width="470" height="320"/>
+    <splash src="resources/screen/android/splash-hdpi.png" density="land-hdpi" width="640" height="480"/>
+    <splash src="resources/screen/android/splash-xhdpi.png" density="land-xhdpi" width="960" height="720"/>
+    <preference name="AutoHideSplashScreen" value="true"/>
+    <preference name="SplashScreenDelay" value="60000"/>
   </platform>
-
   <platform name="ios">
-    <splash src="resources/screen/ios/Default@2x~universal~anyany.png" />
+    <splash src="resources/screen/ios/Default@2x~universal~anyany.png"/>
   </platform>
-
-    <platform name="windows">
-        <icon src="resources/screen/windows/storelogo.png" target="StoreLogo" />
-        <icon src="resources/screen/windows/smalllogo.png" target="Square30x30Logo" />
-        <icon src="resources/screen/windows/Square44x44Logo.png" target="Square44x44Logo" />
-        <icon src="resources/screen/windows/Square70x70Logo.png" target="Square70x70Logo" />
-        <icon src="resources/screen/windows/Square71x71Logo.png" target="Square71x71Logo" />
-        <icon src="resources/screen/windows/Square150x150Logo.png" target="Square150x150Logo" />
-        <icon src="resources/screen/windows/Square310x310Logo.png" target="Square310x310Logo" />
-        <icon src="resources/screen/windows/Wide310x150Logo.png" target="Wide310x150Logo" />
-    </platform>
-
+  <platform name="windows">
+    <icon src="resources/screen/windows/storelogo.png" target="StoreLogo"/>
+    <icon src="resources/screen/windows/smalllogo.png" target="Square30x30Logo"/>
+    <icon src="resources/screen/windows/Square44x44Logo.png" target="Square44x44Logo"/>
+    <icon src="resources/screen/windows/Square70x70Logo.png" target="Square70x70Logo"/>
+    <icon src="resources/screen/windows/Square71x71Logo.png" target="Square71x71Logo"/>
+    <icon src="resources/screen/windows/Square150x150Logo.png" target="Square150x150Logo"/>
+    <icon src="resources/screen/windows/Square310x310Logo.png" target="Square310x310Logo"/>
+    <icon src="resources/screen/windows/Wide310x150Logo.png" target="Wide310x150Logo"/>
+  </platform>
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="true"/>
   </feature>
-  <allow-navigation href="http://192.168.0.6:8100"/>
 </widget>

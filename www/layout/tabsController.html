@@ -6,10 +6,8 @@
         <ion-tab icon="ion-android-list" href="#/page1/bestMoments" id="tabsController-bestMoments">
       <ion-nav-view name="bestMoments"></ion-nav-view>
     </ion-tab>
-    <ion-tab icon="ion-camera" class="test" ng-if="momentTimer === '0m'" ng-click="indexController.camera()">
+    <ion-tab icon="ion-person" class="test" href="#/page1/myMoments">
     <ion-nav-view name="myMoments"></ion-nav-view>
-    </ion-tab>
-    <ion-tab title="{{momentTimer}}" ng-if="momentTimer !== '0m'" disabled="true" ng-if="true" ng-click="indexController.camera()">
     </ion-tab>
   </ion-tabs>
 </ion-view> 

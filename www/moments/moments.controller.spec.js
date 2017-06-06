@@ -1,71 +1,43 @@
 describe('Moment Controller', function() {
-	var controller,
-	deferred,
-	momentsSvc_Mock;
 
-	beforeEach(module('app.MomentsController'));
+    var $scope, $controller, momentsService, $ionicContentBanner, core, components, $q, $ionicPopup, $window;
 
-	beforeEach(inject(function($controller, $q) {
-		deferred = $q.defer();
+    // beforeEach(module('jett.ionic.content.banner'), []);
+    beforeEach(module('app'), ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'components', 'geolocation']);
+    // beforeEach(module('core'));
+    // beforeEach(module('components'));
+    // beforeEach(module('constants'));
 
-		momentsSvc_Mock = {
-			incrementCounter: jasmine.createSpy('incrementCounter spy')
-			.and.returnValue(2),
-			initializeView: jasmine.createSpy('initializeView spy')
-			.and.returnValue(deferred.promise),
-			updateObject: jasmine.createSpy('update Object spy'),
-			getMoments: jasmine.createSpy('get Moments spy')
-			.and.returnValue('2')
-		};
-		controller = $controller('MomentsController', {
-			'momentsService': momentsSvc_Mock
-		});
 
-	}));
+    beforeEach(inject(function(_$controller_, $rootScope, momentsService, $ionicContentBanner, core, components, $q, $ionicPopup, $window) {
+        // var self = this;
+        // this.$scope = $rootScope.$new();
+        // this.momentsService = _momentsService_;
 
-	beforeEach(inject(function(_$rootScope_) {
-		$rootScope = _$rootScope_;
-		controller.counter = 2;
-		controller.liked(true);
-	}))
+        // this.$ionicContentBanner = _$ionicContentBanner_;
+        // this.core = _core_;
+        // this.components = _components_;
+        // this.$q = _$q_;
+        // this.$ionicPopup = _$ionicPopup_;
 
-	describe("When calling the liked function", function() {
+        // spyOn(momentsService, 'initializeView');
 
-		it("should call update object", function() {
-			expect(momentsSvc_Mock.updateObject).toHaveBeenCalledWith(true, 2);
-		});
-		it("should call incrementCounter", function() {
-			expect(momentsSvc_Mock.incrementCounter).toHaveBeenCalledWith(2);
-		});
-		it("should call getMoments", function() {
-			expect(momentsSvc_Mock.getMoments).toHaveBeenCalled();
-		});
+        // this.$controller = _$controller_('MomentsController', {
+        //     momentsService: momentsService, 
+        //     $scope: $scope, 
+        //     $ionicContentBanner: $ionicContentBanner,
+        //     core: core,
+        //     component: components,
+        //     $q: $q,
+        //     $ionicPopup: $ionicPopup
+        // });
+    }));
 
-		describe("If there are no more moments and liked is called", function() {
-			beforeEach(inject(function($controller) {
-				momentsSvc_Mock = {
-					incrementCounter: jasmine.createSpy('incrementCounter spy')
-					.and.returnValue(-1),
-					initializeView: jasmine.createSpy('initializeView spy')
-					.and.returnValue(deferred.promise),
-					updateObject: jasmine.createSpy('update Object spy'),
-					getMoments: jasmine.createSpy('get Moments spy')
-					.and.returnValue('2')
-				};
-				controller = $controller('MomentsController', {
-					'momentsService': momentsSvc_Mock
-				});
-			}));
+    it('should initialize', function() { 
+        // console.log(this);
+        // console.log("CONTROLLER");
+        // console.log(this.momentsService);
+        // console.log(this.momentsService.initializeView());
+    });
 
-			beforeEach(inject(function(_$rootScope_) {
-				$rootScope = _$rootScope_;
-				controller.counter = 2;
-				controller.liked(true);
-			}))
-
-		it("should call initialize view again", function() {
-			expect(momentsSvc_Mock.initializeView.calls.count()).toEqual(2);
-		});
-	});
-	});
 });

@@ -62,10 +62,6 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 
 /**Moment**/
 .noDescription {
-  height: 20%;
-  line-height: 90px;
-  text-align: center;
-
   font-size: 14pt;
   font-style: oblique;
 }
@@ -118,7 +114,7 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 .layer-bottom {
   position: absolute;
-  z-index: 0;
+  z-index: 1;
   width: 95%;
   height: 95%;
   background-color: white;
@@ -198,9 +194,19 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   vertical-align: middle;
   font-size:24pt;
 }
-.numberOfExtraLikes {
+.totalNumberOfExtraLikes {
+  font-size: 12pt;
   color:green;
 }
+.numberOfExtraMomentLikes {
+  color: green;
+  font-size: 12pt;
+}
+.logoMomentLikes {
+  margin-right: 5px;
+  float:left;
+}
+
 .location {
   font-size:14pt; 
   margin-top: 30px;

@@ -6,7 +6,51 @@
 <ion-refresher on-refresh="vm.initialize()">
 </ion-refresher>
 
-<div class="trending_Moments">Trending Moments</div>
+<label class = "item item-input item-select item-stable">
+  <div class = "input-label">
+    Sort
+  </div>
+
+  <select ng-model="vm.sort">
+    <option selected>Likes</option>
+    <option>Time</option>
+    <option>Location</option>
+  </select>
+</label>
+<br>
+  <ion-grid ng-repeat="image in vm.imageArray ">
+    <ion-row>
+      <ion-col style="font-size: 18pt;">{{image.location}}</ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <img src="{{image.key}}" style="margin-top: 10px" width="100%" height="60%"></img>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div style="float: left"><img src="img/logo.png" width="30px" height="30px"></img></div>
+      </ion-col>
+      <ion-col col-12>
+        <div style="margin-left: 5px; font-size: 18pt; float:left">{{image.likes}}</div>
+      </ion-col>
+      <ion-col>
+          <div style="text-align:right; font-size: 18pt">{{image.time}}</div>
+        </ion-col>
+    </ion-row>
+    <div data-ng-show="{{image.description.length > 0}}">
+    <br>
+      <ion-row>
+        <ion-col>
+          {{image.description}}
+        </ion-col>
+      </ion-row>
+    </div>
+    <br>
+    <hr>
+  </ion-grid>
+
+  <ion-infinite-scroll on-infinite="vm.loadMore()" data-ng-if="vm.stopLoadingData === false" distance="1%"></ion-infinite-scroll>
 <!-- <form id="bestMoments-form2" class="list">
   <label class="item item-select" id="bestMoments-select3">
     <span class="input-label" ng-model="sortBy">Sort By</span>
@@ -17,6 +61,6 @@
      </select>
   </label>
 </form> -->
-	<ion-gallery ion-gallery-items="vm.imageArray"></ion-gallery>
+	<!-- <ion-gallery ion-gallery-items="vm.imageArray"></ion-gallery> -->
 </ion-content>
 </ion-view>

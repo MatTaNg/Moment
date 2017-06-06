@@ -1,3 +1,9 @@
+describe('OKCupid', function() {
+  it('should automatically send messages', function() {
+    browser.get('/#/page1/moments');
+
+  });
+});
 // describe('On the Moment page', function(){  
 
 //     beforeEach(function() {
