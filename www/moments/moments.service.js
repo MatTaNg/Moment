@@ -4,85 +4,77 @@
 	.service('momentsService', ['core', '$q', 'constants', 'awsServices', 'components', 'logger', 'geolocation', momentsService]);
 
 	function momentsService(core, $q, constants, awsServices, components, logger, geolocation){
-		this.momentArray;
+		this.momentArray = JSON.parse(localStorage.getItem('moments'));
+
 		this.initializeView = initializeView;
 		this.isMomentWithRadius = isMomentWithRadius;
 		this.updateMoment = updateMoment;
 		this.incrementCounter = incrementCounter;
 		this.uploadReport = uploadReport;
-		if(localStorage.getItem('moments')) {
-			this.momentArray = JSON.parse(localStorage.getItem('moments'));
-		}
-		else {
+
+		if(!this.momentArray) {
 			this.momentArray = [];
 		}
 
-		console.log("MOMENTS SERVICE");
-
-		function concatMoments(moments) {
-			var results = [];
-			for(var i = 0; i < moments[0].length;i++) {
-				results = results.concat(moments[0][i]);
-			}
-			return results;
-		};
-
-		function initializeView() {
-			var deferred = $q.defer();
-			// this.momentArray = [];
-			geolocation.calculateNearbyStates().then(function(states) {
 			//We cannot load all the images in the AWS database.
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
-			geolocation.getMomentsByState(states).then(function(moments) {
-				moments = concatMoments(moments);
-				var momentsInStates = getMomentsOnlyWithinRadius(moments);
-				geolocation.getMomentsWithinRadius(momentsInStates).then(function(moments) {
-					deleteOrUploadToBestMoments(moments).then(function() {
-						checkAndDeleteExpiredMoments(moments).then(function(deletedMoments) {
-							var temp = createTempVariable(moments);
-							core.didUserChangeRadius = false;
-							this.momentArray = moments;
-							temp = addExtraClasses(temp);
-							console.log("INIT");
-							console.log(moments);
-							localStorage.setItem('moments', JSON.stringify(temp));
-							deferred.resolve(temp);		
-						}, function(error) {
-							deferred.reject(error);
-						});
+			function getNearbyMoments() {
+				var calculateNearbyStates = geolocation.calculateNearbyStates;
+				var getMomentsByState = geolocation.getMomentsByState;
+				var concatMoments = function(moments) {
+					var deferred = $q.defer();
+					var results = [];
+					for(var i = 0; i < moments[0].length;i++) {
+						results = results.concat(moments[0][i]);
+					}
+					deferred.resolve(results);
+					return deferred.promise;
+				};
+				var getMomentsWithinRadius = geolocation.getMomentsWithinRadius;
+
+				return calculateNearbyStates()
+					.then(getMomentsByState)
+					.then(concatMoments)
+					.then(getMomentsWithinRadius);
+			};
+
+			function initializeView() {
+				var deferred = $q.defer();
+			// this.momentArray = [];
+			getNearbyMoments().then(function(moments) {
+				deleteOrUploadToBestMoments(moments).then(function() {
+					checkAndDeleteExpiredMoments(moments).then(function(deletedMoments) {
+						var temp = createTempVariable(moments);
+						core.didUserChangeRadius = false;
+						this.momentArray = moments;
+						temp = addExtraClasses(temp);
+						localStorage.setItem('moments', JSON.stringify(temp));
+						deferred.resolve(temp);		
+					}, function(error) {
+						deferred.reject(error);
 					});
-				}, function(error) {
-					deferred.reject(error);
 				});
-			}, function(error) {
-				deferred.reject(error);
 			});
-		}, function(error) {
-			console.log("ERROR");
-			console.log(error);
-			deferred.reject(error);
-		});
-return deferred.promise;
-};
+			return deferred.promise;
+		};
 
-function uploadReport(report, moment) {
-	var defered = $q.defer();
-	logger.logReport(report, 'reports/flagged.txt').then(function() {
-		defered.resolve();
-	}, function(error) {
-		defered.reject(error);
-	});
-	return defered.promise;
-};
+		function uploadReport(report, moment) {
+			var defered = $q.defer();
+			logger.logReport(report, 'flagged.txt').then(function() {
+				defered.resolve();
+			}, function(error) {
+				defered.reject(error);
+			});
+			return defered.promise;
+		};
 
-function updateMoment(liked) {
-	var temp = createTempVariable(this.momentArray);
-	var updatedMoment = temp[0];
-	var deferred = $q.defer();
-	updatedMoment = updateMomentMetaData(updatedMoment, liked);
-
-	core.edit(updatedMoment).then(function() {
+		function updateMoment(liked) {
+			var temp = createTempVariable(this.momentArray);
+			var updatedMoment = temp[0];
+			var deferred = $q.defer();
+			updatedMoment = updateMomentMetaData(updatedMoment, liked);
+			core.edit(updatedMoment).then(function() {
 						this.momentArray = temp; //checkAndDeleteExpiredMoments sets this.momentArray to undefined for no reason at all - You can even comment the whole function out and it still does it.  So redefine it
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
@@ -95,27 +87,27 @@ function updateMoment(liked) {
 							deferred.resolve(moments);
 						});
 					});
-	return deferred.promise;
-};
+			return deferred.promise;
+		};
 
-function incrementCounter(){
-	var deferred = $q.defer();
-	var temp = createTempVariable(this.momentArray);
-	if(this.momentArray.length > 0) {
-		deferred.resolve(temp);
-	}
-	else {
-		components.showLoader().then(function() {
-			initializeView().then(function(moments) {
+		function incrementCounter(){
+			var deferred = $q.defer();
+			var temp = createTempVariable(this.momentArray);
+			if(this.momentArray.length > 0) {
+				deferred.resolve(temp);
+			}
+			else {
+				components.showLoader().then(function() {
+					initializeView().then(function(moments) {
 				// var temp = createTempVariable(moments);
 				deferred.resolve(moments);
 			}, function(error) {
 				deferred.reject();
 			});
-		});
-	}
-	return deferred.promise;
-};
+				});
+			}
+			return deferred.promise;
+		};
 
 //Helper functions
 

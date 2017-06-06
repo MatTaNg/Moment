@@ -7,6 +7,21 @@
 				var vm = this;
 				vm.logFile = logFile;
 				vm.logReport = logReport;
+
+				//Prevents any new log files from being created due to typos and whatnot
+				function fileExists(key) {
+					console.log("FILE EXISTS");
+					console.log(key.startsWith('reports/'));
+					console.log(constants.REPORT_FILES.indexOf(key.split('/')[1]));
+					if(key.startsWith('reports/') &&
+						constants.REPORT_FILES.indexOf(key.split('/')[1] !== -1)) {
+						console.log("RETURN TRUE");
+						return true;
+					} else {
+						console.log("RETURN FALSE");
+						return false;
+					}
+				};
 		/*
 			function: What class and function did it fail?  Ex: core.logFile
 			parameters: What parameters did it fail with? Ex: {metaData: metaData, key: key}
@@ -16,42 +31,51 @@
 			function logFile(failed_function, parameters, error, key) {
 				var deferred = $q.defer();
 				var key = 'reports/' + key;
-				var msg = createLogMessage(failed_function, parameters, error, key);
-				var moment = {key: key};
-				var params = {
-					Bucket: constants.BUCKET_NAME,
-					Key: key
-				};
-				uploadLog(msg, key).then(function() {
-					deferred.resolve();
-				}, function(error) {
-					deferred.reject(error);
-				});
+				if(fileExists(key)) {
+					var msg = createLogMessage(failed_function, parameters, error, key);
+					var moment = {key: key};
+					var params = {
+						Bucket: constants.BUCKET_NAME,
+						Key: key
+					};
+					uploadLog(msg, key).then(function() {
+						deferred.resolve();
+					}, function(error) {
+						deferred.reject(error);
+					});
+				} else {
+					uploadLog("File does not exist", key).then(function() {
+						deferred.reject();
+					});
+				}
 				return deferred.promise;
 			};
 
 			function logReport(report, key) {
-				console.log("LOG REPORT");
+				key = 'reports/' + key;
 				var deferred = $q.defer();
 				var params = {
 					Bucket: constants.BUCKET_NAME,
 					Key: key
 				}
-				uploadLog(Date() + ": " + report, key).then(function() {
-					deferred.resolve();
-				}, function(error) {
-					deferred.reject();
-				});
+				if(fileExists(key)){
+					uploadLog(Date() + ": " + report, key).then(function() {
+						deferred.resolve();
+					}, function(error) {
+						deferred.reject();
+					});
+				} else {
+					uploadLog("File does not exist", key).then(function() {
+						deferred.reject();
+					});
+				}
 				return deferred.promise;
 			};
 
 			function uploadLog(message, key) {
-				console.log("LOGGING");
 				var moment = {key: key};
 				var deferred = $q.defer();
 				awsServices.getObject(key).then(function(data) {
-					console.log("LOGGER UPLOAD");
-					console.log(data);
 					data = data.Body;
 					message = message + '\r\n\r\n' + data;
 					var blob = new Blob([message], {type: "text"});
@@ -70,8 +94,6 @@
 			};
 
 			function createLogMessage(failed_function, parameters, error, key) {
-				console.log("LOG ERROR MESSAGE");
-				console.log(error);
 				var result = Date() + '\r\n' +
 				failed_function + ":\r\n";
 				for(var k in parameters) {

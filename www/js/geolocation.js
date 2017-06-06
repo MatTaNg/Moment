@@ -76,7 +76,7 @@
 					var lng = position.coords.longitude;
 					deferred.resolve({lat: lat, lng: lng});
 				}, function(error) {
-					logger.logFile("geolocation.getCurrentLatLong", {}, error, 'error.txt').then(function() {
+					logger.logFile("geolocation.getCurrentLatLong", {}, error, 'errors.txt').then(function() {
 						deferred.reject(error);	
 					});
 				});
@@ -168,6 +168,7 @@
 };
 
 function getMomentsByState(states) {
+	console.log(states);
 	var result = [];
 	var promises = [];
 	for(var i = 0; i < states.length; i++){
@@ -177,11 +178,11 @@ function getMomentsByState(states) {
 };
 
 function getMomentsWithinRadius(momentsInStates) {
+	console.log("MOMENTS IN STATES");
+	console.log(momentsInStates);
 	var promises = [];
 	for(var i = 0; i < momentsInStates.length; i++) {
 		promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
-			console.log("META DATA");
-			console.log(metaData);
 			return {
 				key: metaData.key, 
 				description: metaData.description,

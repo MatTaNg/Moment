@@ -63,8 +63,6 @@
       components.showLoader().then(function() {
         if(vm.moment.description.length <= vm.maxChars) {
           updateMomentObject();
-          console.log("UPLOAD TO AWS");
-          console.log(JSON.stringify(vm.moment));
           submitMomentService.uploadToAWS(vm.picture, vm.moment).then(function() {
             submitMomentService.uploadToLocalStorage(vm.moment);
             thankUserForSubmission();
