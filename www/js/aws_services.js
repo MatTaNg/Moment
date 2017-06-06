@@ -33,6 +33,11 @@
  		};
 
  		function upload(file, key, metaData) {
+ 			console.log("UPLOADING");
+ 			console.log(file);
+ 			console.log(key);
+ 			console.log(metaData);
+
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {	
@@ -101,6 +106,8 @@
  				Key: key
  			};
  			s3.headObject(params, function(error, data) {
+ 				console.log("GET MOMENT META DATA");
+ 				console.log(data);
  				if(error) {
  					deferred.reject(error);
  				}
@@ -111,13 +118,20 @@
  			return deferred.promise;
  		};
 
- 		function getMoments(prefix) {
+ 		function getMoments(prefix, startAfter) {
  			var deferred = $q.defer();
+ 			var startAfter = startAfter;
  			var s3 = vm.initiateBucket();
  			var params = {
+ 				MaxKeys: 3,
  				Bucket: constants.BUCKET_NAME,
- 				Prefix: prefix
+ 				Prefix: prefix,
+ 				StartAfter: prefix
  			};
+ 			if(startAfter !== '') {
+ 				params.StartAfter = startAfter;
+
+ 			}
  			s3.listObjectsV2(params, function(error, data) {
  				if(error) {
  					deferred.reject(error);
@@ -130,6 +144,8 @@
  		};
 
  		function getObject(key) {
+ 			console.log("GET OBJECT");
+ 			console.log(key);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -139,9 +155,12 @@
 
  			s3.getObject(params, function(error, data) {
  				if(error) {
- 					deferred.resolve([]);
+ 					console.log("ERROR");
+ 					deferred.resolve("Not Found");
  				}
  				else {
+ 					console.log("RESOLVED");
+ 					console.log(data);
  					deferred.resolve(data);
  				}
  			});

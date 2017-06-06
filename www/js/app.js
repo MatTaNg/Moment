@@ -5,19 +5,16 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ion-gallery', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'components', 'geolocation'])
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'components', 'geolocation'])
 
-.config(function($ionicConfigProvider, $sceDelegateProvider, ionGalleryConfigProvider, constants){
-  ionGalleryConfigProvider.setGalleryConfig({
-    row_size: constants.ION_GALLERY_ROW_SIZE
-  });
+.config(function($ionicConfigProvider, $sceDelegateProvider, constants){
   $ionicConfigProvider.tabs.position('bottom');
 
   $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**']);
 
 })
 
-.run(function($ionicPlatform, $ionicPopup, $state, $rootScope, geolocation, constants, core, myMomentsService, bestMomentsService, momentsService, $q) {
+.run(function($ionicPlatform, $ionicPopup, $state) {
   $ionicPlatform.ready(function() {
     console.log("SET UP");
     console.log(JSON.parse(localStorage.getItem('moments')));
@@ -51,40 +48,9 @@ if (window.StatusBar) {
             ionic.Platform.exitApp();
           }
         });
-      } else {
-        initializeApp().then(function() {
-        });
       }
     } //window.connection
 
-    function initializeApp() {
-      console.log("INIT");
-      var deferred = $q.defer();
-      if(!localStorage.getItem('momentRadiusInMiles')) {
-        localStorage.setItem('momentRadiusInMiles', JSON.stringify(constants.DEFAULT_MOMENT_RADIUS_IN_MILES));
-      } 
-      localStorage.setItem('moments', JSON.stringify([]));
-      localStorage.setItem('bestMoments', JSON.stringify([]));
-
-      momentsService.initializeView().then(function(moments) {
-        bestMomentsService.initializeView().then(function(bestmoments) {
-          if(JSON.parse(localStorage.getItem('myMoments')).length > 0) {
-            myMomentsService.initialize(JSON.parse(localStorage.getItem('myMoments'))).then(function(moments) {
-              localStorage.setItem('myMoments', JSON.stringify(moments));
-              deferred.resolve();
-            });
-          }
-          else {
-            deferred.resolve();
-          }
-        }); //End of bestMoments Init
-      }, function(error) {
-        console.log("ERRROR");
-        deferred.reject(error);
-      }); //End of moments Init
-      return deferred.promise;
-    };
-    
     function oneSignalSetup() {
           // Enable to debug issues.
   // window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});

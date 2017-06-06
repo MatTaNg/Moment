@@ -7,10 +7,11 @@
 		this.momentArray = JSON.parse(localStorage.getItem('bestMoments'));
 		var initiateMoments = initiateMoments;
 		this.initializeView = initializeView;
+		this.loadMore = loadMore;
 
 		function initializeView() {
 			var deferred = $q.defer();
-			if(this.momentArray.length === 0) {
+			if(this.momentArray) {
 				initiateMoments()
 				.then(function(moments) {
 					this.momentArray.push(moments);
@@ -32,34 +33,47 @@
 			for(var i = 0; i < moments.length; i++) {
 				promises.push(awsServices.getMomentMetaData(moments[i].Key).then(function(metaData){
 					return {
-						key: constants.IMAGE_URL + moment.Key, 
+						key: metaData.key, 
 						description: metaData.description,
-						likes: metaData.likes,
+						likes: parseInt(metaData.likes),
 						location: metaData.location,
 						time: core.timeElapsed(metaData.time),
 						uuids: metaData.uuids,
-						views: metaData.views,
-						src: constants.IMAGE_URL + moment.Key, //For the gallery directive
-						sub: metaData.description
-					}	
+						views: metaData.views
+					};
 				}));
 			}
 			return promises;
 		};
 
 		function initiateMoments() {
-			var deferred = $q.defer();
 			var metaData;
+			var promises = [];
 			this.momentArray = [];
-			var deferred = $q.defer();
-			awsServices.getMoments(constants.BEST_MOMENT_PREFIX).then(function(moments) {
-				moments.splice(0,1); //The first key listed is always the folder, skip that.
-				var promises = createPromiseObjects(moments);
-				deferred.resolve(promises);
+			return awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
+				promises = createPromiseObjects(moments);
+				return Promise.all(promises);
 			}, function(error) {
-				deferred.reject(error);
+				console.log("ERROR");
+				console.log(error);
 			});
-			return deferred.promise;
+		};
+
+		function loadMore() {
+			console.log(JSON.stringify(this.momentArray));
+			var startAfter = this.momentArray[this.momentArray.length - 1].key;
+			startAfter = startAfter.split('/');
+			startAfter = startAfter[startAfter.length - 1];
+			startAfter = "bestMoments/" + startAfter;
+			console.log("START AFTER");
+			console.log(startAfter);
+			return awsServices.getMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
+				promises = createPromiseObjects(moments);
+				return Promise.all(promises);
+			}, function(error) {
+				console.log("ERROR");
+				console.log(error);
+			});
 		};
 
 	}})();

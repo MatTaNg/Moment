@@ -20,13 +20,16 @@
 		};
 
 		function uploadToLocalStorage(moment) {
-			moment.key = constants.IMAGE_URL + moment.key;
+			console.log(moment);
 			var localMoments = [];
-			if(JSON.parse(localStorage.getItem('myMoments')).length > 0) {
+			if(JSON.parse(localStorage.getItem('myMoments'))) {
 				localMoments = JSON.parse(localStorage.getItem('myMoments'));
 			}
 			localMoments.push(moment);
+			console.log("LOCAL STORAGE - SUBMIT MOMENT");
+			console.log(JSON.parse(localStorage.getItem('myMoments')));
 			localStorage.setItem('myMoments', JSON.stringify(localMoments));
+			console.log(JSON.parse(localStorage.getItem('myMoments')));
 		};
 
 		function dataURItoBlob(dataURI) {

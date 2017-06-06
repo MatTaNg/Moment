@@ -2,6 +2,8 @@
 	angular.module('constants', [])
 
 	.constant("constants", {
+
+		"MILISECONDS_IN_AN_HOUR": 3600000,
 		//IDs and Keys
 		"BUCKET_NAME": 'mng-moment',
 		"BUCKET_REGION": 'us-east-1',
@@ -19,15 +21,17 @@
 		"GEOLOCATION_URL": "http://maps.googleapis.com/maps/api/geocode/json?",
 
 		//Configurations
-		"ION_GALLERY_ROW_SIZE": 2,
 		"MAX_DESCRIPTION_LENGTH": 180,
 		"HOURS_BETWEEN_MOMENTS": 0,
 		"HOURS_UNTIL_MOMENT_EXPIRES": 24,
-		"MILISECONDS_IN_AN_HOUR": 3600000,
 		"BEST_MOMENTS_RATIO": 0.5,
 		"DEFAULT_MOMENT_RADIUS_IN_MILES": 25,
+		"BEST_MOMENTS_MIN_VIEWS": 10,
+		
+		//Minor Configurations
+		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.3,
 
-		"DEV_MODE": true
+		"DEV_MODE": false
 	})
 })();
 // AIJvTx/0jXboCBh5PtuUQwRKde4zTchmUKYjcCIF

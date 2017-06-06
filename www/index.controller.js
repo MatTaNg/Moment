@@ -67,14 +67,13 @@
         if(localStorage.getItem('timeSinceLastMoment')) {
           var currentTime = new Date().getTime();
           var timeUntilNextMoment = parseInt(localStorage.getItem('timeSinceLastMoment')) + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
-        // var timeUntilNextMoment = 1492372819141 + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
-        var timeLeft = timeUntilNextMoment - currentTime;
-        $scope.momentTimer = core.timeElapsed(currentTime + timeLeft);
-        if(currentTime > timeUntilNextMoment) {
-          $scope.momentTimer = "0m";
+          var timeLeft = timeUntilNextMoment - currentTime;
+          $scope.momentTimer = core.timeElapsed(currentTime + timeLeft);
+          if(currentTime > timeUntilNextMoment) {
+            $scope.momentTimer = "0m";
+          }
         }
       }
-    }
-  }, 500);
+    }, 500);
   };
 })();

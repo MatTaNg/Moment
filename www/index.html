@@ -24,8 +24,6 @@
   <link href="css/moment.css" rel="stylesheet">
   <link rel="stylesheet" href="animate.min.css">
 
-
-
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.27.min.js"></script>
 
   <script src="bestMoments/bestMoments.module.js"></script>
@@ -65,13 +63,15 @@
 </head>
 <body ng-app="app" animation="slide-left-right-ios7">
   <div>
-    <div ng-controller="IndexController as indexController">
+     <div ng-controller="IndexController as indexController">
       <ion-nav-bar class="bar-stable" align-title="center">
       <ion-nav-buttons side="left">
-      <div class="{{indexController.uploadLogo}}" ng-disabled = "true" ng-click="indexController.gallery()"></div>
+      <div class="{{indexController.uploadLogo}}" data-ng-if="momentTimer === '0m'" ng-click="indexController.gallery()"></div>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
-    <div class="{{indexController.myMomentsLogo}}" id="myMoments" ui-sref="tabsController.myMoments"></div>
+    <div data-ng-if="momentTimer === '0m'" class="ion-ios-camera-outline" ng-click="indexController.camera()"></div>
+    <div style="font-size: 18pt; margin-top: 5px;" ng-if="momentTimer !== '0m'">{{momentTimer}}</div>
+
   </ion-nav-buttons>
 </ion-nav-bar>
 <ion-nav-view></ion-nav-view>

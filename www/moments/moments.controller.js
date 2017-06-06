@@ -1,23 +1,23 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', MomentsController]);
+	.controller('MomentsController', ['momentsService', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', MomentsController]);
 
-	function MomentsController (momentsService, $scope, $ionicContentBanner, core, components, $q, $ionicPopup) {
+	function MomentsController (momentsService, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
 		var vm = this;
 		vm.liked = liked;		
 		vm.dragRight = dragRight;
 		vm.dragLeft = dragLeft;
 		vm.release = release;
 		vm.flagged = flagged;
-
-		vm.moments = JSON.parse(localStorage.getItem('moments'));;
+		vm.moments = JSON.parse(localStorage.getItem('moments'));
 		vm.flagClass = "ion-ios-flag-outline";
 		vm.cardCSSClass = "layer-bottom";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
 
-		if(momentsService.momentArray.length === 0 || core.didUserChangeRadius) {
+		if(core.appInitialized === false || vm.moments.length === 0 || core.didUserChangeRadius) {
+			core.appInitialized = true;
 			initialize();
 		}
 
@@ -31,8 +31,16 @@
 			vm.moments[0].swipedRight = false;
 		};
 
-		function release() {
-			if(vm.moments) {
+		function release(event) {
+			var threshold = $window.innerWidth * constants.HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT;
+			var touchXposition = event.gesture.center.pageX;
+			if(touchXposition < threshold) {
+				vm.liked(false);
+			}
+			else if(touchXposition > $window.innerWidth - threshold) {
+				vm.liked(true);
+			}
+			else {
 				vm.moments[0].swipedRight = false;
 				vm.moments[0].swipedLeft = false;
 			}
@@ -46,6 +54,7 @@
 					components.hideLoader();
 				}, function(error) {
 					console.log("ERRROR");
+					console.log(error);
 					components.hideLoader().then(function() {
 						$ionicContentBanner.show({
 							text: ["An error occured getting the Moment."],
@@ -59,7 +68,6 @@
 
 		function liked(liked) {
 			momentsService.momentArray = vm.moments; //Moment Array in the service makes itself undefined for no reason
-
 			sendReport().then(function() {
 				momentsService.updateMoment(liked).then(function(moments) {
 					components.hideLoader().then(function(){

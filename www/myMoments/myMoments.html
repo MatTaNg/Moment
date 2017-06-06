@@ -11,7 +11,7 @@ on-refresh="vm.refreshing()">
 </div>
 <div class="centerLikes">
 	<img src="img/logo.png" class="totalLikesImage" height="50px" width="50px"></img></div>
-	<div class="totalLikesText">{{vm.totalLikes}}<span class="numberOfExtraLikes" ng-if="vm.numberOfExtraLikes > 0"> (+{{vm.numberOfExtraLikes}})</span></div>
+	<div class="totalLikesText">{{vm.totalLikes}}<span class="totalNumberOfExtraLikes" ng-if="vm.extraLikes > 0"> (+{{vm.extraLikes}})</span></div>
 	<br>
 	<hr style="margin-top: 30px">
 	<div class="row">
@@ -44,21 +44,23 @@ on-refresh="vm.refreshing()">
 </ion-thumbnail>
 <div class="myMoments_metaData">
 	<div class="myMoments_likes">	
-		<img src="img/logo.png" style="margin-right: 5px;float:left "height="30px" width="30px"></img>
-		<div style="margin-bottom:2px">{{image.likes}} </div>
-		<span style="color:green" ng-if="image.gainedLikes > 0"> (+{{image.gainedLikes}})</span>
+		<img src="img/logo.png" class="logoMomentLikes" height="30px" width="30px"></img>
+		<div style="margin-bottom:2px">{{image.likes}} 
+		<span class="numberOfExtraMomentLikes" ng-if="image.gainedLikes > 0"> (+{{image.gainedLikes}})</span></div>
 	</div>
 	<div class="ion-ios-clock-outline myMoments_time">{{image.time}}</div>
-	<div class="myMoments_description" ng-show="{{image.description}}">
-		<div ng-show="image.showShortDescription">{{image.shortDescription}}<br>
+	<br>
+	<div class="myMoments_description" ng-show="image.description.length > 0">
+		<div ng-hide="image.showShortDescription > 0">{{image.shortDescription}}<br>
 			<div class="myMoments_toggleDescription">show more...</div>
 		</div>
-		<div ng-show="!image.showShortDescription">{{image.description}}<br> 			
+		<div ng-show="image.showShortDescription > 0">{{image.description}}<br> 			
 			<div class="myMoments_toggleDescription">show less</div> 
 		</div>
 		<br>
 	</div>
-			<div class="noDescription" ng-hide="{{image.description}}">No Description
+			<div class="noDescription" ng-hide="image.description.length > 0">
+				<br>No Description
 	</div>
 </div>
 </ion-item>

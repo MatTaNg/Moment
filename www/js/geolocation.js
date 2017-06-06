@@ -27,10 +27,14 @@
  		vm.userLocation = undefined;
 
  		var moment_radius_in_miles = localStorage.getItem('momentRadiusInMiles');
+ 		if(moment_radius_in_miles === null) {
+ 			moment_radius_in_miles = 25;
+ 		}
 		var lat_mile_radius = 0.016880283 * moment_radius_in_miles; //1 mile distance between two points * perferred radius
 		var lng_mile_radius = 0.019158007 * moment_radius_in_miles; //1 mile distance between two points * perferred radius
-
 		function getLatMileRadius() {
+			console.log("MOMENT RADIUS IN MILES");
+			console.log(moment_radius_in_miles);
 			return lat_mile_radius;
 		};
 
@@ -39,6 +43,7 @@
 		};
 
 		function setMomentInRadius(radius) {
+			console.log("SET MOMENT IN RADIUS");
 			moment_radius_in_miles = radius;
 			lat_mile_radius = 0.016880283 * moment_radius_in_miles;
 			lng_mile_radius = 0.019158007 * moment_radius_in_miles;
@@ -64,16 +69,20 @@
 		function getCurrentLatLong() {
 			var deferred = $q.defer();
 			var posOptions = {timeout: 10000, enableHighAccuracy: false};
-			$cordovaGeolocation.getCurrentPosition(posOptions)
-			.then(function(position) {
-				var lat = position.coords.latitude;
-				var lng = position.coords.longitude;
-				deferred.resolve({lat: lat, lng: lng});
-			}, function(error) {
-				logger.logFile("geolocation.getCurrentLatLong", {}, error, 'error.txt').then(function() {
-					deferred.reject(error);	
+			if(constants.DEV_MODE === false) {
+				$cordovaGeolocation.getCurrentPosition(posOptions)
+				.then(function(position) {
+					var lat = position.coords.latitude;
+					var lng = position.coords.longitude;
+					deferred.resolve({lat: lat, lng: lng});
+				}, function(error) {
+					logger.logFile("geolocation.getCurrentLatLong", {}, error, 'error.txt').then(function() {
+						deferred.reject(error);	
+					});
 				});
-			});
+			} else {
+				deferred.resolve({lat: 40.008446, lng: -75.260460}) //Narberth, PA
+			}
 			return deferred.promise;
 		};
 
@@ -107,13 +116,16 @@
 				var lng = response.lng;
 				getLocationFromCoords(lat, lng).then(function(response) {
 					if(vm.customLocation.town) { //If the user has entered his own location use that instead
+						console.log("HAS ENTERED OWN TOWN");
 						town = vm.customLocation.town;
 						lat = vm.customLocation.lat;
 						lng = vm.customLocation.lng;
 					} else {
 						town = response.town;
 					}
-					vm.userLocation = {lat: lat, lng: lng, town: town}; 
+					vm.userLocation = {lat: lat, lng: lng, town: town};
+					console.log("USER LOCATION");
+					console.log(vm.userLocation) ;
 					deferred.resolve(vm.userLocation);
 				}, function(error) {
 					deferred.reject(error.message);
@@ -167,9 +179,11 @@ function getMomentsByState(states) {
 function getMomentsWithinRadius(momentsInStates) {
 	var promises = [];
 	for(var i = 0; i < momentsInStates.length; i++) {
-		promises.push(awsServices.getMomentMetaData(momentsInStates[i]).then(function(metaData) {
+		promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
+			console.log("META DATA");
+			console.log(metaData);
 			return {
-				key: constants.IMAGE_URL + moment.Key, 
+				key: metaData.key, 
 				description: metaData.description,
 				likes: metaData.likes,
 				location: metaData.location,
