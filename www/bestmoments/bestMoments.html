@@ -8,7 +8,7 @@
 
 <label class = "item item-input item-select item-stable">
   <div class = "input-label">
-    Sort
+    {{vm.sortLabel}}
   </div>
 
   <select ng-model="vm.sort">
@@ -18,7 +18,7 @@
   </select>
 </label>
 <br>
-  <ion-grid ng-repeat="image in vm.imageArray ">
+  <ion-grid ng-repeat="image in vm.moments ">
     <ion-row>
       <ion-col style="font-size: 18pt;">{{image.location}}</ion-col>
     </ion-row>
@@ -50,7 +50,7 @@
     <hr>
   </ion-grid>
 
-  <ion-infinite-scroll on-infinite="vm.loadMore()" data-ng-if="vm.stopLoadingData === false" distance="1%"></ion-infinite-scroll>
+  <ion-infinite-scroll on-infinite="vm.loadMore()" data-ng-if="vm.stopLoadingData === false" distance="5%"></ion-infinite-scroll>
 <!-- <form id="bestMoments-form2" class="list">
   <label class="item item-select" id="bestMoments-select3">
     <span class="input-label" ng-model="sortBy">Sort By</span>

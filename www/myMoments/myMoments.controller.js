@@ -5,7 +5,7 @@
 	function MyMomentsController(core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation) {
 		var vm = this;
 		vm.initialize = initialize;
-		vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
+		vm.moments = JSON.parse(localStorage.getItem('myMoments'));
 		vm.remove = remove;
 		vm.feedback = feedback;
 		vm.toggleDescription = toggleDescription;
@@ -21,6 +21,10 @@
 		vm.locationErrorMsg = false;
 		vm.distance = localStorage.getItem('momentRadiusInMiles');
 		initialize();
+
+		if(!vm.moments) {
+			vm.moments = [];
+		}
 
 		$rootScope.$on("$locationChangeStart", function(event, next, current) {
 			if(current.indexOf('myMoments') !== -1) {
@@ -50,8 +54,8 @@
 			geolocation.initializeUserLocation().then(function(location) {
 				vm.userLocation = location.town;
 			});
-			if(vm.myImages !== []) {
-				myMomentsService.initialize(vm.myImages).then(function(moments) {
+			if(vm.moments !== []) {
+				myMomentsService.initialize(vm.moments).then(function(moments) {
 					for(var i = 0; i < moments.length; i++ ){ //initialize returns a null object if it cannot find it.  Remove it
 						if(moments[i] === null) {
 							moments.splice(i, 1);
@@ -61,13 +65,13 @@
 						console.log("INITIALIZED");
 						console.log(moments);
 						vm.refresh = false;
-						vm.myImages = moments;
+						vm.moments = moments;
 						vm.totalLikes = myMomentsService.getTotalLikes();
 						vm.extraLikes = myMomentsService.getExtraLikes();
 						localStorage.setItem('myMoments', JSON.stringify(moments));
 						vm.errorMessage = false;
 					} else {
-						vm.myImages = [];
+						vm.moments = [];
 					}
 					deferred.resolve();
 				}, function(error) {
@@ -94,9 +98,9 @@
 				if(confirm) {
 					core.remove(moment).then(function() {
 						myMomentsService.removeFromLocalStorage(moment);
-						vm.myImages = JSON.parse(localStorage.getItem('myMoments'));
+						vm.moments = JSON.parse(localStorage.getItem('myMoments'));
 
-						if(vm.myImages.length === 0) {
+						if(vm.moments.length === 0) {
 							vm.errorMessage = true;
 						}	
 					}, function(error) {

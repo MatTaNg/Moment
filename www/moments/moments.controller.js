@@ -5,16 +5,21 @@
 
 	function MomentsController (momentsService, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
 		var vm = this;
+		
+		vm.moments = JSON.parse(localStorage.getItem('moments'));
 		vm.liked = liked;		
 		vm.dragRight = dragRight;
 		vm.dragLeft = dragLeft;
 		vm.release = release;
 		vm.flagged = flagged;
-		vm.moments = JSON.parse(localStorage.getItem('moments'));
 		vm.flagClass = "ion-ios-flag-outline";
 		vm.cardCSSClass = "layer-bottom";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
+
+		if(!vm.moments) {
+			vm.moments = [];
+		}
 
 		if(core.appInitialized === false || vm.moments.length === 0 || core.didUserChangeRadius) {
 			core.appInitialized = true;

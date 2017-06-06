@@ -33,11 +33,6 @@
  		};
 
  		function upload(file, key, metaData) {
- 			console.log("UPLOADING");
- 			console.log(file);
- 			console.log(key);
- 			console.log(metaData);
-
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {	
@@ -123,7 +118,7 @@
  			var startAfter = startAfter;
  			var s3 = vm.initiateBucket();
  			var params = {
- 				MaxKeys: 3,
+ 				MaxKeys: constants.MAX_KEYS,
  				Bucket: constants.BUCKET_NAME,
  				Prefix: prefix,
  				StartAfter: prefix

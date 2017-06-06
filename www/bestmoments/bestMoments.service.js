@@ -9,6 +9,10 @@
 		this.initializeView = initializeView;
 		this.loadMore = loadMore;
 
+		if(!this.momentArray) {
+			this.momentArray = [];
+		}
+
 		function initializeView() {
 			var deferred = $q.defer();
 			if(this.momentArray) {
@@ -61,19 +65,21 @@
 
 		function loadMore() {
 			console.log(JSON.stringify(this.momentArray));
-			var startAfter = this.momentArray[this.momentArray.length - 1].key;
-			startAfter = startAfter.split('/');
-			startAfter = startAfter[startAfter.length - 1];
-			startAfter = "bestMoments/" + startAfter;
-			console.log("START AFTER");
-			console.log(startAfter);
-			return awsServices.getMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
-				promises = createPromiseObjects(moments);
-				return Promise.all(promises);
-			}, function(error) {
-				console.log("ERROR");
-				console.log(error);
-			});
+			if(this.momentArray.length > 0) {
+				var startAfter = this.momentArray[this.momentArray.length - 1].key;
+				startAfter = startAfter.split('/');
+				startAfter = startAfter[startAfter.length - 1];
+				startAfter = "bestMoments/" + startAfter;
+				return awsServices.getMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
+					promises = createPromiseObjects(moments);
+					return Promise.all(promises);
+				}, function(error) {
+					console.log("ERROR");
+					console.log(error);
+				});
+			} else {
+				return Promise.resolve([]);
+			}
 		};
 
 	}})();

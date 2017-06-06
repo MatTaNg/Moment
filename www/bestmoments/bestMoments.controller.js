@@ -6,36 +6,43 @@
 		var vm = this;
 		vm.initialize = initialize;
 
-		// localStorage.setItem('bestMoments', "");
-		vm.imageArray = JSON.parse(localStorage.getItem('bestMoments'));
+		vm.moments = JSON.parse(localStorage.getItem('bestMoments'));
 		vm.imageExpanded = false;
-		vm.sort = "likes";
+		vm.sort = "Likes";
+		vm.sortLabel = "Likes";
 		vm.loadMore = loadMore;
 		vm.stopLoadingData = false;
 
-		$scope.$watch('vm.sort', function() {
+		if(!vm.moments) {
+			vm.moments = [];
+		}
+
+		$scope.$watch('vm.sort', function(oldValue, newValue) {
+			vm.sortLabel = newValue;
 			vm.sort = vm.sort.toLowerCase();
 			if(vm.sort === 'likes') {
 				vm.sort = '-likes';
 			}
 		});
 
-		if(vm.imageArray) {
+		if(vm.moments) {
+			console.log("VM IMAGE ARRAY");
 			components.showLoader().then(function() {
 				bestMomentsService.initializeView().then(function(moments) {
 					components.hideLoader();
-					vm.imageArray = moments;
+					vm.moments = moments;
 				});
 			})
 		}
 
 		function loadMore() {
+			console.log("LOAD MORE");
 			bestMomentsService.loadMore().then(function(moments) {
 				if(moments.length === 0) {
 					vm.stopLoadingData = true;
 				}
 				bestMomentsService.momentArray = bestMomentsService.momentArray.concat(moments);
-				vm.imageArray = vm.imageArray.concat(moments);
+				vm.moments = vm.moments.concat(moments);
 				$scope.$broadcast('scroll.infiniteScrollComplete');
 			}, function(error) {
 				$scope.$broadcast('scroll.infiniteScrollComplete');
@@ -43,13 +50,14 @@
 		};
 
 		function initialize() {
+			console.log("INITALIZE");
 			bestMomentsService.initializeView()
 			.then(function(moments){
 				vm.stopLoadingData = false;
 				$scope.$broadcast('scroll.refreshComplete');
 				components.hideLoader().then(function() {
 					if(moments.length > 0) {
-						vm.imageArray = moments;
+						vm.moments = moments;
 					}
 					else {
 						vm.noMoments = true;
