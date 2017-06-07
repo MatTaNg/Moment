@@ -67,11 +67,15 @@
 		};
 
 		function getCurrentLatLong() {
+			console.log("GET CURRENT LAT LONG");
 			var deferred = $q.defer();
 			var posOptions = {timeout: 10000, enableHighAccuracy: false};
 			if(constants.DEV_MODE === false) {
+				console.log("CONSTANTS DEV MODE");
 				$cordovaGeolocation.getCurrentPosition(posOptions)
 				.then(function(position) {
+					console.log("POSITION");
+					console.log(position);
 					var lat = position.coords.latitude;
 					var lng = position.coords.longitude;
 					deferred.resolve({lat: lat, lng: lng});
@@ -108,10 +112,13 @@
 		};
 
 		function initializeUserLocation() {
+			console.log("initializeUserLocation");
 			var deferred = $q.defer();
 			var town = "";
 
 			getCurrentLatLong().then(function(response) {
+				console.log("RESPONSE");
+				console.log(response);
 				var lat = response.lat;
 				var lng = response.lng;
 				getLocationFromCoords(lat, lng).then(function(response) {
@@ -137,9 +144,12 @@
 		};
 
 		function calculateNearbyStates() {
+			console.log("CALCULATE NEARBY STATES");
 			var deferred = $q.defer();
 
 			initializeUserLocation().then(function(locationData) {
+				console.log("LOCATION DATA");
+				console.log(locationData);
 				vm.max_north = { lat: locationData.lat + getLatMileRadius(), lng: locationData.lng }; 
 				vm.max_south = { lat: locationData.lat - getLatMileRadius(), lng: locationData.lng }; 
 				vm.max_west = {  lat: locationData.lat, lng: locationData.lng - getLngMileRadius() };
@@ -148,6 +158,8 @@
 				var nearbyState = {north: "", south: "", west: "", east: ""};
 				var result = [];
 				getStates(vm.max_north, vm.max_south, vm.max_west, vm.max_east).then(function(nearbyStates) {
+					console.log("GET STATES");
+					console.log(nearbyStates);
 					result.push(nearbyStates.north);
 					if(result.indexOf(nearbyStates.south) === -1) {
 						result.push(nearbyStates.south);
@@ -158,6 +170,8 @@
 					if(!result.indexOf(nearbyStates.east) === -1) {
 						result.push(nearbyStates.east);
 					}
+					console.log("RESULT");
+					console.log(JSON.stringify(result));
 					deferred.resolve(result);
 				});
 			}, function(error) {
@@ -168,21 +182,23 @@
 };
 
 function getMomentsByState(states) {
-	console.log(states);
+	console.log("GET MOMENTS BY STATE");
 	var result = [];
 	var promises = [];
 	for(var i = 0; i < states.length; i++){
-		promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i]));
+		promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i], ''));
 	}
 	return Promise.all(promises);
 };
 
 function getMomentsWithinRadius(momentsInStates) {
 	console.log("MOMENTS IN STATES");
-	console.log(momentsInStates);
+	console.log(JSON.stringify(momentsInStates));
 	var promises = [];
 	for(var i = 0; i < momentsInStates.length; i++) {
 		promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
+			console.log("META DATA");
+			console.log(metaData);
 			return {
 				key: metaData.key, 
 				description: metaData.description,
@@ -217,7 +233,7 @@ function getLocationFromTown(town) {
 			Lat: lat,
 			Lng: lng
 		};
-		logger.logFile("geolocation.getLocationFromTown", parameters, error, 'error.txt').then(function() {
+		logger.logFile("geolocation.getLocationFromTown", parameters, error, 'errors.txt').then(function() {
 			deferred.reject(error);	
 		});
 		deferred.reject(error);
@@ -290,7 +306,7 @@ function getLocationFromCoords(latitude, longitude) {
 			Lat: latitude,
 			Lng: longitude
 		};
-		logger.logFile("geolocation.getLocationFromCoords", parameters, error, 'error.txt').then(function() {
+		logger.logFile("geolocation.getLocationFromCoords", parameters, error, 'errors.txt').then(function() {
 			deferred.reject(error);	
 		});
 		deferred.reject(error);

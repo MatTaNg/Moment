@@ -26,7 +26,6 @@
 		});
 
 		if(vm.moments) {
-			console.log("VM IMAGE ARRAY");
 			components.showLoader().then(function() {
 				bestMomentsService.initializeView().then(function(moments) {
 					components.hideLoader();
@@ -36,7 +35,6 @@
 		}
 
 		function loadMore() {
-			console.log("LOAD MORE");
 			bestMomentsService.loadMore().then(function(moments) {
 				if(moments.length === 0) {
 					vm.stopLoadingData = true;
@@ -50,7 +48,6 @@
 		};
 
 		function initialize() {
-			console.log("INITALIZE");
 			bestMomentsService.initializeView()
 			.then(function(moments){
 				vm.stopLoadingData = false;

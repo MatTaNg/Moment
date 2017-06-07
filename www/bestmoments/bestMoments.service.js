@@ -64,7 +64,6 @@
 		};
 
 		function loadMore() {
-			console.log(JSON.stringify(this.momentArray));
 			if(this.momentArray.length > 0) {
 				var startAfter = this.momentArray[this.momentArray.length - 1].key;
 				startAfter = startAfter.split('/');

@@ -23,10 +23,23 @@
 				var calculateNearbyStates = geolocation.calculateNearbyStates;
 				var getMomentsByState = geolocation.getMomentsByState;
 				var concatMoments = function(moments) {
+					for(var i = 0; i < moments.length; i) {
+						//Take out any empty arrays
+						if(moments[i].length === 0) {
+							moments.splice(i, 1);
+						} else {
+							i++;
+						}
+					}
 					var deferred = $q.defer();
 					var results = [];
-					for(var i = 0; i < moments[0].length;i++) {
-						results = results.concat(moments[0][i]);
+					for(var i = 0; i < moments.length;i++) {
+						//Combine remaining arrays into one array
+						for(var x = 0; x < moments[i].length; x++) {
+							if(moments[i][x].Key.search(constants.MOMENT_EXTENSION) !== -1) {
+								results.push(moments[i][x]);
+							}
+						}
 					}
 					deferred.resolve(results);
 					return deferred.promise;
@@ -54,7 +67,11 @@
 					}, function(error) {
 						deferred.reject(error);
 					});
+				}, function(error) {
+					deferred.reject();
 				});
+			}, function(error) {
+				deferred.reject();
 			});
 			return deferred.promise;
 		};
@@ -127,7 +144,6 @@ function updateMomentMetaData(moment, liked) {
 function deleteOrUploadToBestMoments(moments) {
 	return Promise.all(moments.map(
 		function(moment) {
-			console.log(moment.views);
 			if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
 				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
 					var copySource = core.splitUrlOff(moment.key);
@@ -135,9 +151,9 @@ function deleteOrUploadToBestMoments(moments) {
 				// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
 				logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
 				.then(function() {
-					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length + 3));
-					moment.key = moment.key.replace(subString, "bestMoments");
-					awsServices.copyObject(key, copySource, moment, "COPY");
+					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
+					moment.key = moment.key.replace(subString, "bestMoments/");
+					awsServices.copyObject(key, copySource, moment, "REPLACE");
 				});
 			} 
 			else if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO / 2) {
@@ -242,23 +258,5 @@ function createTempVariable(moments) {
 	}
 	return temp;
 };
-
-		// function isMomentWithRadius(moments) {
-		// 	console.log("IS MOMENTEN WITHIN RADIUS");
-		// 	console.log(JSON.stringify(moments));
-		// 	var result = moments;
-		// 	if(moments) {
-		// 		for(var i = 0; i < moments.length;) {
-		// 			//Make not null
-		// 			if(!(moments[i].uuids.includes(core.getUUID()))) {
-		// 				result.splice(i, 1);
-		// 			}
-		// 			else {
-		// 				i++;
-		// 			}
-		// 		}
-		// 	}
-		// 	return result;
-		// };
 	};
 })();

@@ -32,8 +32,9 @@
 		
 		//Minor Configurations
 		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.3,
+		"MOMENT_EXTENSION": ".jpg",
 
-		"DEV_MODE": true
+		"DEV_MODE": false
 	})
 })();
 // AIJvTx/0jXboCBh5PtuUQwRKde4zTchmUKYjcCIF
