@@ -113,11 +113,8 @@
 		}
 
 		function addShortDescriptionAndTime(moment) {
-			console.log("ADD SHORT DESCRIPTION");
-			console.log(moment);
 			moment.time = core.timeElapsed(moment.time);
 			if(moment.description.length > 0) {
-				console.log("DESCRIPTION");
 				moment.shortDescription = moment.description.substring(0,50);
 			}
 			return moment;

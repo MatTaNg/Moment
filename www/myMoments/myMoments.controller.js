@@ -20,11 +20,12 @@
 		vm.customUserLocation = "";
 		vm.locationErrorMsg = false;
 		vm.distance = localStorage.getItem('momentRadiusInMiles');
-		initialize();
 
-		if(!vm.moments) {
+		if(!(vm.moments)) {
 			vm.moments = [];
 		}
+
+		initialize();
 
 		$rootScope.$on("$locationChangeStart", function(event, next, current) {
 			if(current.indexOf('myMoments') !== -1) {
@@ -56,14 +57,14 @@
 			});
 			if(vm.moments !== []) {
 				myMomentsService.initialize(vm.moments).then(function(moments) {
-					for(var i = 0; i < moments.length; i++ ){ //initialize returns a null object if it cannot find it.  Remove it
-						if(moments[i] === null) {
+					for(var i = 0; i < moments.length;){ //initialize returns a null object if it cannot find it.  Remove it
+						if(!moments[i]) {
 							moments.splice(i, 1);
+						} else {
+							i++;
 						}
 					}
 					if(moments !== null) {
-						console.log("INITIALIZED");
-						console.log(moments);
 						vm.refresh = false;
 						vm.moments = moments;
 						vm.totalLikes = myMomentsService.getTotalLikes();
@@ -187,30 +188,30 @@
 			});
 				})
 
-}
-else {
-	vm.locationErrorMsg = true;
-	deferred.reject();
-}
-return deferred.promise;
-};
+			}
+			else {
+				vm.locationErrorMsg = true;
+				deferred.reject();
+			}
+			return deferred.promise;
+		};
 
-function feedback() {
-	$scope.moment = {};
+		function feedback() {
+			$scope.moment = {};
 
-	$ionicPopup.show({
-		template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
-		'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox> {{vm.moment.feedback}}',
-		title: 'Feedback',
-		scope: $scope,
-		subTitle: 'How can we improve?',
-		buttons: [ 
-		{ text: 'Cancel' },
-		{
-			text: '<b>Submit</b>',
-			type: 'button-positive',
-			onTap: function(e) {
-				if(!vm.moment.feedback) { 
+			$ionicPopup.show({
+				template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
+				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox> {{vm.moment.feedback}}',
+				title: 'Feedback',
+				scope: $scope,
+				subTitle: 'How can we improve?',
+				buttons: [ 
+				{ text: 'Cancel' },
+				{
+					text: '<b>Submit</b>',
+					type: 'button-positive',
+					onTap: function(e) {
+						if(!vm.moment.feedback) { 
 								//Does nothing if user has not entered anything
 								e.preventDefault();
 							}

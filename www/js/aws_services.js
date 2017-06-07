@@ -72,6 +72,11 @@
  		};
 
  		function copyObject(key, copySource, metaData, directive) {
+ 			console.log("COPY OBJECT");
+ 			console.log(key);
+ 			console.log(copySource);
+ 			console.log(metaData);
+ 			console.log(directive);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -94,6 +99,8 @@
  		};
 
  		function getMomentMetaData(key) {
+ 			console.log("GET META DATA");
+ 			console.log(key);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -101,8 +108,6 @@
  				Key: key
  			};
  			s3.headObject(params, function(error, data) {
- 				console.log("GET MOMENT META DATA");
- 				console.log(data);
  				if(error) {
  					deferred.reject(error);
  				}
@@ -114,6 +119,9 @@
  		};
 
  		function getMoments(prefix, startAfter) {
+ 			console.log("GET MOMENTS");
+ 			console.log(prefix);
+ 			console.log(startAfter);
  			var deferred = $q.defer();
  			var startAfter = startAfter;
  			var s3 = vm.initiateBucket();
@@ -121,7 +129,7 @@
  				MaxKeys: constants.MAX_KEYS,
  				Bucket: constants.BUCKET_NAME,
  				Prefix: prefix,
- 				StartAfter: prefix
+ 				StartAfter: prefix //Prevent AWS from returning the directory
  			};
  			if(startAfter !== '') {
  				params.StartAfter = startAfter;

@@ -55,6 +55,7 @@
 			components.showLoader().then(function() {
 				momentsService.initializeView()
 				.then(function(moments){
+					console.log(moments);
 					vm.moments = moments;
 					components.hideLoader();
 				}, function(error) {
@@ -72,10 +73,13 @@
 		};
 
 		function liked(liked) {
+			console.log("LIKED");
 			momentsService.momentArray = vm.moments; //Moment Array in the service makes itself undefined for no reason
 			sendReport().then(function() {
 				momentsService.updateMoment(liked).then(function(moments) {
 					components.hideLoader().then(function(){
+						console.log("TEST");
+						console.log(moments);
 						vm.moments = moments;
 						vm.flagClass = "ion-ios-flag-outline";
 					}, function(error) {

@@ -20,6 +20,7 @@
  		vm.remove = remove;
  		vm.edit = edit;
  		vm.upload = upload;
+ 		vm.copy = copy;
 
  		function splitUrlOff(key) {
  			var result = "";
@@ -35,6 +36,13 @@
  				console.log(key);
  				return key;
  			}
+ 		};
+
+ 		function copy(key, copySource, metaData) {
+			awsServices.copyObject(key, copySource, metaData, "COPY").then(function() {
+				//We also need to change our copied object's metaData
+				core.upload
+			})
  		};
 
  		function remove(moment) {
