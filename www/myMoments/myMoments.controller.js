@@ -124,14 +124,18 @@
 		};
 
 		function getCurrentLocation() {
+			console.log("GET CURRENT LOCATIN");
 			geolocation.initializeUserLocation().then(function(location) {
-				vm.userLocation = location.town;
+				console.log(location);
+				vm.customUserLocation = location.town;
+				console.log(vm.customUserLocation);
+
 			});
 		};
 
 		function edit(editing) {
 			var popUp = $ionicPopup.show({
-				template: '<input ng-model="vm.customUserLocation" value="{{vm.userLocation}}" style="width:90%;"> </input>' +
+				template: '<input ng-model="vm.customUserLocation" value="vm.userLocation" style="width:90%;"> </input>' +
 				'<span ng-click="vm.getCurrentLocation()" class="ion-location" style="margin-left: 5px; font-size: 25px"></span>' +
 				'<span style="color: red; font-size:12px" ng-if="vm.locationErrorMsg">We could not find this location</span>',
 				title: 'Location',
@@ -166,7 +170,7 @@
 			if(vm.customUserLocation.length > 3) {
 				components.showLoader()
 				.then(function() {
-					geolocation.getLocationFromTown(vm.customUserLocation).then(function(response) {
+					geolocation.getCoordinatesFromTown(vm.customUserLocation).then(function(response) {
 						geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
 						momentsService.initializeView().then(function(moments) {
 							components.hideLoader().then(function() {

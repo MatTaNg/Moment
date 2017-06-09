@@ -1,43 +1,40 @@
 describe('Moment Controller', function() {
 
-    var $scope, $controller, momentsService, $ionicContentBanner, core, components, $q, $ionicPopup, $window;
+    var $scope, $controller, momentsService, $ionicContentBanner, core, components, $q, $ionicPopup;
 
-    // beforeEach(module('jett.ionic.content.banner'), []);
-    beforeEach(module('app'), ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'components', 'geolocation']);
-    // beforeEach(module('core'));
-    // beforeEach(module('components'));
-    // beforeEach(module('constants'));
+    beforeEach(module('app'));
+    beforeEach(module('core'));
+    beforeEach(module('components'));
+    beforeEach(module('constants'));
 
+    console.log("DESCRIBE");
+    beforeEach(inject(function(_$controller_, $rootScope, _momentsService_, _$ionicContentBanner_, _core_, _components_, _$q_, _$ionicPopup_) {
+        console.log("INJECTING...");
+        $scope = $rootScope.$new();
+        momentsService = _momentsService_;
 
-    beforeEach(inject(function(_$controller_, $rootScope, momentsService, $ionicContentBanner, core, components, $q, $ionicPopup, $window) {
-        // var self = this;
-        // this.$scope = $rootScope.$new();
-        // this.momentsService = _momentsService_;
+        $ionicContentBanner = _$ionicContentBanner_;
+        core = _core_;
+        components = _components_;
+        $q = _$q_;
+        $ionicPopup = _$ionicPopup_;
 
-        // this.$ionicContentBanner = _$ionicContentBanner_;
-        // this.core = _core_;
-        // this.components = _components_;
-        // this.$q = _$q_;
-        // this.$ionicPopup = _$ionicPopup_;
+        spyOn(momentsService, 'initializeView');
 
-        // spyOn(momentsService, 'initializeView');
-
-        // this.$controller = _$controller_('MomentsController', {
-        //     momentsService: momentsService, 
-        //     $scope: $scope, 
-        //     $ionicContentBanner: $ionicContentBanner,
-        //     core: core,
-        //     component: components,
-        //     $q: $q,
-        //     $ionicPopup: $ionicPopup
-        // });
+        $controller = _$controller_('MomentsController', {
+            momentsService: momentsService, 
+            $scope: $scope, 
+            $ionicContentBanner: $ionicContentBanner,
+            core: core,
+            component: components,
+            $q: $q,
+            $ionicPopup: $ionicPopup
+        });
     }));
 
     it('should initialize', function() { 
-        // console.log(this);
-        // console.log("CONTROLLER");
-        // console.log(this.momentsService);
-        // console.log(this.momentsService.initializeView());
+        console.log("CONTROLLER");
+        console.log(momentsService);
     });
 
 });
