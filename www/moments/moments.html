@@ -22,6 +22,6 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 </td-card>
 </td-cards>
 </div>
-<img src="no-results-found.png" width= "100%" style="padding-top: 10%"></img>
+<img data-ng-if="vm.moments.length === 0" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
 </ion-content>
 </ion-view>

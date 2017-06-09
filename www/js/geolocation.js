@@ -15,7 +15,7 @@
  		vm.getLngMileRadius = getLngMileRadius;
  		vm.getCurrentLatLong = getCurrentLatLong;
  		vm.readZipCodeFile = readZipCodeFile;
- 		vm.getLocationFromTown = getLocationFromTown;
+ 		vm.getCoordinatesFromTown = getCoordinatesFromTown;
  		vm.getCoordsFromZipCode = getCoordsFromZipCode;
  		vm.setMomentInRadius = setMomentInRadius;
 
@@ -199,6 +199,7 @@ function getMomentsWithinRadius(momentsInStates) {
 		promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
 			console.log("META DATA");
 			console.log(metaData);
+			console.log(metaData.key);
 			return {
 				key: metaData.key, 
 				description: metaData.description,
@@ -213,11 +214,15 @@ function getMomentsWithinRadius(momentsInStates) {
 	return Promise.all(promises);
 };
 
-function getLocationFromTown(town) {
+//The right format is [townName, StateName] Ex: Narberth, PA (Case sensitive, exact match)
+//Acceptable formats: narberth, pa | narberth pa | Narberth,Pa | etc...
+function getCoordinatesFromTown(town) {
 	town = makeSureTownIsRightFormat(town);
 	var deferred = $q.defer();
-
+	console.log(town);
 	$http.get(constants.GEOLOCATION_URL + "address=" + town).then(function(response) {
+		console.log("RESPONSE");
+		console.log(response);
 		response = response.data.results;
 		//We only want one response and the address should at least begin with the town name and should not be a road
 		if(response.length === 1 && response[0].formatted_address.startsWith(town.toString()) && response[0].formatted_address.indexOf("Rd") === -1) { 
@@ -225,6 +230,8 @@ function getLocationFromTown(town) {
 			var lng = response[0].geometry.location.lng;
 			town = extractAddressFrom_FormattedAddress(response[0].formatted_address);
 			var coordinates = {lat: lat, lng:lng, town: town};
+			console.log("COORDINATES");
+			console.log(coordinates);
 			deferred.resolve(coordinates);
 		}
 		deferred.reject();
@@ -242,12 +249,18 @@ function getLocationFromTown(town) {
 };
 
 function makeSureTownIsRightFormat(town) {
-	if(town.indexOf(',') !== -1) {
+	console.log("TOWN");
+	console.log(town);
+	if(town.indexOf(',') !== -1) { //Check for a comma
 		var temp = town.split(',');
 		temp[1] = temp[1].toUpperCase();
-		town = temp[0] + ',' + temp[1];
+		town = temp[0] + ', ' + temp[1];
+	} else if(town.indexOf(' ') !== -1){ //Check for space
+		var temp = town.split(' ');	     //narberth|pa
+		temp[1] = temp[1].toUpperCase(); //narberth|PA
+		town = temp[0] + ', ' + temp[1];	 //narberth,PA
 	}
-	return town.charAt(0).toUpperCase() + town.slice(1);
+	return town.charAt(0).toUpperCase() + town.slice(1); //Narberth,PA
 };
 
 function getCoordsFromZipCode(zipCode) {
