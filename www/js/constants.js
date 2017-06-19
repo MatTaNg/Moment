@@ -15,7 +15,7 @@
 
 		//Paths
 		"IMAGE_URL": 'https://s3.amazonaws.com/' + "mng-moment" + '/',
-		"MOMENT_PREFIX": "test/",
+		"MOMENT_PREFIX": "moment/",
 		"BEST_MOMENT_PREFIX": "bestMoments/",
 		"FEEDBACK_PREFIX": "reports/feedback/",
 		"BUG_PREFIX": "reports/bugs/",
@@ -34,7 +34,7 @@
 		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.3,
 		"MOMENT_EXTENSION": ".jpg",
 
-		"DEV_MODE": false
+		"DEV_MODE": false //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
 	})
 })();
 // AIJvTx/0jXboCBh5PtuUQwRKde4zTchmUKYjcCIF

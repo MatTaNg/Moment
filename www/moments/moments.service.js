@@ -23,6 +23,8 @@
 				var calculateNearbyStates = geolocation.calculateNearbyStates;
 				var getMomentsByState = geolocation.getMomentsByState;
 				var concatMoments = function(moments) {
+					console.log("CONCAT MOMENTS");
+					console.log(JSON.stringify(moments));
 					for(var i = 0; i < moments.length; i) {
 						//Take out any empty arrays
 						if(moments[i].length === 0) {
@@ -41,6 +43,7 @@
 							}
 						}
 					}
+					console.log(JSON.stringify(results));
 					deferred.resolve(results);
 					return deferred.promise;
 				};
@@ -58,6 +61,15 @@
 			getNearbyMoments().then(function(moments) {
 				deleteOrUploadToBestMoments(moments).then(function() {
 					checkAndDeleteExpiredMoments(moments).then(function(deletedMoments) {
+						if(constants.DEV_MODE === false) {
+							for(var i = 0; i < moments.length; i) {
+								if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
+									moments.splice(i, 1);
+								} else {
+									i++;
+								}
+							}
+						}
 						var temp = createTempVariable(moments);
 						core.didUserChangeRadius = false;
 						this.momentArray = moments;
@@ -157,11 +169,11 @@ function deleteOrUploadToBestMoments(moments) {
 				});
 			} 
 			else if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO / 2) {
-				awsServices.getMoments(constants.BEST_MOMENT_PREFIX).then(function(moments) {
+				awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
 						moments.splice(0, 1); //The first key listed is always the folder, skip that.
 						for(var i = 0; i < moments.length; i++){
-							var bestMomentKey = moments[i].Key.split('/');
-							var momentKey = moment.key.split('/');
+							var bestMomentKey = moments[i].key.split('/');
+							var momentKey = moment.Key.split('/');
 							bestMomentKey = bestMomentKey[bestMomentKey.length - 1];
 							momentKey = momentKey[momentKey.length - 1];
 							if(bestMomentKey === momentKey) {

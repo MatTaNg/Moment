@@ -35,6 +35,7 @@
  		function upload(file, key, metaData) {
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
+ 			// metaData.location = metaData.location.trim();
  			var params = {	
  				Key: key,
  				Body: file,
@@ -72,11 +73,6 @@
  		};
 
  		function copyObject(key, copySource, metaData, directive) {
- 			console.log("COPY OBJECT");
- 			console.log(key);
- 			console.log(copySource);
- 			console.log(metaData);
- 			console.log(directive);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -99,8 +95,6 @@
  		};
 
  		function getMomentMetaData(key) {
- 			console.log("GET META DATA");
- 			console.log(key);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -119,9 +113,6 @@
  		};
 
  		function getMoments(prefix, startAfter) {
- 			console.log("GET MOMENTS");
- 			console.log(prefix);
- 			console.log(startAfter);
  			var deferred = $q.defer();
  			var startAfter = startAfter;
  			var s3 = vm.initiateBucket();
@@ -131,7 +122,7 @@
  				Prefix: prefix,
  				StartAfter: prefix //Prevent AWS from returning the directory
  			};
- 			if(startAfter !== '') {
+ 			if(startAfter !== '' || undefined) {
  				params.StartAfter = startAfter;
 
  			}
@@ -147,8 +138,6 @@
  		};
 
  		function getObject(key) {
- 			console.log("GET OBJECT");
- 			console.log(key);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -162,8 +151,6 @@
  					deferred.resolve("Not Found");
  				}
  				else {
- 					console.log("RESOLVED");
- 					console.log(data);
  					deferred.resolve(data);
  				}
  			});
