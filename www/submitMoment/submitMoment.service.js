@@ -14,6 +14,8 @@
 		};
 
 		function uploadToAWS(picture, moment) {
+			console.log("UPLOAD TO AWS");
+			console.log(moment);
 			var blob = new Blob([dataURItoBlob(picture)], {type: 'image/jpeg'});
 			var file = new File([blob], moment.location);
 			return core.upload(file, moment);

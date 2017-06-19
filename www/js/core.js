@@ -46,8 +46,6 @@
  		};
 
  		function remove(moment) {
- 			console.log("REMOVING");
- 			console.log(moment);
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
  				var path = splitUrlOff(moment.key);
@@ -184,10 +182,12 @@
 	};
 
 function getUUID() {
-		// console.log("window.device.uuid");
-		// console.log(window.device.uuid);
 		// return window.device.uuid;
-		return "123"; //Temporary
+		if(constants.DEV_MODE) {
+			return "123"; //Temporary	
+		} else {
+			return window.device.uuid;
+		}
 	};
 
 };

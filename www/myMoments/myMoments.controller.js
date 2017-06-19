@@ -13,6 +13,7 @@
 		vm.editLocation = editLocation;
 		vm.edit = edit;
 		vm.getCurrentLocation = getCurrentLocation;
+		vm.getLocationFromZipCode = getLocationFromZipCode;
 
 		vm.totalLikes = 0;
 		vm.showShortDescription = true;
@@ -124,12 +125,9 @@
 		};
 
 		function getCurrentLocation() {
-			console.log("GET CURRENT LOCATIN");
+			geolocation.customLocation.town = false;
 			geolocation.initializeUserLocation().then(function(location) {
-				console.log(location);
 				vm.customUserLocation = location.town;
-				console.log(vm.customUserLocation);
-
 			});
 		};
 
@@ -153,6 +151,7 @@
 							else {
 								e.preventDefault();
 								editLocation().then(function() {
+									console.log("POPUP CLOSE");
 									popUp.close()
 								}, function(error) {
 									e.preventDefault();
@@ -170,32 +169,40 @@
 			if(vm.customUserLocation.length > 3) {
 				components.showLoader()
 				.then(function() {
-					geolocation.getCoordinatesFromTown(vm.customUserLocation).then(function(response) {
-						geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
-						momentsService.initializeView().then(function(moments) {
+					if(isNaN(vm.customUserLocation) === false) { //If it is a number...
+						getLocationFromZipCode().then(function() {
 							components.hideLoader().then(function() {
-								localStorage.setItem('moments', JSON.stringify(moments));
-								vm.userLocation = response.town;
-								vm.customUserLocation = "";
-								vm.locationErrorMsg = false;
+								console.log("GET LOCATION FROM ZIP CODE");
 								deferred.resolve();
-							})
+							});
 						}, function(error) {
-							components.hideLoader();
-							deferred.reject();
+							components.hideLoader().then(function() {
+								console.log("ERROR LOCATION FROM ZIP CODE");
+								deferred.reject();
+							});
 						});
-			}, function(error) {	//Town DNE
-				console.log("ERROR");
-				vm.locationErrorMsg = true;
-				deferred.reject();
-				components.hideLoader();
-			});
+					} else {
+						getLocationFromTownName().then(function() {
+							components.hideLoader().then(function() {
+								console.log("GET LOCATION FROM TOWN NAME");
+								deferred.resolve();
+							});
+						}, function(error) {
+							components.hideLoader().then(function() {
+								console.log("ERROR LOCATION FROM TOWN NAME");
+								deferred.reject();
+							});
+						});
+					}
 				})
 
 			}
 			else {
-				vm.locationErrorMsg = true;
-				deferred.reject();
+				components.hideLoader().then(function() {
+					console.log("ERROR");
+					vm.locationErrorMsg = true;
+					deferred.reject();
+				});
 			}
 			return deferred.promise;
 		};
@@ -238,6 +245,52 @@
 					}
 					]
 				});
-};
+		};
+
+		function getLocationFromTownName() {
+			return geolocation.getCoordinatesFromTown(vm.customUserLocation).then(function(response) {
+				geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
+				return momentsService.initializeView().then(function(moments) {
+					return components.hideLoader().then(function() {
+						localStorage.setItem('moments', JSON.stringify(moments));
+						vm.userLocation = response.town;
+						vm.customUserLocation = "";
+						vm.locationErrorMsg = false;
+						// deferred.resolve();
+					})
+				}, function(error) {
+					components.hideLoader();
+					// deferred.reject();
+				});
+			}, function(error) {	//Town DNE
+				console.log("ERROR");
+				vm.locationErrorMsg = true;
+				components.hideLoader();
+				// deferred.reject();
+			});
+		};
+
+		function getLocationFromZipCode() {
+			var deferred = $q.defer();
+			geolocation.getCoordsFromZipCode(vm.customUserLocation).then(function(response) {
+				geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
+						momentsService.initializeView().then(function(moments) {
+							components.hideLoader().then(function() {
+							localStorage.setItem('moments', JSON.stringify(moments));
+							vm.userLocation = response.town;
+							vm.customUserLocation = "";
+							vm.locationErrorMsg = false;
+							deferred.resolve();
+						})
+					}, function(error) {
+						deferred.reject();
+					});
+			}, function(error) {
+				console.log("ERROR");
+				vm.locationErrorMsg = true;
+				deferred.reject();
+			});
+			return deferred.promise;
+		};
 };
 }());

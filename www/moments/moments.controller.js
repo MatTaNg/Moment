@@ -1,11 +1,13 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', MomentsController]);
+	.controller('MomentsController', ['momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', MomentsController]);
 
-	function MomentsController (momentsService, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
+	function MomentsController (momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
 		var vm = this;
-		
+		console.log("MOMENT CONTROLLER");
+		console.log(JSON.parse(localStorage.getItem('moments')));
+
 		vm.moments = JSON.parse(localStorage.getItem('moments'));
 		vm.liked = liked;		
 		vm.dragRight = dragRight;
@@ -24,6 +26,13 @@
 		if(core.appInitialized === false || vm.moments.length === 0 || core.didUserChangeRadius) {
 			core.appInitialized = true;
 			initialize();
+		}
+		if($stateParams.showErrorBanner === true) {
+			$ionicContentBanner.show({
+				text: ["An error has occured"],
+				type: "error",
+				autoClose: 3000
+			});
 		}
 
 		function dragRight() {
@@ -55,7 +64,6 @@
 			components.showLoader().then(function() {
 				momentsService.initializeView()
 				.then(function(moments){
-					console.log(moments);
 					vm.moments = moments;
 					components.hideLoader();
 				}, function(error) {
@@ -73,7 +81,7 @@
 		};
 
 		function liked(liked) {
-			momentsService.momentArray = vm.moments; //Moment Array in the service makes itself undefined for no reason
+			momentsService.momentArray = vm.moments; //Moment Array in the service does not update the likes for some reason
 			sendReport().then(function() {
 				momentsService.updateMoment(liked).then(function(moments) {
 					components.hideLoader().then(function(){

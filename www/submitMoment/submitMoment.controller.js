@@ -73,13 +73,8 @@
             });
           }, function(error) {
             components.hideLoader().then(function() {
-              $ionicContentBanner.show({
-                text: ["An error has occured"],
-                type: "error",
-                autoClose: 3000
-              });
-              $state.go('tabsController.moments');
               console.log("SUBMITION FAILED"); 
+              $state.go('tabsController.moments', { 'showErrorBanner': true });
             });
           });
 

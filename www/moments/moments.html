@@ -7,7 +7,6 @@
 <div ng-show="vm.moments">
 <td-cards>
 <td-card ng-repeat="image in vm.moments"
-on-swipe-left="vm.liked(false)" on-swipe-right="vm.liked(true)" 
 on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)"
 on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 <mng-description moment="image"></mng-description>
@@ -25,3 +24,4 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 <img data-ng-if="vm.moments.length === 0" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
 </ion-content>
 </ion-view>
+<!--on-swipe-left="vm.liked(false)" on-swipe-right="vm.liked(true)"-->
