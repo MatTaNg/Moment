@@ -15,7 +15,6 @@
 		if(!this.momentArray) {
 			this.momentArray = [];
 		}
-
 			//We cannot load all the images in the AWS database.
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
@@ -24,7 +23,7 @@
 				var getMomentsByState = geolocation.getMomentsByState;
 				var concatMoments = function(moments) {
 					console.log("CONCAT MOMENTS");
-					console.log(JSON.stringify(moments));
+					console.log(moments);
 					for(var i = 0; i < moments.length; i) {
 						//Take out any empty arrays
 						if(moments[i].length === 0) {
@@ -34,17 +33,11 @@
 						}
 					}
 					var deferred = $q.defer();
-					var results = [];
-					for(var i = 0; i < moments.length;i++) {
-						//Combine remaining arrays into one array
-						for(var x = 0; x < moments[i].length; x++) {
-							if(moments[i][x].Key.search(constants.MOMENT_EXTENSION) !== -1) {
-								results.push(moments[i][x]);
-							}
-						}
+					if(moments.length !== 0 ){
+						deferred.resolve(moments[0]); //Object returns as [[{}]], fixing this.
+					} else {
+						deferred.resolve(moments);
 					}
-					console.log(JSON.stringify(results));
-					deferred.resolve(results);
 					return deferred.promise;
 				};
 				var getMomentsWithinRadius = geolocation.getMomentsWithinRadius;
@@ -52,7 +45,7 @@
 				return calculateNearbyStates()
 					.then(getMomentsByState)
 					.then(concatMoments)
-					.then(getMomentsWithinRadius);
+					.then(getMomentsWithinRadius)
 			};
 
 			function initializeView() {
@@ -104,13 +97,15 @@
 			var deferred = $q.defer();
 			updatedMoment = updateMomentMetaData(updatedMoment, liked);
 			core.edit(updatedMoment).then(function() {
-						this.momentArray = temp; //checkAndDeleteExpiredMoments sets this.momentArray to undefined for no reason at all - You can even comment the whole function out and it still does it.  So redefine it
+				console.log("EDIT COMPLETE");
+						// this.momentArray = temp; //checkAndDeleteExpiredMoments sets this.momentArray to undefined for no reason at all - You can even comment the whole function out and it still does it.  So redefine it
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
 							moments = addExtraClasses(moments);
 							deferred.resolve(moments);
 						});
 					}, function(error) {
+						console.log("EDIT ERROR");
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
 							deferred.resolve(moments);
@@ -126,13 +121,10 @@
 				deferred.resolve(temp);
 			}
 			else {
-				components.showLoader().then(function() {
-					initializeView().then(function(moments) {
-				// var temp = createTempVariable(moments);
-				deferred.resolve(moments);
-			}, function(error) {
-				deferred.reject();
-			});
+				initializeView().then(function(moments) {
+					deferred.resolve(moments);
+				}, function(error) {
+					deferred.reject();
 				});
 			}
 			return deferred.promise;
@@ -156,6 +148,7 @@ function updateMomentMetaData(moment, liked) {
 function deleteOrUploadToBestMoments(moments) {
 	return Promise.all(moments.map(
 		function(moment) {
+			//Upload Best Moment
 			if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
 				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
 					var copySource = core.splitUrlOff(moment.key);
@@ -164,20 +157,22 @@ function deleteOrUploadToBestMoments(moments) {
 				logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
 				.then(function() {
 					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
-					moment.key = moment.key.replace(subString, "bestMoments/");
+					moment.key = moment.key.replace('moments/.../', "bestMoments/");
+					console.log(moment.key);
 					awsServices.copyObject(key, copySource, moment, "REPLACE");
 				});
 			} 
+			//Remove Best Moment
 			else if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO / 2) {
-				awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
+				awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(bestMoments) {
 						moments.splice(0, 1); //The first key listed is always the folder, skip that.
-						for(var i = 0; i < moments.length; i++){
-							var bestMomentKey = moments[i].key.split('/');
-							var momentKey = moment.Key.split('/');
+						for(var i = 0; i < bestMoments.length; i++){
+							var bestMomentKey = bestMoments[i].Key.split('/');
+							var momentKey = moment.key.split('/');
 							bestMomentKey = bestMomentKey[bestMomentKey.length - 1];
 							momentKey = momentKey[momentKey.length - 1];
 							if(bestMomentKey === momentKey) {
-								core.remove(moments[i]);
+								core.remove(bestMoments[i]);
 							}
 						}
 					});

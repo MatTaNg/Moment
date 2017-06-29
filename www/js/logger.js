@@ -22,6 +22,14 @@
 						return false;
 					}
 				};
+
+				function convertMetaDataToString(metaData) {
+					return "KEY: " + metaData.key + '\r\n\r\n' +
+							"LIKES: " + metaData.likes + '\r\n\r\n' +
+							"LOCATION: " + metaData.location + '\r\n\r\n' +
+							"TIME: " + metaData.time + '\r\n\r\n' +
+							"UUIDS: " + metaData.uuids;
+				};
 		/*
 			function: What class and function did it fail?  Ex: core.logFile
 			parameters: What parameters did it fail with? Ex: {metaData: metaData, key: key}
@@ -31,6 +39,9 @@
 			function logFile(failed_function, parameters, error, key) {
 				var deferred = $q.defer();
 				var key = 'reports/' + key;
+				if(parameters.MetaData) {
+					parameters.MetaData = convertMetaDataToString(parameters.MetaData);
+				}
 				if(fileExists(key)) {
 					var msg = createLogMessage(failed_function, parameters, error, key);
 					var moment = {key: key};

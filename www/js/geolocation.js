@@ -174,6 +174,7 @@ function getMomentsByState(states) {
 function getMomentsWithinRadius(momentsInStates) {
 	var promises = [];
 	for(var i = 0; i < momentsInStates.length; i++) {
+		var key = momentsInStates[i].Key;
 		var temp = momentsInStates[i].Key.split('/');
 		temp = temp[temp.length - 1].split('_');
 		var momentsInStates_lat = temp[0];
@@ -182,7 +183,7 @@ function getMomentsWithinRadius(momentsInStates) {
 			momentsInStates_lng > vm.max_west.lng && momentsInStates_lng < vm.max_east.lng) {
 			promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
 				return {
-					key: metaData.key, 
+					key: metaData.key, //DNE???
 					description: metaData.description,
 					likes: metaData.likes,
 					location: metaData.location,

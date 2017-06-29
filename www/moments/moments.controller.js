@@ -5,8 +5,6 @@
 
 	function MomentsController (momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
 		var vm = this;
-		console.log("MOMENT CONTROLLER");
-		console.log(JSON.parse(localStorage.getItem('moments')));
 
 		vm.moments = JSON.parse(localStorage.getItem('moments'));
 		vm.liked = liked;		
@@ -18,6 +16,7 @@
 		vm.cardCSSClass = "layer-bottom";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
+		vm.loadingMoments = false;
 
 		if(!vm.moments) {
 			vm.moments = [];
@@ -25,6 +24,7 @@
 
 		if(core.appInitialized === false || vm.moments.length === 0 || core.didUserChangeRadius) {
 			core.appInitialized = true;
+			vm.moments = [];
 			initialize();
 		}
 		if($stateParams.showErrorBanner === true) {
@@ -61,12 +61,15 @@
 		};		
 
 		function initialize() { 
-			components.showLoader().then(function() {
+			console.log("INITIALIZE");
+			vm.loadingMoments = true;
 				momentsService.initializeView()
 				.then(function(moments){
+					vm.loadingMoments = false;
 					vm.moments = moments;
 					components.hideLoader();
 				}, function(error) {
+					vm.loadingMoments = false;
 					console.log("ERRROR");
 					console.log(error);
 					components.hideLoader().then(function() {
@@ -77,20 +80,20 @@
 						});
 					});
 				}); //End of initializeView
-			}); //End of popup;
 		};
 
 		function liked(liked) {
 			momentsService.momentArray = vm.moments; //Moment Array in the service does not update the likes for some reason
 			sendReport().then(function() {
+				if(vm.moments.length === 1) {
+					vm.loadingMoments = true;
+				}
 				momentsService.updateMoment(liked).then(function(moments) {
-					components.hideLoader().then(function(){
+					vm.loadingMoments = false;
 						vm.moments = moments;
 						vm.flagClass = "ion-ios-flag-outline";
-					}, function(error) {
-						initialize();
-						}); //End of ionic Hide
 				}, function(error) {
+					vm.loadingMoments = false;
 					components.hideLoader().then(function() {
 						$ionicContentBanner.show({
 							text: ["An error occured getting the next Moment."],

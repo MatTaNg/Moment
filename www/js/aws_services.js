@@ -82,13 +82,19 @@
  				Metadata: metaData,
  				MetadataDirective: directive
  			};
-
+ 			console.log("COPY OBJECT");
+ 			console.log(params);
  			s3.copyObject(params, function(error, data) {
  				if(error) {
  					deferred.reject(error);
  				}
  				else {
- 					deferred.resolve();
+ 					getMomentMetaData(key).then(function(metaData) {
+ 						console.log("META DATA");
+ 						console.log(metaData);
+ 						deferred.resolve();
+ 					});
+ 					
  				}
  			});
  			return deferred.promise;
@@ -106,6 +112,7 @@
  					deferred.reject(error);
  				}
  				else {
+ 					console.log(data);
  					deferred.resolve(data.Metadata);
  				}
  			});
