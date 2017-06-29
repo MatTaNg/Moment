@@ -26,12 +26,10 @@
 		});
 
 		if(vm.moments) {
-			components.showLoader().then(function() {
 				bestMomentsService.initializeView().then(function(moments) {
 					components.hideLoader();
 					vm.moments = moments;
 				});
-			})
 		}
 
 		function loadMore() {
@@ -53,12 +51,7 @@
 				vm.stopLoadingData = false;
 				$scope.$broadcast('scroll.refreshComplete');
 				components.hideLoader().then(function() {
-					if(moments.length > 0) {
 						vm.moments = moments;
-					}
-					else {
-						vm.noMoments = true;
-					}
 				});
 			}, function(error) {
 				console.log("ERROR");

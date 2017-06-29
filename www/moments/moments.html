@@ -21,7 +21,8 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 </td-card>
 </td-cards>
 </div>
-<img data-ng-if="vm.moments.length === 0" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
+<img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
+<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" style="padding-top: 10%"></img>
 </ion-content>
 </ion-view>
 <!--on-swipe-left="vm.liked(false)" on-swipe-right="vm.liked(true)"-->

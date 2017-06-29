@@ -50,6 +50,8 @@
     <hr>
   </ion-grid>
 
+<img data-ng-if="vm.moments.length === 0" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
+
   <ion-infinite-scroll on-infinite="vm.loadMore()" data-ng-if="vm.stopLoadingData === false" distance="5%"></ion-infinite-scroll>
 <!-- <form id="bestMoments-form2" class="list">
   <label class="item item-select" id="bestMoments-select3">

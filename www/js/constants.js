@@ -34,7 +34,6 @@
 		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.3,
 		"MOMENT_EXTENSION": ".jpg",
 
-		"DEV_MODE": false //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
+		"DEV_MODE": true //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
 	})
 })();
-// AIJvTx/0jXboCBh5PtuUQwRKde4zTchmUKYjcCIF

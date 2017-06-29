@@ -55,7 +55,6 @@
 			var deferred = $q.defer();
 			geolocation.initializeUserLocation().then(function(location) {
 				vm.userLocation = location.town;
-			});
 			if(vm.moments !== []) {
 				myMomentsService.initialize(vm.moments).then(function(moments) {
 					for(var i = 0; i < moments.length;){ //initialize returns a null object if it cannot find it.  Remove it
@@ -89,6 +88,7 @@
 				vm.errorMessage = true;
 				deferred.reject();
 			}
+			});
 			return deferred.promise;
 		};
 

@@ -16,10 +16,6 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
 
 .run(function($ionicPlatform, $ionicPopup, $state) {
   $ionicPlatform.ready(function() {
-    console.log("SET UP");
-    console.log(JSON.parse(localStorage.getItem('moments')));
-    console.log(JSON.parse(localStorage.getItem('bestMoments')));
-    console.log(JSON.parse(localStorage.getItem('myMoments')));
     oneSignalSetup();
     // initializeApp().then(function() {
       if(navigator.splashscreen)
