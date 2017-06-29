@@ -98,3 +98,4 @@ Moment's AWS S3 Database is set up like so:
 2.  $ionicPopUp takes up quite a lot of space in the code.  It would be nice to find a way to refactor this code into some kind of custom directive along with the $ionicContentBanner.
 
 3.  Errors can probably be handled better.
+4.  in geolocation.getMomentsWithinRadius the call to awsServices.getMomentMetaData returns ALL metaData BUT the key.  Why?  I have no fricking idea.  Uncomment out the console.log before the return statement and you will see.
