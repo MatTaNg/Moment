@@ -6,7 +6,7 @@
  	function core($cordovaGeolocation, $q, $http, constants, awsServices, logger, geolocation){
  		var vm = this,
  		deferred = $q.defer();
-
+console.log("CORE");
  		verifyMetaData = verifyMetaData;
  		vm.splitUrlOff = splitUrlOff;
 
@@ -16,14 +16,31 @@
  		vm.getCurrentTime = getCurrentTime;
  		vm.getUUID = getUUID;
  		vm.didUserChangeRadius = false;
+ 		vm.currentLocation = "";
 
  		vm.remove = remove;
  		vm.edit = edit;
  		vm.upload = upload;
- 		vm.copy = copy;
+ 		vm.uploadToBestMoments = uploadToBestMoments;
+ 		vm.removeFromBestMoments = removeFromBestMoments;
+ 		vm.getMoment = getMoment;
+		vm.getMomentMetaData = getMomentMetaData;
+		vm.listMoments = listMoments;
+		
+		geolocation.initializeUserLocation().then(function(location) {
+				vm.currentLocation = location.town;
+				console.log(vm.currentLocation);
+			}, function(error) {
+				console.log("ERROR");
+				console.log(error);
+				vm.currentLocation = "Could not find location";
+			});
+		};
 
  		function splitUrlOff(key) {
  			var result = "";
+ 			console.log("IRL KEY");
+ 			console.log(JSON.stringify(key));
  			if(key !== undefined) {
  				var keySplit = key.split('/');
  				for(var i = 4; i < keySplit.length; i++) {
@@ -36,13 +53,6 @@
  				console.log(key);
  				return key;
  			}
- 		};
-
- 		function copy(key, copySource, metaData) {
-			awsServices.copyObject(key, copySource, metaData, "COPY").then(function() {
-				//We also need to change our copied object's metaData
-				core.upload
-			})
  		};
 
  		function remove(moment) {
@@ -132,6 +142,46 @@
  			return deferred.promise;
  		};
 
+ 		function uploadToBestMoments(moment) {
+ 			var copySource = splitUrlOff(moment.key);
+			var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
+			// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
+			logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
+				.then(function() {
+					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
+					moment.key = moment.key.replace('moments/.../', "bestMoments/");
+					console.log(moment.key);
+					awsServices.copyObject(key, copySource, moment, "REPLACE");
+				});
+ 		};
+
+ 		function removeFromBestMoments(moment) {
+			awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(bestMoments) {
+				moments.splice(0, 1); //The first key listed is always the folder, skip that.
+				for(var i = 0; i < bestMoments.length; i++){
+					var bestMomentKey = bestMoments[i].Key.split('/');
+					var momentKey = moment.key.split('/');
+					bestMomentKey = bestMomentKey[bestMomentKey.length - 1];
+					momentKey = momentKey[momentKey.length - 1];
+					if(bestMomentKey === momentKey) {
+						remove(bestMoments[i]);
+					}
+				}
+			});
+ 		};
+
+ 		function getMoment(moment){
+ 			return awsServices.getObject(splitUrlOff(moment.key));
+ 		};
+
+ 		function getMomentMetaData(moment) {
+ 			return awsServices.getMomentMetaData(moment.Key);
+ 		}
+
+ 		function listMoments(prefix, startAfter) {
+ 			return awsServices.getMoments(prefix, startAfter)
+ 		}
+
  		function getCurrentTime() {
  			return new Date().getTime();
  		};
@@ -189,6 +239,4 @@ function getUUID() {
 			return window.device.uuid;
 		}
 	};
-
-};
 })();

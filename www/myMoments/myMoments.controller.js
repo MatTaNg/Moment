@@ -10,14 +10,15 @@
 		vm.feedback = feedback;
 		vm.toggleDescription = toggleDescription;
 		vm.refreshing = refreshing;
-		vm.editLocation = editLocation;
 		vm.edit = edit;
 		vm.getCurrentLocation = getCurrentLocation;
-		vm.getLocationFromZipCode = getLocationFromZipCode;
+		this.editLocation = editLocation;
+		this.getLocationFromTownName = getLocationFromTownName;
+		this.getLocationFromZipCode = getLocationFromZipCode;
 
+		vm.userLocation = core.currentLocation;
 		vm.totalLikes = 0;
 		vm.showShortDescription = true;
-		vm.userLocation = "Narberth, PA";
 		vm.customUserLocation = "";
 		vm.locationErrorMsg = false;
 		vm.distance = localStorage.getItem('momentRadiusInMiles');
@@ -44,6 +45,7 @@
 		});
 
 		function refreshing() {
+			console.log("REFRESHING");
 			initialize().then(function() {
 				$scope.$broadcast('scroll.refreshComplete');
 			}, function(error) {
@@ -51,19 +53,22 @@
 			});
 		};
 
+		function removeNullObject(moments) {
+			for(var i = 0; i < moments.length;){ //initialize returns a null object if it cannot find it.  Remove it
+				if(!moments[i]) {
+					moments.splice(i, 1);
+				} else {
+					i++;
+				}
+			}
+			return moments;
+		};
+
 		function initialize() {
 			var deferred = $q.defer();
-			geolocation.initializeUserLocation().then(function(location) {
-				vm.userLocation = location.town;
 			if(vm.moments !== []) {
 				myMomentsService.initialize(vm.moments).then(function(moments) {
-					for(var i = 0; i < moments.length;){ //initialize returns a null object if it cannot find it.  Remove it
-						if(!moments[i]) {
-							moments.splice(i, 1);
-						} else {
-							i++;
-						}
-					}
+					moments = removeNullObject(moments);
 					if(moments !== null) {
 						vm.refresh = false;
 						vm.moments = moments;
@@ -76,6 +81,8 @@
 					}
 					deferred.resolve();
 				}, function(error) {
+					console.log("ERROR");
+					console.log(error);
 					$ionicContentBanner.show({
 						text: ["There was a problem getting the moments"],
 						type: "error",
@@ -88,7 +95,6 @@
 				vm.errorMessage = true;
 				deferred.reject();
 			}
-			});
 			return deferred.promise;
 		};
 
@@ -125,15 +131,19 @@
 		};
 
 		function getCurrentLocation() {
+			console.log("GET CURRNET LOCATION");
 			geolocation.customLocation.town = false;
-			geolocation.initializeUserLocation().then(function(location) {
-				vm.customUserLocation = location.town;
-			});
+			components.showLoader().then(function() {
+				geolocation.initializeUserLocation().then(function(location) {
+					vm.customUserLocation = location.town;
+					components.hideLoader();
+				});
+			})
 		};
 
 		function edit(editing) {
 			var popUp = $ionicPopup.show({
-				template: '<input ng-model="vm.customUserLocation" value="vm.userLocation" style="width:90%;"> </input>' +
+				template: '<input ng-model="vm.customUserLocation" placeholder="City, State OR Zip" value="vm.userLocation" style="width:90%;"> </input>' +
 				'<span ng-click="vm.getCurrentLocation()" class="ion-location" style="margin-left: 5px; font-size: 25px"></span>' +
 				'<span style="color: red; font-size:12px" ng-if="vm.locationErrorMsg">We could not find this location</span>',
 				title: 'Location',
@@ -144,13 +154,17 @@
 					text: '<b>Submit</b>',
 					type: 'button-positive',
 					onTap: function(e) {
+						console.log("TEST");
+						console.log(vm.customUserLocation);
 						if(!vm.customUserLocation) { 
 								//Does nothing if user has not entered anything
 								e.preventDefault();
 							}
 							else {
 								e.preventDefault();
-								editLocation().then(function() {
+								console.log("TEST1");
+								console.log(vm.customUserLocation);
+								vm.editLocation(vm.customUserLocation).then(function() {
 									console.log("POPUP CLOSE");
 									popUp.close()
 								}, function(error) {
@@ -207,46 +221,6 @@
 			return deferred.promise;
 		};
 
-		function feedback() {
-			$scope.moment = {};
-
-			$ionicPopup.show({
-				template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
-				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox> {{vm.moment.feedback}}',
-				title: 'Feedback',
-				scope: $scope,
-				subTitle: 'How can we improve?',
-				buttons: [ 
-				{ text: 'Cancel' },
-				{
-					text: '<b>Submit</b>',
-					type: 'button-positive',
-					onTap: function(e) {
-						if(!vm.moment.feedback) { 
-								//Does nothing if user has not entered anything
-								e.preventDefault();
-							}
-							else {
-								myMomentsService.uploadFeedback(vm.moment.feedback, vm.moment.isBug).then(function() {
-									$ionicPopup.alert({
-										title: '<b>Thank you for your feedback!</b>',
-										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
-									});
-								}, function(error) {
-									$ionicPopup.alert({
-										title: '<b>Something went wrong.  Sorry, our fault!</b>',
-										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
-									});
-								});
-
-							};
-						}
-						
-					}
-					]
-				});
-		};
-
 		function getLocationFromTownName() {
 			return geolocation.getCoordinatesFromTown(vm.customUserLocation).then(function(response) {
 				geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
@@ -292,5 +266,46 @@
 			});
 			return deferred.promise;
 		};
+
+		function feedback() {
+			$scope.moment = {};
+
+			$ionicPopup.show({
+				template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
+				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox> {{vm.moment.feedback}}',
+				title: 'Feedback',
+				scope: $scope,
+				subTitle: 'How can we improve?',
+				buttons: [ 
+				{ text: 'Cancel' },
+				{
+					text: '<b>Submit</b>',
+					type: 'button-positive',
+					onTap: function(e) {
+						if(!vm.moment.feedback) { 
+								//Does nothing if user has not entered anything
+								e.preventDefault();
+							}
+							else {
+								myMomentsService.uploadFeedback(vm.moment.feedback, vm.moment.isBug).then(function() {
+									$ionicPopup.alert({
+										title: '<b>Thank you for your feedback!</b>',
+										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
+									});
+								}, function(error) {
+									$ionicPopup.alert({
+										title: '<b>Something went wrong.  Sorry, our fault!</b>',
+										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
+									});
+								});
+
+							};
+						}
+						
+					}
+					]
+				});
+		};
+
 };
 }());

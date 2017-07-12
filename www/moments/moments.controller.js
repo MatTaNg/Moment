@@ -61,7 +61,6 @@
 		};		
 
 		function initialize() { 
-			console.log("INITIALIZE");
 			vm.loadingMoments = true;
 				momentsService.initializeView()
 				.then(function(moments){

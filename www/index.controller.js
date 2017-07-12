@@ -2,10 +2,9 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', IndexController]);
+  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', IndexController]);
   
-  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval) {
-
+  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger) {
     var indexController = this,
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
     indexController.camera = camera;
@@ -23,6 +22,7 @@
     });
 
     function camera() { 
+      alert("CAMERA CALLED");
       navigator.camera.getPicture(onSuccess, onFail, 
           { quality: 100, //Quality of photo 0-100
           destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL
@@ -32,13 +32,24 @@
         });
 
       function onSuccess(imageURI) {
+        alert("SUCCESS");
         var picture = "data:image/jpeg;base64," + imageURI;
         $state.go('submitMoment', {picture: picture});
       };
 
       function onFail(message) {
+        alert("FAILED");
+        alert(message);
         console.log("Fail");
         console.log('Failed because: ' + message);
+        if(message !== "Camera cancelled") {
+          $ionicContentBanner.show({
+              text: ["Something went wrong"],
+              type: "error",
+              autoClose: 3000
+            });
+          logger.logFile(camera.onFail, '', message, error);
+        }
       }
     };
 
@@ -59,6 +70,11 @@
 
       function onFail(message) {
         console.log("Failed because: " + message);
+        $ionicContentBanner.show({
+            text: ["Something went wrong"],
+            type: "error",
+            autoClose: 3000
+          });
       }
     };
     $interval(function() {

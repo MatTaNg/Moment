@@ -34,6 +34,7 @@
       }, function(error) {
         console.log("ERROR");
         console.log(error.message);
+        components.hideLoader();
       })
     }
 

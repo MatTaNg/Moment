@@ -1,9 +1,9 @@
 (function() {
 	angular.module('myMomentsService', [])
 
-	.service('myMomentsService', ['core', '$q', 'awsServices', 'logger', myMomentsService]);
+	.service('myMomentsService', ['core', '$q', 'logger', 'geolocation', myMomentsService]);
 
-	function myMomentsService(core, $q, awsServices, logger) {
+	function myMomentsService(core, $q, logger, geolocation) {
 		this.removeFromLocalStorage = removeFromLocalStorage;
 		this.uploadFeedback = uploadFeedback;
 		this.initialize = initialize;
@@ -11,10 +11,10 @@
 		this.getExtraLikes = getExtraLikes;
 
 		this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
+		this.userLocation;
 		var totalLikes = 0;
 		this.oldLikes = 0;
 		var extraLikes = 0;
-
 		if(!this.momentArray) {
 			//Should not happen
 			this.momentArray = [];
@@ -47,18 +47,18 @@
 			updateOldLikes(this.momentArray);
 			for(var i = 0; i < moments.length; i++) {
 				promises.push(
-					awsServices.getObject(core.splitUrlOff(moments[i].key)).then(function(moment) {
-						if(moment !== "Not Found") {
-							moment = moment.Metadata;
-							this.momentArray = oldMomentArray;
-							updateExtraLikesAndTotalLikes(moment);
-							moment = addShortDescriptionAndTime(moment);
-							return moment;
-						} else {
-							return null; //Find a better way to handle this
-						}
+					core.getMoment(moments[i]).then(function(moment) {
+					if(moment !== "Not Found") {
+						moment = moment.Metadata;
+						this.momentArray = oldMomentArray;
+						updateExtraLikesAndTotalLikes(moment);
+						moment = addShortDescriptionAndTime(moment);
+						return moment;
+					} else {
+						return null; //Find a better way to handle this
+					}
 					})
-					);
+				);
 			}
 			return Promise.all(promises);
 		};
@@ -92,10 +92,13 @@
 		};
 
 		function updateOldLikes(momentArray) {
-			this.oldLikes = 0;
-			for(var i = 0; i < momentArray.length; i++) {
-				momentArray[i].likes = momentArray[i].likes.toString();
-				this.oldLikes = this.oldLikes + parseInt(momentArray[i].likes);
+			console.log(momentArray);
+			if(momentArray) {
+				this.oldLikes = 0;
+				for(var i = 0; i < momentArray.length; i++) {
+					momentArray[i].likes = momentArray[i].likes.toString();
+					this.oldLikes = this.oldLikes + parseInt(momentArray[i].likes);
+				}
 			}
 		};
 
@@ -119,5 +122,7 @@
 			}
 			return moment;
 		};
+
+
 	};
 })();

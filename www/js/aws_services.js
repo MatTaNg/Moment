@@ -82,16 +82,12 @@
  				Metadata: metaData,
  				MetadataDirective: directive
  			};
- 			console.log("COPY OBJECT");
- 			console.log(params);
  			s3.copyObject(params, function(error, data) {
  				if(error) {
  					deferred.reject(error);
  				}
  				else {
  					getMomentMetaData(key).then(function(metaData) {
- 						console.log("META DATA");
- 						console.log(metaData);
  						deferred.resolve();
  					});
  					
@@ -143,6 +139,21 @@
  			});
  			return deferred.promise;
  		};
+
+ 		function getMoment(moment) {
+ 			moment = core.splitUrlOff(moment.key);
+			return awsServices.getObject().then(function(moment) {
+				if(moment !== "Not Found") {
+					moment = moment.Metadata;
+					this.momentArray = oldMomentArray;
+					updateExtraLikesAndTotalLikes(moment);
+					moment = addShortDescriptionAndTime(moment);
+					return moment;
+				} else {
+					return null; //Find a better way to handle this
+				}
+			});
+		};
 
  		function getObject(key) {
  			var deferred = $q.defer();

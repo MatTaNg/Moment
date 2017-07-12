@@ -6,7 +6,7 @@
 
 <div ng-show="vm.moments">
 <td-cards>
-<td-card ng-repeat="image in vm.moments"
+<td-card id="temp" ng-repeat="image in vm.moments"
 on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)"
 on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 <mng-description moment="image"></mng-description>
@@ -14,8 +14,8 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 <img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next"></img>
 <hr>
 <div style="height=20%">
-<span ng-show="image.description">{{ image.description }} </span>
-<div ng-hide="image.description" class="noDescription">No Description Found</div>
+<span ng-show="image.description">{{ image.description }}  </span>
+<div ng-hide="image.description" class="noDescription">No Description Found {{image.key}}</div>
 <div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
 </div>
 </td-card>

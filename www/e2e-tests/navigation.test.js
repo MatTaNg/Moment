@@ -3,7 +3,7 @@
 //     it('should take the user to the myMoments page', function() {
 //         browser.get('/#/page1/moments');
 
-//         var myMomentsTab = element(by.css("[nav-bar='active'] .ion-person"))
+//         var myMomentsTab = element(by.css(".ion-person"))
 //         myMomentsTab.click().then(function() {
 //             browser.getCurrentUrl().then(function(url) {
 //                 expect(url).toContain('myMoments');

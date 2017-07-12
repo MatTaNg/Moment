@@ -69,7 +69,7 @@
       <div class="{{indexController.uploadLogo}}" data-ng-if="momentTimer === '0m'" ng-click="indexController.gallery()"></div>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
-    <div data-ng-if="momentTimer === '0m'" class="ion-ios-camera-outline" ng-click="indexController.camera()"></div>
+    <span data-ng-if="momentTimer === '0m'" class="ion-ios-camera-outline" ng-click="indexController.camera()"></span>
     <div style="font-size: 18pt; margin-top: 5px;" ng-if="momentTimer !== '0m'">{{momentTimer}}</div>
 
   </ion-nav-buttons>

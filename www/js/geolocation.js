@@ -315,7 +315,7 @@ function getLocationFromCoords(latitude, longitude) {
 			} else {
 				var state = town
 			}
-
+			console.log(state);
 			deferred.resolve({lat: latitude, lng: longitude, town: town, state: state});
 		}
 	}, function(error) {

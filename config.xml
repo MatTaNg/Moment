@@ -9,7 +9,7 @@
   </author>
   <content src="index.html"/>
   <access origin="*"/>
-  <access origin="tel:*" launch-external="yes"/>
+  <access launch-external="yes" origin="tel:*"/>
   <access origin="*"/>
   <allow-navigation href="*"/>
   <allow-navigation href="http://*/*"/>
@@ -27,14 +27,14 @@
   <preference name="loadUrlTimeoutValue" value="700000"/>
   <preference name="phonegap-version" value="3.7.0"/>
   <platform name="android">
-    <splash src="resources/screen/android/splash-portrait-ldpi.png" density="port-ldpi" width="320" height="426"/>
-    <splash src="resources/screen/android/splash-portrait-mdpi.png" density="port-mdpi" width="320" height="470"/>
-    <splash src="resources/screen/android/splash-portrait-hdpi.png" density="port-hdpi" width="480" height="640"/>
-    <splash src="resources/screen/android/splash-portrait-xhdpi.png" density="port-xhdpi" width="720" height="960"/>
-    <splash src="resources/screen/android/splash-ldpi.png" density="land-ldpi" width="426" height="320"/>
-    <splash src="resources/screen/android/splash-mdpi.png" density="land-mdpi" width="470" height="320"/>
-    <splash src="resources/screen/android/splash-hdpi.png" density="land-hdpi" width="640" height="480"/>
-    <splash src="resources/screen/android/splash-xhdpi.png" density="land-xhdpi" width="960" height="720"/>
+    <splash density="port-ldpi" height="426" src="resources/screen/android/splash-portrait-ldpi.png" width="320"/>
+    <splash density="port-mdpi" height="470" src="resources/screen/android/splash-portrait-mdpi.png" width="320"/>
+    <splash density="port-hdpi" height="640" src="resources/screen/android/splash-portrait-hdpi.png" width="480"/>
+    <splash density="port-xhdpi" height="960" src="resources/screen/android/splash-portrait-xhdpi.png" width="720"/>
+    <splash density="land-ldpi" height="320" src="resources/screen/android/splash-ldpi.png" width="426"/>
+    <splash density="land-mdpi" height="320" src="resources/screen/android/splash-mdpi.png" width="470"/>
+    <splash density="land-hdpi" height="480" src="resources/screen/android/splash-hdpi.png" width="640"/>
+    <splash density="land-xhdpi" height="720" src="resources/screen/android/splash-xhdpi.png" width="960"/>
     <preference name="AutoHideSplashScreen" value="true"/>
     <preference name="SplashScreenDelay" value="60000"/>
   </platform>
@@ -52,6 +52,7 @@
     <icon src="resources/screen/windows/Wide310x150Logo.png" target="Wide310x150Logo"/>
   </platform>
   <feature name="StatusBar">
-    <param name="ios-package" value="CDVStatusBar" onload="true"/>
+    <param name="ios-package" onload="true" value="CDVStatusBar"/>
   </feature>
+  <plugin name="cordova-plugin-camera" spec="~2.4.1"/>
 </widget>
