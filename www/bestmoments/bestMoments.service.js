@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.bestMomentsService', [])
 
-	.service('bestMomentsService', ['core', '$q', 'constants', 'awsServices', bestMomentsService]);
+	.service('bestMomentsService', ['core', '$q', 'constants', bestMomentsService]);
 
-	function bestMomentsService(core, $q, constants, awsServices){
+	function bestMomentsService(core, $q, constants){
 		this.momentArray = JSON.parse(localStorage.getItem('bestMoments'));
 		var initiateMoments = initiateMoments;
 		this.initializeView = initializeView;
@@ -27,6 +27,7 @@
 				});
 			}
 			else {
+				console.log("RESOLVED");
 				deferred.resolve();
 			}
 			return deferred.promise;	
@@ -34,8 +35,11 @@
 
 		function createPromiseObjects(moments) {
 			var promises = [];
+			console.log("MOMENTS");
+			console.log(moments);
 			for(var i = 0; i < moments.length; i++) {
-				promises.push(awsServices.getMomentMetaData(moments[i].Key).then(function(metaData){
+				promises.push(core.getMomentMetaData(moments[i]).then(function(metaData){
+					console.log(metaData);
 					return {
 						key: metaData.key, 
 						description: metaData.description,
@@ -54,7 +58,9 @@
 			var metaData;
 			var promises = [];
 			this.momentArray = [];
-			return awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
+			return core.listMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
+				console.log("LISTING MOMENTS");
+				console.log(moments);
 				promises = createPromiseObjects(moments);
 				return Promise.all(promises);
 			}, function(error) {
@@ -69,7 +75,9 @@
 				startAfter = startAfter.split('/');
 				startAfter = startAfter[startAfter.length - 1];
 				startAfter = "bestMoments/" + startAfter;
-				return awsServices.getMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
+				console.log("START AFTER");
+				console.log(startAfter);
+				return core.listMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
 					promises = createPromiseObjects(moments);
 					return Promise.all(promises);
 				}, function(error) {

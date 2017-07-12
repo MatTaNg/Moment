@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', 'constants', 'awsServices', 'components', 'logger', 'geolocation', momentsService]);
+	.service('momentsService', ['core', '$q', 'constants', 'logger', 'geolocation', momentsService]);
 
-	function momentsService(core, $q, constants, awsServices, components, logger, geolocation){
+	function momentsService(core, $q, constants, logger, geolocation){
 		this.momentArray = JSON.parse(localStorage.getItem('moments'));
 
 		this.initializeView = initializeView;
@@ -22,8 +22,6 @@
 				var calculateNearbyStates = geolocation.calculateNearbyStates;
 				var getMomentsByState = geolocation.getMomentsByState;
 				var concatMoments = function(moments) {
-					console.log("CONCAT MOMENTS");
-					console.log(moments);
 					for(var i = 0; i < moments.length; i) {
 						//Take out any empty arrays
 						if(moments[i].length === 0) {
@@ -97,15 +95,12 @@
 			var deferred = $q.defer();
 			updatedMoment = updateMomentMetaData(updatedMoment, liked);
 			core.edit(updatedMoment).then(function() {
-				console.log("EDIT COMPLETE");
-						// this.momentArray = temp; //checkAndDeleteExpiredMoments sets this.momentArray to undefined for no reason at all - You can even comment the whole function out and it still does it.  So redefine it
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
 							moments = addExtraClasses(moments);
 							deferred.resolve(moments);
 						});
 					}, function(error) {
-						console.log("EDIT ERROR");
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
 							deferred.resolve(moments);
@@ -151,34 +146,14 @@ function deleteOrUploadToBestMoments(moments) {
 			//Upload Best Moment
 			if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
 				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
-					var copySource = core.splitUrlOff(moment.key);
-					var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
-				// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-				logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
-				.then(function() {
-					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
-					moment.key = moment.key.replace('moments/.../', "bestMoments/");
-					console.log(moment.key);
-					awsServices.copyObject(key, copySource, moment, "REPLACE");
-				});
+					core.uploadToBestMoments(moment);
 			} 
 			//Remove Best Moment
 			else if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO / 2) {
-				awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(bestMoments) {
-						moments.splice(0, 1); //The first key listed is always the folder, skip that.
-						for(var i = 0; i < bestMoments.length; i++){
-							var bestMomentKey = bestMoments[i].Key.split('/');
-							var momentKey = moment.key.split('/');
-							bestMomentKey = bestMomentKey[bestMomentKey.length - 1];
-							momentKey = momentKey[momentKey.length - 1];
-							if(bestMomentKey === momentKey) {
-								core.remove(bestMoments[i]);
-							}
-						}
-					});
+				core.removeFromBestMoments(moment);
 			}
 		}
-		} //End of function(moment)
+		} //End of function(moment)d
 		));
 };
 

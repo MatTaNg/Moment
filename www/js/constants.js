@@ -4,7 +4,7 @@
 	.constant("constants", {
 
 		"MILISECONDS_IN_AN_HOUR": 3600000,
-		//IDs and Keys and constants
+		//IDs, Keys and constants
 		"BUCKET_NAME": 'mng-moment',
 		"BUCKET_REGION": 'us-east-1',
 		"KEY_ID": 'AKIAIBIANXR773ZDLRMQ',
@@ -34,6 +34,6 @@
 		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.3,
 		"MOMENT_EXTENSION": ".jpg",
 
-		"DEV_MODE": true //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
+		"DEV_MODE": false //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
 	})
 })();
