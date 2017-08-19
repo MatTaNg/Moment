@@ -22,6 +22,7 @@ module.exports = function(config) {
       'moments/*',
       'submitMoment/*',
       'myMoments/*',
+      'Integration-tests/*',
       'index.controller.js',
       'layout/mainView.directive.js',
     ],

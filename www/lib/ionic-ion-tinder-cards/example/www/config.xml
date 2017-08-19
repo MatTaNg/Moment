@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.ionicframework.starter" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>StarterApp</name>
+<widget id="com.moment.app" version="0.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Moment</name>
     <description>
-        A sample Ionic Framework app using Cordova and AngularJS
+        Take a picture and share it with others around you annonomously.  
     </description>
-    <author email="max@drifty.com" href="http://ionicframework.com">
-        Apache Cordova Team
+    <author email="mattang5280@gmail.com" href="http://ionicframework.com">
+        Matt Ng
     </author>
     <content src="index.html" />
     <access origin="*" />
@@ -13,5 +13,7 @@
     <preference name="webviewbounce" value="false" />
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
+    <preference name="orientation" value"portrait" />
+    <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <hook type="after_prepare" src="package-hooks/android_custom_values.js" />
 </widget>

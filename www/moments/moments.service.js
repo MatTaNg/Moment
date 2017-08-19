@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', 'constants', 'logger', 'geolocation', momentsService]);
+	.service('momentsService', ['core', '$q', 'constants', 'logger', 'geolocation', 'awsServices', momentsService]);
 
-	function momentsService(core, $q, constants, logger, geolocation){
+	function momentsService(core, $q, constants, logger, geolocation, awsService){
 		this.momentArray = JSON.parse(localStorage.getItem('moments'));
 
 		this.initializeView = initializeView;
@@ -12,6 +12,8 @@
 		this.incrementCounter = incrementCounter;
 		this.uploadReport = uploadReport;
 
+		this.checkAndDeleteExpiredMoments = checkAndDeleteExpiredMoments;
+
 		if(!this.momentArray) {
 			this.momentArray = [];
 		}
@@ -19,6 +21,7 @@
 			//Instead, we get the users State and figre out which nearby States to load
 			//This way we minimize the amount of images to load.
 			function getNearbyMoments() {
+				console.log("GET NEARBY MOMENTS");
 				var calculateNearbyStates = geolocation.calculateNearbyStates;
 				var getMomentsByState = geolocation.getMomentsByState;
 				var concatMoments = function(moments) {
@@ -47,6 +50,7 @@
 			};
 
 			function initializeView() {
+				console.log("INIT VIEW");
 				var deferred = $q.defer();
 			// this.momentArray = [];
 			getNearbyMoments().then(function(moments) {
@@ -65,6 +69,7 @@
 						core.didUserChangeRadius = false;
 						this.momentArray = moments;
 						temp = addExtraClasses(temp);
+						console.log("INIT VIEW PROMISE");
 						localStorage.setItem('moments', JSON.stringify(temp));
 						deferred.resolve(temp);		
 					}, function(error) {
@@ -90,13 +95,17 @@
 		};
 
 		function updateMoment(liked) {
+			console.log("UPDATE MOMENT");
 			var temp = createTempVariable(this.momentArray);
 			var updatedMoment = temp[0];
 			var deferred = $q.defer();
 			updatedMoment = updateMomentMetaData(updatedMoment, liked);
 			core.edit(updatedMoment).then(function() {
+				console.log("UPDATE MOEMNTS EDIT");
+				this.momentArray = temp;
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
+							console.log("UPDATE MOEMNT INCREMENT COUTNEER");
 							moments = addExtraClasses(moments);
 							deferred.resolve(moments);
 						});
@@ -141,6 +150,7 @@ function updateMomentMetaData(moment, liked) {
 
 //In order to upload to best moments the likes / views need to be more than the 'BEST_MOMENTS_RATIO' it also needs a minimum amount of views
 function deleteOrUploadToBestMoments(moments) {
+	console.log("DELETE OR UPLOAD BEST MOMENTS");
 	return Promise.all(moments.map(
 		function(moment) {
 			//Upload Best Moment
@@ -158,6 +168,7 @@ function deleteOrUploadToBestMoments(moments) {
 };
 
 function checkAndDeleteExpiredMoments(moments) {
+	console.log("CHECK AND DELETE EXPIRED MOMENTS");
 	var promises = [];
 	currentTime = new Date().getTime(),
 	timeBetweenMoments = constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_UNTIL_MOMENT_EXPIRES;
