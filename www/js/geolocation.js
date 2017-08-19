@@ -40,13 +40,13 @@
 			return lng_mile_radius;
 		};
 
-		function setMomentInRadius(radius) {
+		function setMomentInRadius(radius) { //Do I use this?
 			moment_radius_in_miles = radius;
 			lat_mile_radius = 0.016880283 * moment_radius_in_miles;
 			lng_mile_radius = 0.019158007 * moment_radius_in_miles;
 		};
 
-		function readZipCodeFile() {
+		function readZipCodeFile() { //Untested
 			var rawFile = new XMLHttpRequest();
 			rawFile.open("GET", '../zipCodes.txt', false);
 			rawFile.onreadystatechange = function ()
@@ -56,6 +56,7 @@
 					if(rawFile.status === 200 || rawFile.status == 0)
 					{
 						var allText = rawFile.responseText;
+						console.log(allText);
 						return allText;
 					}
 				}
@@ -65,7 +66,7 @@
 
 		function getCurrentLatLong() {
 			var deferred = $q.defer();
-			var posOptions = {timeout: 10000, enableHighAccuracy: false};
+			var posOptions = {timeout: 10000, enableHighAccuracy: true, maximumAge: 60000};
 			if(constants.DEV_MODE === false) {
 				$cordovaGeolocation.getCurrentPosition(posOptions)
 				.then(function(position) {
@@ -73,6 +74,8 @@
 					var lng = position.coords.longitude;
 					deferred.resolve({lat: lat, lng: lng});
 				}, function(error) {
+					console.log("COULD NOT FIND LOCATION");
+					console.log(error);
 					logger.logFile("geolocation.getCurrentLatLong", {}, error, 'errors.txt').then(function() {
 						deferred.reject(error);	
 					});
@@ -83,16 +86,16 @@
 			return deferred.promise;
 		};
 
-		function getStates(north, south, west, east) {
+		function getStates() {
 			var deferred = $q.defer();
 			var nearbyStates = {};
-			getLocationFromCoords(vm.max_north.lat, vm.max_north.lng).then(function(location) {
+			vm.getLocationFromCoords(vm.max_north.lat, vm.max_north.lng).then(function(location) {
 				nearbyStates.north = location.state;
-				getLocationFromCoords(vm.max_south.lat, vm.max_south.lng).then(function(location) {
+				vm.getLocationFromCoords(vm.max_south.lat, vm.max_south.lng).then(function(location) {
 					nearbyStates.south = location.state;
-					getLocationFromCoords(vm.max_west.lat, vm.max_west.lng).then(function(location) {
+					vm.getLocationFromCoords(vm.max_west.lat, vm.max_west.lng).then(function(location) {
 						nearbyStates.west = location.state;
-						getLocationFromCoords(vm.max_east.lat, vm.max_east.lng).then(function(location) {
+						vm.getLocationFromCoords(vm.max_east.lat, vm.max_east.lng).then(function(location) {
 							nearbyStates.east = location.state;
 							deferred.resolve(nearbyStates);
 						});
@@ -108,10 +111,12 @@
 			var deferred = $q.defer();
 			var town = "";
 
-			getCurrentLatLong().then(function(response) {
+			vm.getCurrentLatLong().then(function(response) {
+				console.log("INIT USER LOCATION GET CURRENT LAT LONG");
 				var lat = response.lat;
 				var lng = response.lng;
-				getLocationFromCoords(lat, lng).then(function(response) {
+				vm.getLocationFromCoords(lat, lng).then(function(response) {
+					console.log("INIT USER LOCATION GET LOCATION FROM COORDS");
 					if(vm.customLocation.town) { //If the user has entered his own location use that instead
 						town = vm.customLocation.town;
 						lat = vm.customLocation.lat;
@@ -132,9 +137,12 @@
 		};
 
 		function calculateNearbyStates() {
+			console.log("CALCULATE NEARBY STATES");
+
 			var deferred = $q.defer();
 
-			initializeUserLocation().then(function(locationData) {
+			vm.initializeUserLocation().then(function(locationData) {
+				console.log("INIT RESOLVED");
 				vm.max_north = { lat: parseFloat(locationData.lat) + getLatMileRadius(), lng: locationData.lng }; 
 				vm.max_south = { lat: parseFloat(locationData.lat) - getLatMileRadius(), lng: locationData.lng }; 
 				vm.max_west = {  lat: locationData.lat, lng: parseFloat(locationData.lng) - getLngMileRadius() };
@@ -142,7 +150,8 @@
 				
 				var nearbyState = {north: "", south: "", west: "", east: ""};
 				var result = [];
-				getStates(vm.max_north, vm.max_south, vm.max_west, vm.max_east).then(function(nearbyStates) {
+				vm.getStates().then(function(nearbyStates) {
+					console.log("GET STATES");
 					result.push(nearbyStates.north);
 					if(result.indexOf(nearbyStates.south) === -1) {
 						result.push(nearbyStates.south);
@@ -156,24 +165,29 @@
 					deferred.resolve(result);
 				});
 			}, function(error) {
+				console.log("INIT REJECTED");
+				console.log(error);
 				deferred.reject(error);
 			})
 
- return deferred.promise;
-};
+	 return deferred.promise;
+	};
 
 function getMomentsByState(states) {
+	console.log("GET MOMENTS BY STATES");
 	var result = [];
 	var promises = [];
 	for(var i = 0; i < states.length; i++){
 		promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i], ''));
 	}
-	return Promise.all(promises);
+	return $q.all(promises);
 };
 
 function getMomentsWithinRadius(momentsInStates) {
+	console.log("GET MOMENTS WITHIN RADIUS");
 	var promises = [];
 	for(var i = 0; i < momentsInStates.length; i++) {
+		console.log(momentsInStates[i]);
 		var key = momentsInStates[i].Key;
 		var temp = momentsInStates[i].Key.split('/');
 		temp = temp[temp.length - 1].split('_');
@@ -183,7 +197,7 @@ function getMomentsWithinRadius(momentsInStates) {
 			momentsInStates_lng > vm.max_west.lng && momentsInStates_lng < vm.max_east.lng) {
 			promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
 				return {
-					key: metaData.key, //DNE???
+					key: metaData.key,
 					description: metaData.description,
 					likes: metaData.likes,
 					location: metaData.location,
@@ -194,7 +208,7 @@ function getMomentsWithinRadius(momentsInStates) {
 			}))
 		}
 	}
-	return Promise.all(promises);
+	return $q.all(promises);
 };
 
 //The right format is [townName, StateName] Ex: Narberth, PA (Case sensitive, exact match)
@@ -229,23 +243,7 @@ function getCoordinatesFromTown(town) {
 	return deferred.promise;
 };
 
-function makeSureTownIsRightFormat(town) {
-	town = town.trim();
-	if(town.indexOf(',') !== -1) { //Check for a comma
-		var temp = town.split(',');
-
-	} else if(town.indexOf(' ') !== -1){ //Check for space
-		var temp = town.split(' ');	     //narberth|pa
-	} else {
-		return "undefined"; //Town is not in correct format
-	}
-	temp[0] = temp[0].trim();
-	temp[1] = temp[1].trim();
-	temp[1] = temp[1].toUpperCase();
-	town = temp[0] + ', ' + temp[1];
-	return town.charAt(0).toUpperCase() + town.slice(1); //Narberth,PA
-};
-
+//Untested
 function getCoordsFromZipCode(zipCode) {
 	var coordsFound = false;
 	var deferred = $q.defer();
@@ -292,6 +290,23 @@ function getCoordsFromZipCode(zipCode) {
 return deferred.promise;
 };
 
+function makeSureTownIsRightFormat(town) {
+	town = town.trim();
+	if(town.indexOf(',') !== -1) { //Check for a comma
+		var temp = town.split(',');
+
+	} else if(town.indexOf(' ') !== -1){ //Check for space
+		var temp = town.split(' ');	     //narberth|pa
+	} else {
+		return "undefined"; //Town is not in correct format
+	}
+	temp[0] = temp[0].trim();
+	temp[1] = temp[1].trim();
+	temp[1] = temp[1].toUpperCase();
+	town = temp[0] + ', ' + temp[1];
+	return town.charAt(0).toUpperCase() + town.slice(1); //Narberth,PA
+};
+
 function extractAddressFrom_FormattedAddress(address) {
 	address = address.toString();
 	address = address.slice(0, address.lastIndexOf(','));
@@ -304,6 +319,8 @@ function getLocationFromCoords(latitude, longitude) {
 	var latLng = ({lat: latitude, lng: longitude});
 	$http.get(constants.GEOLOCATION_URL + "latlng=" + latitude + "," + longitude).then(function(response) {
 		response = response.data.results;
+		console.log("LOCATION FROM COORDS");
+		console.log(response);
 
 		if(response.length < 3) {
 			deferred.resolve({lat: latitude, lng: longitude, town: "", state: ""});
@@ -315,7 +332,6 @@ function getLocationFromCoords(latitude, longitude) {
 			} else {
 				var state = town
 			}
-			console.log(state);
 			deferred.resolve({lat: latitude, lng: longitude, town: town, state: state});
 		}
 	}, function(error) {

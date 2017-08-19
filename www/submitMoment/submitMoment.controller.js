@@ -9,23 +9,32 @@
     vm.cancel = cancel;
     vm.charLimit = charLimit;
     vm.submit = submit;
+    vm.isPicture = false;
+    vm.isVideo = false;
 
     var key = '',
     updateMetaData = updateMetaData;
-    vm.moment = {
-      key: '',
-      location: 'Unknown',
-      likes: "0",
-      time: "",
-      description: "",
-      views: "0",
-      uuids: core.getUUID(),
-      creator: core.getUUID()
-    };
 
-    vm.picture = $stateParams.picture;
     vm.maxChars = constants.MAX_DESCRIPTION_LENGTH;
     vm.location = true;
+    vm.moment = {
+        key: '',
+        location: 'Unknown',
+        likes: "0",
+        time: "",
+        description: "",
+        views: "0",
+        uuids: core.getUUID(),
+        creator: core.getUUID()
+    };
+
+    vm.media = $stateParams.media;
+    if(typeof(vm.media) === "string") {
+      vm.isPicture = true;
+    }
+    if(typeof(vm.media) === "object") {
+      vm.isVideo = true;
+    }
 
     if(!geolocation.userLocation) {
       components.showLoader();
@@ -64,7 +73,7 @@
       components.showLoader().then(function() {
         if(vm.moment.description.length <= vm.maxChars) {
           updateMomentObject();
-          submitMomentService.uploadToAWS(vm.picture, vm.moment).then(function() {
+          submitMomentService.uploadToAWS(vm.media, vm.moment).then(function() {
             submitMomentService.uploadToLocalStorage(vm.moment);
             thankUserForSubmission();
             components.hideLoader().then(function() {
@@ -100,7 +109,12 @@ function updateMomentObject() {
   vm.moment.time = new Date().getTime().toString();
   vm.moment.description = vm.moment.description;
   var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + geolocation.userLocation.town.split(',')[1].trim() + '/' + geolocation.userLocation.lat + '_' + geolocation.userLocation.lng;
-  vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
+  if(vm.isPicture) {
+    vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
+  }
+  else {
+   vm.moment.key = key + '_' + new Date().getTime() + '.mp4'; 
+  }
 };
 };
 })();

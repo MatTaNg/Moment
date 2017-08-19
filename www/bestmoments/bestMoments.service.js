@@ -5,7 +5,6 @@
 
 	function bestMomentsService(core, $q, constants){
 		this.momentArray = JSON.parse(localStorage.getItem('bestMoments'));
-		var initiateMoments = initiateMoments;
 		this.initializeView = initializeView;
 		this.loadMore = loadMore;
 
@@ -16,8 +15,10 @@
 		function initializeView() {
 			var deferred = $q.defer();
 			if(this.momentArray) {
-				initiateMoments()
-				.then(function(moments) {
+				core.listMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
+					console.log("MOMENTS 1");
+					console.log(moments);
+					this.momentArray = [];
 					this.momentArray.push(moments);
 					localStorage.setItem('bestMoments', JSON.stringify(moments));
 					deferred.resolve(moments);		
@@ -35,11 +36,8 @@
 
 		function createPromiseObjects(moments) {
 			var promises = [];
-			console.log("MOMENTS");
-			console.log(moments);
 			for(var i = 0; i < moments.length; i++) {
 				promises.push(core.getMomentMetaData(moments[i]).then(function(metaData){
-					console.log(metaData);
 					return {
 						key: metaData.key, 
 						description: metaData.description,
@@ -54,29 +52,16 @@
 			return promises;
 		};
 
-		function initiateMoments() {
-			var metaData;
-			var promises = [];
-			this.momentArray = [];
-			return core.listMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
-				console.log("LISTING MOMENTS");
-				console.log(moments);
-				promises = createPromiseObjects(moments);
-				return Promise.all(promises);
-			}, function(error) {
-				console.log("ERROR");
-				console.log(error);
-			});
-		};
-
 		function loadMore() {
 			if(this.momentArray.length > 0) {
+				console.log("LOAD MORE 2");
+				console.log(this.momentArray.length);
+				console.log(this.momentArray);
+				console.log(this.momentArray[this.momentArray.length - 1]);
 				var startAfter = this.momentArray[this.momentArray.length - 1].key;
 				startAfter = startAfter.split('/');
 				startAfter = startAfter[startAfter.length - 1];
 				startAfter = "bestMoments/" + startAfter;
-				console.log("START AFTER");
-				console.log(startAfter);
 				return core.listMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
 					promises = createPromiseObjects(moments);
 					return Promise.all(promises);

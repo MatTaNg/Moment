@@ -5,7 +5,8 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards', 'awsServices', 'logger', 'components', 'geolocation'])
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'awsServices', 'logger', 'components', 'geolocation', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards'])
+
 
 .config(function($ionicConfigProvider, $sceDelegateProvider, constants){
   $ionicConfigProvider.tabs.position('bottom');
@@ -14,7 +15,7 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
 
 })
 
-.run(function($ionicPlatform, $ionicPopup, $state) {
+.run(function($ionicPlatform, $ionicPopup, $state, $ionicContentBanner) {
   $ionicPlatform.ready(function() {
     oneSignalSetup();
     // initializeApp().then(function() {
@@ -35,9 +36,10 @@ if (window.StatusBar) {
     }
     if(window.Connection) {
       if(navigator.connection.type == Connection.NONE) {
-        $ionicPopup.confirm({
-          title: "Internet Disconnected",
-          content: "The internet is disconnected on your device."
+        $ionicContentBanner.show({
+          text: ["No connection found"],
+          type: "error",
+          autoClose: 3000
         })
         .then(function(result) {
           if(!result) {

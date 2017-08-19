@@ -13,7 +13,7 @@
 		vm.release = release;
 		vm.flagged = flagged;
 		vm.flagClass = "ion-ios-flag-outline";
-		vm.cardCSSClass = "layer-bottom";
+		vm.cardCSSClass = "layer-hide";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
 		vm.loadingMoments = false;
@@ -93,6 +93,9 @@
 						vm.flagClass = "ion-ios-flag-outline";
 				}, function(error) {
 					vm.loadingMoments = false;
+					vm.moments.splice(0,1);
+					console.log("ERROR MOMENTS");
+					console.log(vm.moments);
 					components.hideLoader().then(function() {
 						$ionicContentBanner.show({
 							text: ["An error occured getting the next Moment."],

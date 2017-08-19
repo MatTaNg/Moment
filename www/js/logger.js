@@ -10,15 +10,10 @@
 
 				//Prevents any new log files from being created due to typos and whatnot
 				function fileExists(key) {
-					console.log("FILE EXISTS");
-					console.log(key.startsWith('reports/'));
-					console.log(constants.REPORT_FILES.indexOf(key.split('/')[1]));
 					if(key.startsWith('reports/') &&
 						constants.REPORT_FILES.indexOf(key.split('/')[1] !== -1)) {
-						console.log("RETURN TRUE");
 						return true;
 					} else {
-						console.log("RETURN FALSE");
 						return false;
 					}
 				};
@@ -62,7 +57,7 @@
 				return deferred.promise;
 			};
 
-			function logReport(report, key) {
+			function logReport(report, moment, key) {
 				key = 'reports/' + key;
 				var deferred = $q.defer();
 				var params = {
@@ -70,7 +65,7 @@
 					Key: key
 				}
 				if(fileExists(key)){
-					uploadLog(Date() + ": " + report, key).then(function() {
+					uploadLog(Date() + ": " + report + '\r\n\r\n' + convertMetaDataToString(moment), key).then(function() {
 						deferred.resolve();
 					}, function(error) {
 						deferred.reject();
@@ -84,16 +79,20 @@
 			};
 
 			function uploadLog(message, key) {
+				console.log("LOG FILE");
 				var moment = {key: key};
 				var deferred = $q.defer();
 				awsServices.getObject(key).then(function(data) {
+					console.log("=====================TEST");
 					data = data.Body;
-					message = message + '\r\n\r\n' + data;
-					var blob = new Blob([message], {type: "text"});
+					newMessage = message + '\r\n\r\n' + data;
+					var blob = new Blob([newMessage], {type: "text"});
 					var file =  new File([blob], key);
 					awsServices.upload(file, moment.key, moment).then(function() {
+						console.log("UPLOAD LOG RESOLVE");
 						deferred.resolve();
 					}, function(error) {
+						console.log("UPLOAD LOG REJECT");
 						deferred.reject();
 					});
 				}, function(error) {

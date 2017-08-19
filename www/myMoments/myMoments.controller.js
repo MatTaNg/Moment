@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', MyMomentsController]);
-	function MyMomentsController(core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation) {
+	.controller('MyMomentsController', ['core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', MyMomentsController]);
+	function MyMomentsController(core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.moments = JSON.parse(localStorage.getItem('myMoments'));
@@ -67,7 +67,7 @@
 		function initialize() {
 			var deferred = $q.defer();
 			if(vm.moments !== []) {
-				myMomentsService.initialize(vm.moments).then(function(moments) {
+				myMomentsService.initialize().then(function(moments) {
 					moments = removeNullObject(moments);
 					if(moments !== null) {
 						vm.refresh = false;
@@ -131,12 +131,18 @@
 		};
 
 		function getCurrentLocation() {
-			console.log("GET CURRNET LOCATION");
 			geolocation.customLocation.town = false;
 			components.showLoader().then(function() {
 				geolocation.initializeUserLocation().then(function(location) {
 					vm.customUserLocation = location.town;
 					components.hideLoader();
+				}, function(error) {
+					components.hideLoader();
+					$ionicContentBanner.show({
+						text: [constants.LOCATION_NOT_FOUND_TXT],
+						type: "error",
+						autoClose: 3000
+					})
 				});
 			})
 		};

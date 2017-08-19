@@ -32,6 +32,7 @@
  			});
  		};
 
+		//If file size is greater than 100 MB conside Multipart upload
  		function upload(file, key, metaData) {
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
@@ -42,12 +43,17 @@
  				ACL: 'public-read',
  				Metadata: metaData
  			};
+ 			console.log("FILE TYPE");
+ 			console.log(file.type); //undefined
+ 			console.log(file); //See B
  			s3.upload(params, function(error, data) {
  				if(error) {
- 					console.log("ERROR");
+ 					console.log("ERROR UPLOAD");
+ 					console.log(error);
  					deferred.reject(error);
  				}
  				else {
+ 					console.log("UPLOAD RESOLVED");
  					deferred.resolve();
  				}
  			});
@@ -82,6 +88,8 @@
  				Metadata: metaData,
  				MetadataDirective: directive
  			};
+ 			console.log("PARAMS");
+ 			console.log(params);
  			s3.copyObject(params, function(error, data) {
  				if(error) {
  					deferred.reject(error);
@@ -97,6 +105,8 @@
  		};
 
  		function getMomentMetaData(key) {
+ 			console.log("KEY");
+ 			console.log(key);
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
  			var params = {
@@ -108,7 +118,8 @@
  					deferred.reject(error);
  				}
  				else {
- 					console.log(data);
+ 					console.log("RESOLVED");
+ 					console.log(data.Metadata);
  					deferred.resolve(data.Metadata);
  				}
  			});
@@ -141,7 +152,7 @@
  		};
 
  		function getMoment(moment) {
- 			moment = core.splitUrlOff(moment.key);
+ 			// moment = core.splitUrlOff(moment.key);
 			return awsServices.getObject().then(function(moment) {
 				if(moment !== "Not Found") {
 					moment = moment.Metadata;
@@ -162,7 +173,8 @@
  				Bucket: constants.BUCKET_NAME,
  				Key: key
  			};
-
+			console.log("GET OBJECT");
+			console.log(s3);
  			s3.getObject(params, function(error, data) {
  				if(error) {
  					console.log("ERROR");
