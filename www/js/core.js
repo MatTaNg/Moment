@@ -1,12 +1,11 @@
  (function() {
  	angular.module('core', [])
 
- 	.service('core', ['$cordovaGeolocation', '$q', '$http', 'constants', 'awsServices', 'logger', 'geolocation', core]);
+ 	.service('core', ['$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
 
- 	function core($cordovaGeolocation, $q, $http, constants, awsServices, logger, geolocation){
+ 	function core($q, constants, awsServices, logger, geolocation){
  		var vm = this,
  		deferred = $q.defer();
-console.log("CORE");
  		verifyMetaData = verifyMetaData;
  		vm.splitUrlOff = splitUrlOff;
 
@@ -16,7 +15,7 @@ console.log("CORE");
  		vm.getCurrentTime = getCurrentTime;
  		vm.getUUID = getUUID;
  		vm.didUserChangeRadius = false;
- 		vm.currentLocation = "";
+ 		vm.currentLocation = "Could not find location";;
 
  		vm.remove = remove;
  		vm.edit = edit;
@@ -26,22 +25,61 @@ console.log("CORE");
  		vm.getMoment = getMoment;
 		vm.getMomentMetaData = getMomentMetaData;
 		vm.listMoments = listMoments;
-		
-		geolocation.initializeUserLocation().then(function(location) {
-				vm.currentLocation = location.town;
-				console.log(vm.currentLocation);
-			}, function(error) {
-				console.log("ERROR");
-				console.log(error);
-				vm.currentLocation = "Could not find location";
-			});
+		vm.getLocation = getLocation;
+		vm.locationNotFound = false;
+
+		this.getLocation();
+
+		function getLocation(location) {
+			var deferred = $q.defer();
+			if(!location) {
+				geolocation.initializeUserLocation().then(function(location) {
+					vm.currentLocation = location;
+					vm.didUserChangeRadius = true;
+					vm.locationNotFound = false;
+					deferred.resolve(vm.currentLocation);
+				}, function(error) {
+					console.log("ERROR");
+					console.log(error);
+					console.log(vm.currentLocation);
+					vm.locationNotFound = true;
+					deferred.reject();
+				});
+			}
+			else if(!(/^\d+$/.test(location))) { //Does not contain digits
+				geolocation.getCoordinatesFromTown(location).then(function(location) {
+					console.log(location);
+					vm.currentLocation = location;
+					vm.didUserChangeRadius = true;
+					geolocation.customLocation = location;
+					geolocation.setMaxNESW(location.lat, location.lng);
+					deferred.resolve(location);
+				}, function(error) {
+					console.log("ERROR");
+					console.log(error);
+					deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
+				});
+			}
+			else { //It is a zip code
+				geolocation.getCoordsFromZipCode(location).then(function(location) {
+					vm.currentLocation = location;
+					vm.didUserChangeRadius = true;
+					geolocation.customLocation = location;
+					geolocation.setMaxNESW(location.lat, location.lng);
+					deferred.resolve(location);
+				}, function(error) {
+					console.log("ERROR");
+					console.log(error);
+					deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
+
+				});
+			}
+			return deferred.promise;
 		};
 
  		function splitUrlOff(key) {
  			var result = "";
- 			console.log("IRL KEY");
- 			console.log(JSON.stringify(key));
- 			if(key !== undefined) {
+ 			if(key !== undefined && key.split("/").length > 3) {
  				var keySplit = key.split('/');
  				for(var i = 4; i < keySplit.length; i++) {
  					result = result + keySplit[i] + '/';
@@ -56,20 +94,22 @@ console.log("CORE");
  		};
 
  		function remove(moment) {
+ 			console.log("CORE REMOVE");
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
  				var path = splitUrlOff(moment.key);
  			} else { //AWS S3 SDK returns a key with a capital 'K'
  				var path = moment.Key;
  			}
- 			awsServices.remove(path).then(function() {
- 				deferred.resolve();
+ 			return awsServices.remove(path).then(function() {
+ 				 console.log("REMOVED...");
+ 				// deferred.resolve();
  			}, function(error) {
  				logger.logFile('aws_services.remove', {Path: path}, error, 'errors.txt').then(function() {
- 					deferred.reject(error);	
+ 					// deferred.reject(error);	
  				});
  			});
- 			return deferred.promise;
+ 			// return deferred.promise;
  		};
 
  		var verifyMetaData = function(moment) {
@@ -94,7 +134,7 @@ console.log("CORE");
  			var deferred = $q.defer();
  			var key = moment.key;
  			if(verifyMetaData(moment)) {
- 				key = splitUrlOff(key);
+ 				key = this.splitUrlOff(key);
  				awsServices.copyObject(key, key, moment, "REPLACE").then(function() {
  					deferred.resolve();
  				}, function(error) {
@@ -104,6 +144,9 @@ console.log("CORE");
  						MetaData: moment,
  						Directive: "REPLACE"
  					};
+ 					console.log("ERROR");
+ 					console.log(error);
+ 					console.log(parameters);
 					// error = "FAILURE - aws_services.copyObject" + "\r\n" + "KEY: " + key + " | copySource: " + copySource + " | META DATA: " + metaData + " | DIRECTIVE: " + directive + "\r\n" + error;
 					logger.logFile("aws_services.copyObject", parameters, error, 'errors.txt').then(function() {
 						deferred.reject(error);	
@@ -117,15 +160,18 @@ console.log("CORE");
  		};
 
  		function upload(file, moment) {
- 			var deferred = $q.defer();
+  			var deferred = $q.defer();
  			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
+ 				console.log("zxcvzxcvzxc");
  				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
  			}
  			if(verifyMetaData(moment)) {
  				var key = splitUrlOff(moment.key);
+ 				console.log("KEY");
+ 				console.log(key);
  				awsServices.upload(file, key, moment).then(function() {
  					deferred.resolve();
- 				},function(error) {
+ 				}, function(error) {
  					var parameters = {
  						File: file,
  						Key: key,
@@ -143,44 +189,60 @@ console.log("CORE");
  		};
 
  		function uploadToBestMoments(moment) {
- 			var copySource = splitUrlOff(moment.key);
+ 			var copySource = this.splitUrlOff(moment.key);
 			var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
 			// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
 			logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
 				.then(function() {
 					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
 					moment.key = moment.key.replace('moments/.../', "bestMoments/");
-					console.log(moment.key);
 					awsServices.copyObject(key, copySource, moment, "REPLACE");
 				});
  		};
 
  		function removeFromBestMoments(moment) {
 			awsServices.getMoments(constants.BEST_MOMENT_PREFIX, '').then(function(bestMoments) {
-				moments.splice(0, 1); //The first key listed is always the folder, skip that.
+				// bestMoments.splice(0, 1); //The first key listed is always the folder, skip that.
 				for(var i = 0; i < bestMoments.length; i++){
 					var bestMomentKey = bestMoments[i].Key.split('/');
 					var momentKey = moment.key.split('/');
 					bestMomentKey = bestMomentKey[bestMomentKey.length - 1];
 					momentKey = momentKey[momentKey.length - 1];
+					console.log("TEST");
 					if(bestMomentKey === momentKey) {
-						remove(bestMoments[i]);
+						vm.remove(bestMoments[i]);
 					}
 				}
 			});
  		};
-
+ 		function listMoments(prefix, startAfter) {
+ 			// var deferred = $q.defer();
+ 			var promises = [];
+ 			return awsServices.getMoments(prefix, startAfter).then(function(moments) {
+ 				for(var i = 0; i < moments.length; i++) {
+ 					// moments[i].Key = constants.IMAGE_URL + moments[i].Key;
+ 					promises.push(getMomentMetaData(moments[i]));
+ 				}
+ 			return $q.all(promises);
+ 			});
+ 		};
  		function getMoment(moment){
- 			return awsServices.getObject(splitUrlOff(moment.key));
+ 			return awsServices.getObject(splitUrlOff(moment.key)).then(function(moment) {
+ 				console.log("TREWREW");
+ 				console.log(moment);
+ 				if(moment !== "Not Found") {
+ 					return moment.MetaData;
+ 				} else {
+ 					return moment;
+ 				}
+ 			});
  		};
 
  		function getMomentMetaData(moment) {
+ 			console.log("META DATA 3");
+ 			console.log(moment.Key);
  			return awsServices.getMomentMetaData(moment.Key);
- 		}
-
- 		function listMoments(prefix, startAfter) {
- 			return awsServices.getMoments(prefix, startAfter)
- 		}
+ 		};
 
  		function getCurrentTime() {
  			return new Date().getTime();
@@ -231,7 +293,7 @@ console.log("CORE");
 		}
 	};
 
-function getUUID() {
+	function getUUID() {
 		// return window.device.uuid;
 		if(constants.DEV_MODE) {
 			return "123"; //Temporary	
@@ -239,4 +301,5 @@ function getUUID() {
 			return window.device.uuid;
 		}
 	};
+}
 })();

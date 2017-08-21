@@ -15,7 +15,7 @@ angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'submitMome
 
   .state('submitMoment', {
     url: '/submitMoment',
-    params: {'picture' : null},
+    params: {'media' : null},
     templateUrl: 'submitMoment/submitMoment.html',
     controller: 'SubmitMomentController',
     controllerAs: 'vm'

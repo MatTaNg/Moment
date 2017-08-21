@@ -29,10 +29,12 @@
 		"DEFAULT_MOMENT_RADIUS_IN_MILES": 25,
 		"BEST_MOMENTS_MIN_VIEWS": 10,
 		"MAX_KEYS": 50,
+		"MAX_DURATION_OF_VIDEO": 10, //In seconds
 		
 		//Minor Configurations
-		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.3,
+		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.4,
 		"MOMENT_EXTENSION": ".jpg",
+		"LOCATION_NOT_FOUND_TXT": "We could not find your location",
 
 		"DEV_MODE": false //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
 	})

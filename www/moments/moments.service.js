@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', 'constants', 'logger', 'geolocation', momentsService]);
+	.service('momentsService', ['core', '$q', 'constants', 'logger', 'geolocation', 'awsServices', momentsService]);
 
-	function momentsService(core, $q, constants, logger, geolocation){
+	function momentsService(core, $q, constants, logger, geolocation, awsService){
 		this.momentArray = JSON.parse(localStorage.getItem('moments'));
 
 		this.initializeView = initializeView;
@@ -11,6 +11,10 @@
 		this.updateMoment = updateMoment;
 		this.incrementCounter = incrementCounter;
 		this.uploadReport = uploadReport;
+
+		this.checkAndDeleteExpiredMoments = checkAndDeleteExpiredMoments;
+		this.getNearbyMoments = getNearbyMoments;
+		this.deleteOrUploadToBestMoments = deleteOrUploadToBestMoments;
 
 		if(!this.momentArray) {
 			this.momentArray = [];
@@ -48,36 +52,30 @@
 
 			function initializeView() {
 				var deferred = $q.defer();
-			// this.momentArray = [];
-			getNearbyMoments().then(function(moments) {
-				deleteOrUploadToBestMoments(moments).then(function() {
-					checkAndDeleteExpiredMoments(moments).then(function(deletedMoments) {
-						if(constants.DEV_MODE === false) {
-							for(var i = 0; i < moments.length; i) {
-								if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
-									moments.splice(i, 1);
-								} else {
-									i++;
-								}
-							}
+				var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
+				var checkAndDeleteExpiredMoments = this.checkAndDeleteExpiredMoments;
+				// this.momentArray = [];
+				getNearbyMoments()
+				.then(deleteOrUploadToBestMoments)
+				.then(checkAndDeleteExpiredMoments).then(function(moments) {
+					for(var i = 0; i < moments.length; i) {
+						if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
+							moments.splice(i, 1);
+						} else {
+							i++;
 						}
-						var temp = createTempVariable(moments);
-						core.didUserChangeRadius = false;
-						this.momentArray = moments;
-						temp = addExtraClasses(temp);
-						localStorage.setItem('moments', JSON.stringify(temp));
-						deferred.resolve(temp);		
-					}, function(error) {
-						deferred.reject(error);
-					});
+					}
+					var temp = createTempVariable(moments);
+					core.didUserChangeRadius = false;
+					this.momentArray = moments;
+					temp = addExtraClasses(temp);
+					localStorage.setItem('moments', JSON.stringify(temp));
+					deferred.resolve(temp);		
 				}, function(error) {
-					deferred.reject();
+					deferred.reject(error);
 				});
-			}, function(error) {
-				deferred.reject();
-			});
-			return deferred.promise;
-		};
+				return deferred.promise;
+			};
 
 		function uploadReport(report, moment) {
 			var defered = $q.defer();
@@ -95,10 +93,13 @@
 			var deferred = $q.defer();
 			updatedMoment = updateMomentMetaData(updatedMoment, liked);
 			core.edit(updatedMoment).then(function() {
+				this.momentArray = temp;
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
 							moments = addExtraClasses(moments);
 							deferred.resolve(moments);
+						}, function(error) {
+							deferred.reject(error);
 						});
 					}, function(error) {
 						this.momentArray.splice(0, 1);
@@ -141,23 +142,34 @@ function updateMomentMetaData(moment, liked) {
 
 //In order to upload to best moments the likes / views need to be more than the 'BEST_MOMENTS_RATIO' it also needs a minimum amount of views
 function deleteOrUploadToBestMoments(moments) {
-	return Promise.all(moments.map(
+	var deferred = $q.defer();
+	console.log("DELETE OR UPDATE");
+	console.log(JSON.stringify(moments));
+	Promise.all(moments.map(
 		function(moment) {
 			//Upload Best Moment
 			if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
+				console.log("ASDASS");
 				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
 					core.uploadToBestMoments(moment);
 			} 
 			//Remove Best Moment
 			else if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO / 2) {
+				console.log("ELSE IF");
 				core.removeFromBestMoments(moment);
 			}
 		}
 		} //End of function(moment)d
-		));
+		)).then(function() {
+		return deferred.resolve(moments);
+	});
+		return deferred.promise;
 };
 
 function checkAndDeleteExpiredMoments(moments) {
+	var deferred = $q.defer();
+	console.log("CHECK AND DELETE EXPIRED MOMENTS");
+	console.log(JSON.stringify(moments));
 	var promises = [];
 	currentTime = new Date().getTime(),
 	timeBetweenMoments = constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_UNTIL_MOMENT_EXPIRES;
@@ -170,18 +182,29 @@ function checkAndDeleteExpiredMoments(moments) {
 			promises.push(core.remove(moments[i]));
 		}
 	}
-	return Promise.all(promises);
+	Promise.all(promises).then(function() {
+		deferred.resolve(moments);
+	});
+	return deferred.promise;
 };
 
 function addExtraClasses(moments) {
-	if(moments.length > 0) {
-		moments[0].class = "layer-top";
-		moments[0].time = core.timeElapsed(moments[0].time);
-		if(moments.length > 1) {
-			moments[1].class = "layer-bottom";
+	for(var i = 0; i < moments.length; i++) {
+		if(i === 0) {
+			moments[0].class = "layer-top";
+			moments[0].time = core.timeElapsed(moments[0].time);
+		}
+		else if(i === 1) {
+			moments[1].class = "layer-next";
 			moments[1].time = core.timeElapsed(moments[1].time);
 		}
+		else {
+			moments[i].class = "layer-hide";
+			moments[i].time = core.timeElapsed(moments[i].time); 
+		}
 	}
+	
+	
 	return moments;
 };
 

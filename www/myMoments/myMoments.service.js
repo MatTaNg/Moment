@@ -1,9 +1,9 @@
 (function() {
 	angular.module('myMomentsService', [])
 
-	.service('myMomentsService', ['core', '$q', 'logger', 'geolocation', myMomentsService]);
+	.service('myMomentsService', ['core', '$q', 'logger', myMomentsService]);
 
-	function myMomentsService(core, $q, logger, geolocation) {
+	function myMomentsService(core, $q, logger) {
 		this.removeFromLocalStorage = removeFromLocalStorage;
 		this.uploadFeedback = uploadFeedback;
 		this.initialize = initialize;
@@ -12,9 +12,10 @@
 
 		this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
 		this.userLocation;
-		var totalLikes = 0;
+		
+		totalLikes = 0;
 		this.oldLikes = 0;
-		var extraLikes = 0;
+		extraLikes = 0;
 		if(!this.momentArray) {
 			//Should not happen
 			this.momentArray = [];
@@ -40,17 +41,17 @@
 			}
 		}
 
-		function initialize(moments) {
+		//Untested
+		function initialize() {
 			var oldMomentArray = this.momentArray; //Variable get overriden somewhere...
 			var promises = [];
 			totalLikes = 0;
 			updateOldLikes(this.momentArray);
-			for(var i = 0; i < moments.length; i++) {
+			for(var i = 0; i < this.momentArray.length; i++) {
 				promises.push(
-					core.getMoment(moments[i]).then(function(moment) {
+					core.getMoment(this.momentArray[i]).then(function(moment) {
 					if(moment !== "Not Found") {
-						moment = moment.Metadata;
-						this.momentArray = oldMomentArray;
+						this.momentArray = oldMomentArray; //Variable get overriden somewhere...
 						updateExtraLikesAndTotalLikes(moment);
 						moment = addShortDescriptionAndTime(moment);
 						return moment;
@@ -60,7 +61,7 @@
 					})
 				);
 			}
-			return Promise.all(promises);
+			return $q.all(promises);
 		};
 
 		function removeFromLocalStorage(location) {
@@ -92,7 +93,6 @@
 		};
 
 		function updateOldLikes(momentArray) {
-			console.log(momentArray);
 			if(momentArray) {
 				this.oldLikes = 0;
 				for(var i = 0; i < momentArray.length; i++) {

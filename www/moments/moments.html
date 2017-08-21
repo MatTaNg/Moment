@@ -3,7 +3,8 @@
 		<img class="title-image" src="img/header.png"/>
 	</ion-nav-title>
 <ion-content padding="true" class="has-header">
-
+{{vm.moments.length}}
+{{vm.loadingMoments}}
 <div ng-show="vm.moments">
 <td-cards>
 <td-card id="temp" ng-repeat="image in vm.moments"
@@ -15,14 +16,15 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 <hr>
 <div style="height=20%">
 <span ng-show="image.description">{{ image.description }}  </span>
-<div ng-hide="image.description" class="noDescription">No Description Found {{image.key}}</div>
+<div ng-hide="image.description" class="noDescription">No Description Found</div>
 <div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
 </div>
 </td-card>
 </td-cards>
-</div>
-<img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
-<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" style="padding-top: 10%"></img>
+</div> <!--End of ng-show-->
+<img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img> 
+<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" style="position: absolute; top: 0px; left: 0px; padding-top: 10%"></img>
+
 </ion-content>
 </ion-view>
 <!--on-swipe-left="vm.liked(false)" on-swipe-right="vm.liked(true)"-->

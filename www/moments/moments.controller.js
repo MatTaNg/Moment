@@ -13,19 +13,22 @@
 		vm.release = release;
 		vm.flagged = flagged;
 		vm.flagClass = "ion-ios-flag-outline";
-		vm.cardCSSClass = "layer-bottom";
+		vm.cardCSSClass = "layer-hide";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
 		vm.loadingMoments = false;
+		vm.currentLocation = core.currentLocation;
 
 		if(!vm.moments) {
 			vm.moments = [];
 		}
-
-		if(core.appInitialized === false || vm.moments.length === 0 || core.didUserChangeRadius) {
-			core.appInitialized = true;
-			vm.moments = [];
-			initialize();
+		if(core.appInitialized === false || 
+			vm.moments.length === 0 || 
+			core.didUserChangeRadius) {
+				core.appInitialized = true;
+				vm.moments = [];
+				vm.currentLocation = core.currentLocation;
+				initialize();
 		}
 		if($stateParams.showErrorBanner === true) {
 			$ionicContentBanner.show({
@@ -69,15 +72,23 @@
 					components.hideLoader();
 				}, function(error) {
 					vm.loadingMoments = false;
-					console.log("ERRROR");
-					console.log(error);
-					components.hideLoader().then(function() {
+					console.log("ERRROR initialize");
+					console.log(core.locationNotFound);
+					if(core.locationNotFound) {
 						$ionicContentBanner.show({
-							text: ["An error occured getting the Moment."],
+							text: [constants.LOCATION_NOT_FOUND_TXT],
 							type: "error",
 							autoClose: 3000
 						});
-					});
+					}
+					components.hideLoader()
+					// .then(function() {
+					// 	$ionicContentBanner.show({
+					// 		text: ["An error occured getting the Moment."],
+					// 		type: "error",
+					// 		autoClose: 3000
+					// 	});
+					// });
 				}); //End of initializeView
 		};
 
@@ -92,14 +103,27 @@
 						vm.moments = moments;
 						vm.flagClass = "ion-ios-flag-outline";
 				}, function(error) {
-					vm.loadingMoments = false;
-					components.hideLoader().then(function() {
+					console.log("QWEQWEWQ");
+					console.log(core.locationNotFound);
+					if(core.locationNotFound) {
 						$ionicContentBanner.show({
-							text: ["An error occured getting the next Moment."],
+							text: [constants.LOCATION_NOT_FOUND_TXT],
 							type: "error",
 							autoClose: 3000
 						});
-					});
+					}
+					vm.loadingMoments = false;
+					vm.moments.splice(0,1);
+					console.log("ERROR liked");
+					console.log(vm.moments);
+					components.hideLoader()
+					// .then(function() {
+					// 	$ionicContentBanner.show({
+					// 		text: ["An error occured getting the next Moment."],
+					// 		type: "error",
+					// 		autoClose: 3000
+					// 	});
+					// });
 					});//End of updateMoment
 					});//End of sendReport
 		};

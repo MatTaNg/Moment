@@ -102,25 +102,8 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
-.layer-next {
-  position: absolute;
-  z-index: 1;
-  width: 95%;
-  height: 95%;
-  background-color: white;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-.layer-bottom {
-  position: absolute;
-  z-index: 1;
-  width: 95%;
-  height: 95%;
-  background-color: white;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+.layer-hide {
+  display: none;
 }
 .ion-ios-flag {
   position:fixed;

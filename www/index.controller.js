@@ -2,13 +2,15 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', IndexController]);
+  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', IndexController]);
   
-  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger) {
+  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup) {
     var indexController = this,
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
     indexController.camera = camera;
     indexController.gallery = gallery;
+    indexController.video = video;
+    indexController.openDialog = openDialog;
 
     indexController.myMomentsLogo = "ion-ios-person-outline";
     indexController.uploadLogo = "ion-ios-upload-outline";
@@ -21,8 +23,69 @@
       indexController.uploadLogo = data;
     });
 
+    function openDialog() {
+      $ionicPopup.show({
+        scope: $scope,
+        buttons: [
+          {
+            text: 'Cancel',
+            type: 'button-assertive'
+          },
+          {
+            text: 'Camera',
+            type: 'button-energized',
+            onTap: function(e) {
+              camera();
+            }            
+          },
+          {
+            text: 'Video',
+            type: 'button-calm',
+            onTap: function(e) {
+              video();
+            }
+          }
+        ]
+      });
+    };
+
+    function video() {
+      navigator.device.capture.captureVideo(onSuccess, onFail, 
+        {
+          limit: 1,
+          duration: constants.MAX_DURATION_OF_VIDEO
+        });
+      function onSuccess(mediaFiles) {
+        console.log("SUCCESS");
+        console.log(mediaFiles);
+            // console.log("Video captured Successfully");
+            // var fileName = mediaFiles[0].name;
+            // var dir = mediaFiles[0].localURL.split("/");
+            // dir.pop();
+            // var fromDirectory = dir.join("/");
+            // var toDirectory = cordova.file.dataDirectory;
+            // File.copyFile (fromDirectory , fileName , toDirectory , fileName).then( res =>{
+            //   var i, path, len;
+            //   for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+            //       path = mediaFiles[i].localURL;
+            //       $state.go('submitMoment', {picture: $sce.trustAsResourceUrl(path)});
+            //   }
+            // });
+        var i, path, len;
+        for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+            path = mediaFiles[i].fullPath;
+            console.log(path);
+            $state.go('submitMoment', {media: $sce.trustAsResourceUrl(path)});
+        }
+      };
+
+      function onFail(message) {
+        console.log("FAILED because: " + message);
+      };
+    };
+
     function camera() { 
-      alert("CAMERA CALLED");
+      console.log("CAMERA");
       navigator.camera.getPicture(onSuccess, onFail, 
           { quality: 100, //Quality of photo 0-100
           destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL
@@ -32,23 +95,14 @@
         });
 
       function onSuccess(imageURI) {
-        alert("SUCCESS");
         var picture = "data:image/jpeg;base64," + imageURI;
-        $state.go('submitMoment', {picture: picture});
+        $state.go('submitMoment', {media: picture});
       };
 
       function onFail(message) {
-        alert("FAILED");
-        alert(message);
-        console.log("Fail");
         console.log('Failed because: ' + message);
         if(message !== "Camera cancelled") {
-          $ionicContentBanner.show({
-              text: ["Something went wrong"],
-              type: "error",
-              autoClose: 3000
-            });
-          logger.logFile(camera.onFail, '', message, error);
+          logger.logFile('camera.onFail', '', message, error);
         }
       }
     };
@@ -65,16 +119,12 @@
 
       function onSuccess(imageURI) {
         var picture = "data:image/jpeg;base64," + imageURI;
-        $state.go('submitMoment', {picture: picture});
+        $state.go('submitMoment', {media: picture});
       }
 
       function onFail(message) {
         console.log("Failed because: " + message);
-        $ionicContentBanner.show({
-            text: ["Something went wrong"],
-            type: "error",
-            autoClose: 3000
-          });
+        logger.logFile('camera.onFail', '', message, error);
       }
     };
     $interval(function() {
