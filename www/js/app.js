@@ -5,17 +5,17 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'awsServices', 'logger', 'components', 'geolocation', 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards'])
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'awsServices', 'logger', 'components', 'geolocation'])
+//, 'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards
 
 
 .config(function($ionicConfigProvider, $sceDelegateProvider, constants){
   $ionicConfigProvider.tabs.position('bottom');
-
-  $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**']);
+  $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**', '*://s3.amazonaws.com/mng-moment/**']);
 
 })
 
-.run(function($ionicPlatform, $ionicPopup, $state, $ionicContentBanner) {
+.run(function($ionicPlatform, $ionicPopup, $state) {
   $ionicPlatform.ready(function() {
     oneSignalSetup();
     // initializeApp().then(function() {

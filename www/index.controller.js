@@ -2,15 +2,16 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', IndexController]);
+  .controller('IndexController', ['$timeout', 'core', '$rootScope', '$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', IndexController]);
   
-  function IndexController($scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup) {
+  function IndexController($timeout, core, $rootScope, $scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup) {
     var indexController = this,
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
     indexController.camera = camera;
     indexController.gallery = gallery;
     indexController.video = video;
     indexController.openDialog = openDialog;
+    indexController.contentBanner = undefined;
 
     indexController.myMomentsLogo = "ion-ios-person-outline";
     indexController.uploadLogo = "ion-ios-upload-outline";
@@ -21,6 +22,48 @@
 
     $rootScope.$on('uploadLogo', function(event, data) {
       indexController.uploadLogo = data;
+    });
+    
+    $rootScope.$on('$locationChangeStart', function(next, current) {
+      if(core.aVideoIsUploading) {
+          $timeout(function() {
+            if(indexController.contentBanner) {
+              indexController.contentBanner();
+              indexController.contentBanner = null;
+            }
+            indexController.contentBanner = $ionicContentBanner.show({
+              text: ["Uploading, please do not close the app"],
+              transition: "none"
+            });
+            
+          }, 500);
+      }
+     });
+
+    $rootScope.$on('upload start', function(event, args) {
+          $timeout(function() {
+            if(indexController.contentBanner) {
+              indexController.contentBanner();
+              indexController.contentBanner = null;
+            }
+            indexController.contentBanner = $ionicContentBanner.show({
+              text: ["Uploading, please do not close the app"],
+              transition: "none"
+            });
+          }, 500);
+          
+    });
+
+    $rootScope.$on('upload complete', function(event, args) {
+           if(indexController.contentBanner) {
+              indexController.contentBanner();
+              indexController.contentBanner = null;
+            }
+          indexController.contentBanner = $ionicContentBanner.show({
+            text: ["Upload Complete"],
+            autoClose: 5000,
+            transition: "none"
+          });
     });
 
     function openDialog() {
@@ -56,21 +99,6 @@
           duration: constants.MAX_DURATION_OF_VIDEO
         });
       function onSuccess(mediaFiles) {
-        console.log("SUCCESS");
-        console.log(mediaFiles);
-            // console.log("Video captured Successfully");
-            // var fileName = mediaFiles[0].name;
-            // var dir = mediaFiles[0].localURL.split("/");
-            // dir.pop();
-            // var fromDirectory = dir.join("/");
-            // var toDirectory = cordova.file.dataDirectory;
-            // File.copyFile (fromDirectory , fileName , toDirectory , fileName).then( res =>{
-            //   var i, path, len;
-            //   for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-            //       path = mediaFiles[i].localURL;
-            //       $state.go('submitMoment', {picture: $sce.trustAsResourceUrl(path)});
-            //   }
-            // });
         var i, path, len;
         for (i = 0, len = mediaFiles.length; i < len; i += 1) {
             path = mediaFiles[i].fullPath;
@@ -85,7 +113,6 @@
     };
 
     function camera() { 
-      console.log("CAMERA");
       navigator.camera.getPicture(onSuccess, onFail, 
           { quality: 100, //Quality of photo 0-100
           destinationType: Camera.DestinationType.DATA_URL, //File format, recommended FILE_URL

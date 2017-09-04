@@ -13,10 +13,7 @@
 		vm.edit = edit;
 		vm.getCurrentLocation = getCurrentLocation;
 		this.editLocation = editLocation;
-		this.getLocationFromTownName = getLocationFromTownName;
-		this.getLocationFromZipCode = getLocationFromZipCode;
-
-		vm.userLocation = core.currentLocation;
+		vm.userLocation = core.currentLocation.town || "Could not find location";
 		vm.totalLikes = 0;
 		vm.showShortDescription = true;
 		vm.customUserLocation = "";
@@ -45,7 +42,6 @@
 		});
 
 		function refreshing() {
-			console.log("REFRESHING");
 			initialize().then(function() {
 				$scope.$broadcast('scroll.refreshComplete');
 			}, function(error) {
@@ -68,7 +64,7 @@
 			var deferred = $q.defer();
 			if(vm.moments !== []) {
 				myMomentsService.initialize().then(function(moments) {
-					moments = removeNullObject(moments);
+					moments = removeNullObject(moments); //Band-aid
 					if(moments !== null) {
 						vm.refresh = false;
 						vm.moments = moments;
@@ -131,9 +127,8 @@
 		};
 
 		function getCurrentLocation() {
-			geolocation.customLocation.town = false;
 			components.showLoader().then(function() {
-				geolocation.initializeUserLocation().then(function(location) {
+				core.getLocation().then(function(location) {
 					vm.customUserLocation = location.town;
 					components.hideLoader();
 				}, function(error) {
@@ -160,18 +155,13 @@
 					text: '<b>Submit</b>',
 					type: 'button-positive',
 					onTap: function(e) {
-						console.log("TEST");
-						console.log(vm.customUserLocation);
 						if(!vm.customUserLocation) { 
 								//Does nothing if user has not entered anything
 								e.preventDefault();
 							}
 							else {
 								e.preventDefault();
-								console.log("TEST1");
-								console.log(vm.customUserLocation);
 								vm.editLocation(vm.customUserLocation).then(function() {
-									console.log("POPUP CLOSE");
 									popUp.close()
 								}, function(error) {
 									e.preventDefault();
@@ -189,29 +179,33 @@
 			if(vm.customUserLocation.length > 3) {
 				components.showLoader()
 				.then(function() {
-					if(isNaN(vm.customUserLocation) === false) { //If it is a number...
-						getLocationFromZipCode().then(function() {
+					if(/^\d+$/.test(location)) { //If it is a number...
+						core.getLocation(vm.customUserLocation).then(function(response) {
 							components.hideLoader().then(function() {
-								console.log("GET LOCATION FROM ZIP CODE");
+								vm.userLocation = response.town;
+								vm.customUserLocation = "";
+								vm.locationErrorMsg = false;
 								deferred.resolve();
 							});
 						}, function(error) {
-							components.hideLoader().then(function() {
-								console.log("ERROR LOCATION FROM ZIP CODE");
-								deferred.reject();
-							});
+							console.log("ERROR");
+							console.log(error);
+							components.hideLoader();
+							deferred.reject();
 						});
 					} else {
-						getLocationFromTownName().then(function() {
+						core.getLocation(vm.customUserLocation).then(function(response) {
 							components.hideLoader().then(function() {
-								console.log("GET LOCATION FROM TOWN NAME");
+								vm.userLocation = response.town;
+								vm.customUserLocation = "";
+								vm.locationErrorMsg = false;
 								deferred.resolve();
 							});
 						}, function(error) {
-							components.hideLoader().then(function() {
-								console.log("ERROR LOCATION FROM TOWN NAME");
-								deferred.reject();
-							});
+							console.log("ERROR");
+							vm.locationErrorMsg = true;
+							components.hideLoader();
+							deferred.reject();
 						});
 					}
 				})
@@ -224,52 +218,6 @@
 					deferred.reject();
 				});
 			}
-			return deferred.promise;
-		};
-
-		function getLocationFromTownName() {
-			return geolocation.getCoordinatesFromTown(vm.customUserLocation).then(function(response) {
-				geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
-				return momentsService.initializeView().then(function(moments) {
-					return components.hideLoader().then(function() {
-						localStorage.setItem('moments', JSON.stringify(moments));
-						vm.userLocation = response.town;
-						vm.customUserLocation = "";
-						vm.locationErrorMsg = false;
-						// deferred.resolve();
-					})
-				}, function(error) {
-					components.hideLoader();
-					// deferred.reject();
-				});
-			}, function(error) {	//Town DNE
-				console.log("ERROR");
-				vm.locationErrorMsg = true;
-				components.hideLoader();
-				// deferred.reject();
-			});
-		};
-
-		function getLocationFromZipCode() {
-			var deferred = $q.defer();
-			geolocation.getCoordsFromZipCode(vm.customUserLocation).then(function(response) {
-				geolocation.customLocation = { lat: response.lat, lng: response.lng, town: response.town };
-						momentsService.initializeView().then(function(moments) {
-							components.hideLoader().then(function() {
-							localStorage.setItem('moments', JSON.stringify(moments));
-							vm.userLocation = response.town;
-							vm.customUserLocation = "";
-							vm.locationErrorMsg = false;
-							deferred.resolve();
-						})
-					}, function(error) {
-						deferred.reject();
-					});
-			}, function(error) {
-				console.log("ERROR");
-				vm.locationErrorMsg = true;
-				deferred.reject();
-			});
 			return deferred.promise;
 		};
 

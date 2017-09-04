@@ -1,13 +1,14 @@
 (function() {
 	angular.module('app.submitMomentService', [])
 
-	.service('submitMomentService', ['core', 'constants', 'logger', submitMomentService]);
+	.service('submitMomentService', ['core', 'constants', 'logger', '$q', submitMomentService]);
 
-	function submitMomentService(core, constants, logger){
+	function submitMomentService(core, constants, logger, $q){
 		var dataURItoBlob = dataURItoBlob;
 		this.uploadToAWS = uploadToAWS;
 		this.uploadToLocalStorage = uploadToLocalStorage;
 		this.updateTimeSinceLastMoment = updateTimeSinceLastMoment;
+		this.dataURItoBlob = dataURItoBlob;
 
 		function updateTimeSinceLastMoment() {
 			localStorage.setItem('timeSinceLastMoment', new Date().getTime());
@@ -15,26 +16,35 @@
 
 		//Untested
 		function uploadToAWS(media, moment) {
-			console.log("UPLOAD TOAWS");
-			console.log(moment);
-			if(typeof(media) === "string") { //Its a picture
-				console.log("IF");
-				var blob = new Blob([dataURItoBlob(media)], {type: 'image/jpeg'});
+			core.aVideoIsUploading = true;
+			var deferred = $q.defer();
+			console.log("TEST");
+			if(!(media.includes(".mp4"))) { //Its a picture
+				console.log("EQEQW");
+				var blob = new Blob([this.dataURItoBlob(media)], {type: 'image/jpeg'});
+				this.core.upload(blob, moment).then(function() {
+					deferred.resolve(moment);
+					core.aVideoIsUploading = false;
+				});
 			} 
 			else {
-				console.log("ELSE");
-				var blob = new Blob([media], {type: 'video/mp4'});
+		        var xhr = new XMLHttpRequest();
+		        xhr.open("GET", media);
+		        xhr.responseType = "blob";
+		        xhr.addEventListener('load', function() {
+		            core.upload(xhr.response, moment).then(function() {
+		            	deferred.resolve(moment);
+		            });
+		        });
+		        xhr.send();
+
 			}
-			var file = new File([blob], "TEST.jpg");
-			console.log("FILE");
-			console.log(file);
-			return core.upload(file, moment);
+			return deferred.promise;		
 		};
 
 		function uploadToLocalStorage(moment) {
 			var localMoments = [];
 			if(JSON.parse(localStorage.getItem('myMoments'))) {
-				console.log("TEST");
 				localMoments = JSON.parse(localStorage.getItem('myMoments'));
 			}
 			localMoments.push(moment);

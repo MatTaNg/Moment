@@ -1,7 +1,7 @@
-<ion-view title="Moments" id="page2">
+<ion-view title="Moments" id="page2" cache-view="false">
 <ion-content padding="true" class="has-header">
 <img data-ng-if="vm.isPicture" src="{{vm.media}}" height="300px" width="100%"> </img>
- <video data-ng-if="vm.isVideo" width="100%" height="300px" controls>
+ <video style="display:block;" data-ng-if="vm.isVideo" width="100%" height="300px" controls>
   <source src="{{vm.media}}" type="video/mp4"></source>
   </video> 
 <div class="row">
@@ -26,7 +26,7 @@
 <div class="row">
   <div class="button-bar">
     <button class="button button-assertive" data-ng-click="vm.cancel()">Cancel</button>
-    <button class="button button-positive" data-ng-click="vm.submit()">Submit</button>
+    <button class="button button-positive" data-ng-disabled="core.currentLocation.town" data-ng-click="vm.submit()">Submit</button>
   </div>
 </div>
 </ion-content>

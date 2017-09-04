@@ -79,17 +79,14 @@
 			};
 
 			function uploadLog(message, key) {
-				console.log("LOG FILE");
 				var moment = {key: key};
 				var deferred = $q.defer();
 				awsServices.getObject(key).then(function(data) {
-					console.log("=====================TEST");
 					data = data.Body;
 					newMessage = message + '\r\n\r\n' + data;
 					var blob = new Blob([newMessage], {type: "text"});
 					var file =  new File([blob], key);
 					awsServices.upload(file, moment.key, moment).then(function() {
-						console.log("UPLOAD LOG RESOLVE");
 						deferred.resolve();
 					}, function(error) {
 						console.log("UPLOAD LOG REJECT");

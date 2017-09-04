@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', MomentsController]);
+	.controller('MomentsController', ['$timeout', '$rootScope', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', MomentsController]);
 
-	function MomentsController (momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
+	function MomentsController ($timeout, $rootScope, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
 		var vm = this;
 
 		vm.moments = JSON.parse(localStorage.getItem('moments'));
@@ -12,20 +12,45 @@
 		vm.dragLeft = dragLeft;
 		vm.release = release;
 		vm.flagged = flagged;
+		vm.setCoords = setCoords;
 		vm.flagClass = "ion-ios-flag-outline";
 		vm.cardCSSClass = "layer-hide";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
 		vm.loadingMoments = false;
+		vm.currentLocation = core.currentLocation;
+		vm.touchXposition = 0;
+
+	    // $rootScope.$on('upload start', function(event, args) {
+	    //         console.log("START UPLOAD");
+	    //       $timeout(function() {
+		   //        $ionicContentBanner.show({
+		   //          text: ["Uploading, please do not close the app"],
+		   //          autoClose: 3000
+		   //        });	
+	    //       }, 500);
+	          
+	    // });
+
+	    // $rootScope.$on('upload complete', function(event, args) {
+	    //         console.log("FINISH UPLAOD");
+	    //       $ionicContentBanner.show({
+	    //         text: ["Upload Complete"],
+	    //         autoClose: 3000
+	    //       });
+	    // });
 
 		if(!vm.moments) {
 			vm.moments = [];
 		}
-
-		if(core.appInitialized === false || vm.moments.length === 0 || core.didUserChangeRadius) {
-			core.appInitialized = true;
-			vm.moments = [];
-			initialize();
+		if(core.appInitialized === false || 
+			vm.moments.length === 0 || 
+			core.didUserChangeRadius) {
+				vm.moments = [];
+				vm.currentLocation = core.currentLocation;
+				initialize().then(function() {
+					core.appInitialized = true;
+				});
 		}
 		if($stateParams.showErrorBanner === true) {
 			$ionicContentBanner.show({
@@ -34,6 +59,10 @@
 				autoClose: 3000
 			});
 		}
+
+		function setCoords() {
+			vm.touchXposition = event.gesture.center.pageX;
+		};
 
 		function dragRight() {
 			vm.moments[0].swipedRight = true;
@@ -46,13 +75,16 @@
 		};
 
 		function release(event) {
-			var threshold = $window.innerWidth * constants.HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT;
-			var touchXposition = event.gesture.center.pageX;
-			if(touchXposition < threshold) {
-				vm.liked(false);
-			}
-			else if(touchXposition > $window.innerWidth - threshold) {
-				vm.liked(true);
+			var threshold = constants.HOW_FAR_USER_MUST_DRAG * $window.innerWidth;
+			var releasedXposition = event.gesture.center.pageX;
+			var distDragged = releasedXposition - vm.touchXposition;
+			if(Math.abs(distDragged) > threshold) {
+				if(distDragged > 0) {
+					vm.liked(true);
+				}
+				else {
+					vm.liked(false);
+				}
 			}
 			else {
 				vm.moments[0].swipedRight = false;
@@ -62,22 +94,30 @@
 
 		function initialize() { 
 			vm.loadingMoments = true;
-				momentsService.initializeView()
+				return momentsService.initializeView()
 				.then(function(moments){
 					vm.loadingMoments = false;
 					vm.moments = moments;
 					components.hideLoader();
 				}, function(error) {
 					vm.loadingMoments = false;
-					console.log("ERRROR");
-					console.log(error);
-					components.hideLoader().then(function() {
+					console.log("ERRROR initialize");
+					console.log(core.locationNotFound);
+					if(core.locationNotFound) {
 						$ionicContentBanner.show({
-							text: ["An error occured getting the Moment."],
+							text: [constants.LOCATION_NOT_FOUND_TXT],
 							type: "error",
 							autoClose: 3000
 						});
-					});
+					}
+					components.hideLoader()
+					// .then(function() {
+					// 	$ionicContentBanner.show({
+					// 		text: ["An error occured getting the Moment."],
+					// 		type: "error",
+					// 		autoClose: 3000
+					// 	});
+					// });
 				}); //End of initializeView
 		};
 
@@ -98,13 +138,13 @@
 					console.log(vm.moments);
 					components.hideLoader().then(function() {
 						$ionicContentBanner.show({
-							text: ["An error occured getting the next Moment."],
+							text: [constants.LOCATION_NOT_FOUND_TXT],
 							type: "error",
 							autoClose: 3000
 						});
 					});
-					});//End of updateMoment
-					});//End of sendReport
+				});//End of updateMoment
+			});//End of sendReport
 		};
 
 		function sendReport() {

@@ -5,5 +5,10 @@
   "integrations": {
     "cordova": {}
   },
+<<<<<<< HEAD
+  "type": "ionic1",
+  "watchPatterns": []
+=======
   "type": "ionic1"
+>>>>>>> e7e395038f70f021d456e27e6a9d464cc8a66d30
 }

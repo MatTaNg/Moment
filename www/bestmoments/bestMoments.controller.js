@@ -48,8 +48,6 @@
 		function initialize() {
 			bestMomentsService.initializeView()
 			.then(function(moments){
-				console.log("MOMENTS");
-				console.log(moments);
 				vm.stopLoadingData = false;
 				$scope.$broadcast('scroll.refreshComplete');
 				components.hideLoader().then(function() {
@@ -57,8 +55,8 @@
 				});
 			}, function(error) {
 				console.log("ERROR");
-					vm.noMoments = true;
-					console.log(error);
+				vm.noMoments = true;
+				console.log(error);
 			});
 		};
 	};
