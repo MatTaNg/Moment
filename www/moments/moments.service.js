@@ -16,6 +16,8 @@
 		this.getNearbyMoments = getNearbyMoments;
 		this.deleteOrUploadToBestMoments = deleteOrUploadToBestMoments;
 
+		this.updateMomentMetaData = updateMomentMetaData;
+
 		if(!this.momentArray) {
 			this.momentArray = [];
 		}
@@ -51,11 +53,14 @@
 			};
 
 			function initializeView() {
+				if(core.appInitialized === false) {
+					this.momentArray = [];
+				}
 				var deferred = $q.defer();
 				var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
 				var checkAndDeleteExpiredMoments = this.checkAndDeleteExpiredMoments;
 				// this.momentArray = [];
-				getNearbyMoments()
+				this.getNearbyMoments()
 				.then(deleteOrUploadToBestMoments)
 				.then(checkAndDeleteExpiredMoments).then(function(moments) {
 					for(var i = 0; i < moments.length; i) {
@@ -68,12 +73,12 @@
 					var temp = createTempVariable(moments);
 					core.didUserChangeRadius = false;
 					this.momentArray = moments;
-					temp = addExtraClasses(temp);
+					temp = addExtraClassesandSetTime(temp);
 					localStorage.setItem('moments', JSON.stringify(temp));
 					deferred.resolve(temp);		
-				}, function(error) {
-					deferred.reject(error);
-				});
+					}, function(error) {
+						deferred.reject(error);
+					});
 				return deferred.promise;
 			};
 
@@ -91,12 +96,12 @@
 			var temp = createTempVariable(this.momentArray);
 			var updatedMoment = temp[0];
 			var deferred = $q.defer();
-			updatedMoment = updateMomentMetaData(updatedMoment, liked);
+			updatedMoment = this.updateMomentMetaData(updatedMoment, liked);
 			core.edit(updatedMoment).then(function() {
 				this.momentArray = temp;
 						this.momentArray.splice(0, 1);
 						incrementCounter().then(function(moments) {
-							moments = addExtraClasses(moments);
+							moments = addExtraClassesandSetTime(moments);
 							deferred.resolve(moments);
 						}, function(error) {
 							deferred.reject(error);
@@ -117,7 +122,7 @@
 				deferred.resolve(temp);
 			}
 			else {
-				initializeView().then(function(moments) {
+				this.initializeView().then(function(moments) {
 					deferred.resolve(moments);
 				}, function(error) {
 					deferred.reject();
@@ -143,52 +148,79 @@ function updateMomentMetaData(moment, liked) {
 //In order to upload to best moments the likes / views need to be more than the 'BEST_MOMENTS_RATIO' it also needs a minimum amount of views
 function deleteOrUploadToBestMoments(moments) {
 	var deferred = $q.defer();
-	console.log("DELETE OR UPDATE");
-	console.log(JSON.stringify(moments));
-	Promise.all(moments.map(
-		function(moment) {
-			//Upload Best Moment
-			if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
-				console.log("ASDASS");
-				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
-					core.uploadToBestMoments(moment);
-			} 
-			//Remove Best Moment
-			else if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO / 2) {
-				console.log("ELSE IF");
-				core.removeFromBestMoments(moment);
+	for(var i = 0; i < moments.length; i++ ){
+		(function(i) {
+			if(parseInt(moments[i].views) > constants.BEST_MOMENTS_MIN_VIEWS) {
+					if(parseInt(moments[i].likes) / parseInt(moments[i].views) > constants.BEST_MOMENTS_RATIO) {
+						core.uploadToBestMoments(moments[i]);
+				} 
+				//Remove Best Moment - We divide by 2; otherwise this will run everytime a moment is above the min views mark and does not belong in bestMoments - Which will be almost every time.
+				else if(parseInt(moments[i].likes) / parseInt(moments[i].views) > constants.BEST_MOMENTS_RATIO / 2) {
+					core.removeFromBestMoments(moments[i]);
+				}
 			}
-		}
-		} //End of function(moment)d
-		)).then(function() {
-		return deferred.resolve(moments);
-	});
-		return deferred.promise;
+			if(i === moments.length - 1) {
+				deferred.resolve(moments);
+			}
+		}(i));
+	}
+	return deferred.promise;
+	// for(var i = 0; i < moments.length; i++ ){
+	// 	if(parseInt(moments[i].views) > constants.BEST_MOMENTS_MIN_VIEWS) {
+	// 			if(parseInt(moments[i].likes) / parseInt(moments[i].views) > constants.BEST_MOMENTS_RATIO) {
+	// 				promises.push(core.uploadToBestMoments(moments[i]));
+	// 		} 
+	// 		//Remove Best Moment
+	// 		else if(moments[i].likes / moments[i].views > constants.BEST_MOMENTS_RATIO / 2) {
+	// 			promises.push(core.removeFromBestMoments(moments[i]));
+	// 		}
+	// 	}
+	// }
+	// return Promise.all(moments.map(
+	// 	function(moment) {
+	// 		//Upload Best Moment
+	// 		if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
+	// 			if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
+	// 				core.uploadToBestMoments(moment);
+	// 		} 
+	// 		//Remove Best Moment
+	// 		else if(moment.likes / moment.views > constants.BEST_MOMENTS_RATIO / 2) {
+	// 			core.removeFromBestMoments(moment);
+	// 		}
+	// 	}
+	// 	} //End of function(moment)d
+	// 	)).then(function() {
+	// 		deferred.resolve(moments);
+	// });
+		// return Promise.all(promises);
 };
 
 function checkAndDeleteExpiredMoments(moments) {
 	var deferred = $q.defer();
-	console.log("CHECK AND DELETE EXPIRED MOMENTS");
-	console.log(JSON.stringify(moments));
-	var promises = [];
+	var tempMoments = createTempVariable(moments);
 	currentTime = new Date().getTime(),
 	timeBetweenMoments = constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_UNTIL_MOMENT_EXPIRES;
 
 	for(var i = 0; i < moments.length; i++) {
-		timeElapsed = moments[i].time;
-		if(currentTime - timeBetweenMoments > timeElapsed) {
-			removeMomentFromLocalStorage(moments[i]);
-			promises.push(logger.logFile("Moment Expired - moment.checkAndDeleteExpiredMoment", {Moment: moments[i]}, {}, 'logs.txt'));
-			promises.push(core.remove(moments[i]));
-		}
+		(function(i) {
+			timeElapsed = moments[i].time;
+			if(currentTime - timeBetweenMoments > timeElapsed) {
+				removeMomentFromLocalStorage(moments[i]);
+				tempMoments.splice(tempMoments.indexOf(moments[i]), 1);
+			}
+			if(i === moments.length - 1) {
+				deferred.resolve(tempMoments);
+			}
+		})(i);
+
 	}
-	Promise.all(promises).then(function() {
-		deferred.resolve(moments);
-	});
+	// Promise.all(promises).then(function() {
+	// 	deferred.resolve(moments);
+	// });
 	return deferred.promise;
 };
 
-function addExtraClasses(moments) {
+function addExtraClassesandSetTime(moments) {
 	for(var i = 0; i < moments.length; i++) {
 		if(i === 0) {
 			moments[0].class = "layer-top";
@@ -258,7 +290,8 @@ function createTempVariable(moments) {
 			location: moments[i].location,
 			time: moments[i].time,
 			uuids: moments[i].uuids,
-			views: moments[i].views
+			views: moments[i].views,
+			media: moments[i].media
 		});
 	}
 	return temp;

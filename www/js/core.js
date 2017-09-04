@@ -1,9 +1,9 @@
  (function() {
  	angular.module('core', [])
 
- 	.service('core', ['$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
+ 	.service('core', ['$rootScope', '$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
 
- 	function core($q, constants, awsServices, logger, geolocation){
+ 	function core($rootScope, $q, constants, awsServices, logger, geolocation){
  		var vm = this,
  		deferred = $q.defer();
  		verifyMetaData = verifyMetaData;
@@ -26,9 +26,21 @@
 		vm.getMomentMetaData = getMomentMetaData;
 		vm.listMoments = listMoments;
 		vm.getLocation = getLocation;
+		vm.finishedVideoUpload = finishedVideoUpload;
 		vm.locationNotFound = false;
+		vm.aVideoIsUploading = false;
 
 		this.getLocation();
+
+		function finishedVideoUpload() {
+			vm.aVideoIsUploading = false;
+			$rootScope.$emit("upload complete");
+		};
+
+		function startVideoUpload() {
+			vm.aVideoIsUploading = true;
+			$rootScope.$emit("upload start");
+		}
 
 		function getLocation(location) {
 			var deferred = $q.defer();
@@ -41,14 +53,13 @@
 				}, function(error) {
 					console.log("ERROR");
 					console.log(error);
-					console.log(vm.currentLocation);
+					vm.currentLocation.town = "Could not find location";
 					vm.locationNotFound = true;
 					deferred.reject();
 				});
 			}
 			else if(!(/^\d+$/.test(location))) { //Does not contain digits
 				geolocation.getCoordinatesFromTown(location).then(function(location) {
-					console.log(location);
 					vm.currentLocation = location;
 					vm.didUserChangeRadius = true;
 					geolocation.customLocation = location;
@@ -57,6 +68,7 @@
 				}, function(error) {
 					console.log("ERROR");
 					console.log(error);
+					vm.currentLocation.town = "Could not find location";
 					deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
 				});
 			}
@@ -70,6 +82,7 @@
 				}, function(error) {
 					console.log("ERROR");
 					console.log(error);
+					vm.currentLocation.town = "Could not find location";
 					deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
 
 				});
@@ -94,7 +107,6 @@
  		};
 
  		function remove(moment) {
- 			console.log("CORE REMOVE");
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
  				var path = splitUrlOff(moment.key);
@@ -102,7 +114,6 @@
  				var path = moment.Key;
  			}
  			return awsServices.remove(path).then(function() {
- 				 console.log("REMOVED...");
  				// deferred.resolve();
  			}, function(error) {
  				logger.logFile('aws_services.remove', {Path: path}, error, 'errors.txt').then(function() {
@@ -113,6 +124,8 @@
  		};
 
  		var verifyMetaData = function(moment) {
+ 			console.log("VERIFY META DATA");
+ 			console.log(moment);
  			if(moment.key.includes('reports')) {
  				return true;
  			}
@@ -121,10 +134,11 @@
  				moment.description !== undefined &&
  				moment.time &&
  				moment.views &&
- 				moment.uuids)
+ 				moment.uuids &&
+ 				moment.media)
  				return true;
  			else {
- 				logger.logFile('core.verifyMetaData', {Moment: moment}, error, 'errors.txt').then(function() {
+ 				logger.logFile('core.verifyMetaData', {Moment: moment}, "", 'errors.txt').then(function() {
  					return false;
  				});
  			}
@@ -160,16 +174,15 @@
  		};
 
  		function upload(file, moment) {
+ 			startVideoUpload();
   			var deferred = $q.defer();
  			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
- 				console.log("zxcvzxcvzxc");
  				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
  			}
  			if(verifyMetaData(moment)) {
  				var key = splitUrlOff(moment.key);
- 				console.log("KEY");
- 				console.log(key);
  				awsServices.upload(file, key, moment).then(function() {
+ 					finishedVideoUpload();
  					deferred.resolve();
  				}, function(error) {
  					var parameters = {
@@ -192,7 +205,7 @@
  			var copySource = this.splitUrlOff(moment.key);
 			var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
 			// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-			logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
+			return logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
 				.then(function() {
 					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
 					moment.key = moment.key.replace('moments/.../', "bestMoments/");
@@ -208,7 +221,6 @@
 					var momentKey = moment.key.split('/');
 					bestMomentKey = bestMomentKey[bestMomentKey.length - 1];
 					momentKey = momentKey[momentKey.length - 1];
-					console.log("TEST");
 					if(bestMomentKey === momentKey) {
 						vm.remove(bestMoments[i]);
 					}
@@ -227,11 +239,12 @@
  			});
  		};
  		function getMoment(moment){
+ 			console.log("GET MOMENT");
  			return awsServices.getObject(splitUrlOff(moment.key)).then(function(moment) {
- 				console.log("TREWREW");
- 				console.log(moment);
  				if(moment !== "Not Found") {
- 					return moment.MetaData;
+ 					console.log("12312321");
+ 					console.log(moment);
+ 					return moment.Metadata;
  				} else {
  					return moment;
  				}
@@ -239,8 +252,6 @@
  		};
 
  		function getMomentMetaData(moment) {
- 			console.log("META DATA 3");
- 			console.log(moment.Key);
  			return awsServices.getMomentMetaData(moment.Key);
  		};
 
@@ -296,7 +307,7 @@
 	function getUUID() {
 		// return window.device.uuid;
 		if(constants.DEV_MODE) {
-			return "123"; //Temporary	
+			return new Date().getTime().toString(); //Temporary	
 		} else {
 			return window.device.uuid;
 		}

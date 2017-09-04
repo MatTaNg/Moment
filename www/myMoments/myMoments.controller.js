@@ -42,7 +42,6 @@
 		});
 
 		function refreshing() {
-			console.log("REFRESHING");
 			initialize().then(function() {
 				$scope.$broadcast('scroll.refreshComplete');
 			}, function(error) {
@@ -156,8 +155,6 @@
 					text: '<b>Submit</b>',
 					type: 'button-positive',
 					onTap: function(e) {
-						console.log("TEST");
-						console.log(vm.customUserLocation);
 						if(!vm.customUserLocation) { 
 								//Does nothing if user has not entered anything
 								e.preventDefault();

@@ -1,24 +1,42 @@
-<ion-view id="page2">
+<ion-view id="page2" cache-view="false">
 	<ion-nav-title>
 		<img class="title-image" src="img/header.png"/>
 	</ion-nav-title>
 <ion-content padding="true" class="has-header">
-{{vm.moments.length}}
-{{vm.loadingMoments}}
 <div ng-show="vm.moments">
 <td-cards>
 <td-card id="temp" ng-repeat="image in vm.moments"
-on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)"
+on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)" on-touch="vm.setCoords()"
 on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
-<mng-description moment="image"></mng-description>
-<img src="img/logo.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked"></img>
-<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next"></img>
-<hr>
-<div style="height=20%">
-<span ng-show="image.description">{{ image.description }}  </span>
-<div ng-hide="image.description" class="noDescription">No Description Found</div>
-<div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
-</div>
+
+	<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
+	<video data-ng-if="image.media === 'video'" width="100%" height="300px"preload="auto" controls>
+		<source src="{{image.key}}" type="video/mp4"></source>
+	</video>
+	<div class="row row-no-padding">
+		<div class="col">
+			<img src="img/logo.png" width="25px" height"25px" style="float: left"></img>
+			<div ng-show="image.likes" class="momentLikes">{{image.likes}}</div>
+		</div>
+		<div class="col">
+			<div class="ion-ios-clock-outline momentTime">{{image.time}}</div>
+		</div>
+	</div>
+	<div class="row row-no-padding">
+		<div class="col">
+			<div class="momentLocation">{{image.location}}</div>
+		</div>
+	</div>
+
+	<img src="img/logo.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked"></img>
+	<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next"></img>
+	<hr>
+	<div style="height=20%">
+	<span ng-show="image.description">{{ image.description }}  </span>
+	<div ng-hide="image.description" class="noDescription">No Description Found</div>
+	<div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
+	</div>
+
 </td-card>
 </td-cards>
 </div> <!--End of ng-show-->

@@ -16,8 +16,6 @@
 			var deferred = $q.defer();
 			if(this.momentArray) {
 				core.listMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
-					console.log("MOMENTS 1");
-					console.log(moments);
 					this.momentArray = [];
 					this.momentArray.push(moments);
 					localStorage.setItem('bestMoments', JSON.stringify(moments));
@@ -28,7 +26,6 @@
 				});
 			}
 			else {
-				console.log("RESOLVED");
 				deferred.resolve();
 			}
 			return deferred.promise;	
@@ -54,10 +51,6 @@
 
 		function loadMore() {
 			if(this.momentArray.length > 0) {
-				console.log("LOAD MORE 2");
-				console.log(this.momentArray.length);
-				console.log(this.momentArray);
-				console.log(this.momentArray[this.momentArray.length - 1]);
 				var startAfter = this.momentArray[this.momentArray.length - 1].key;
 				startAfter = startAfter.split('/');
 				startAfter = startAfter[startAfter.length - 1];

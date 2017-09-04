@@ -32,7 +32,7 @@
 		"MAX_DURATION_OF_VIDEO": 10, //In seconds
 		
 		//Minor Configurations
-		"HOW_CLOSE_TO_EDGE_OF_SCREEN_USER_MUST_DRAG_MOMENT": 0.4,
+		"HOW_FAR_USER_MUST_DRAG": 0.3,
 		"MOMENT_EXTENSION": ".jpg",
 		"LOCATION_NOT_FOUND_TXT": "We could not find your location",
 

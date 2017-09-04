@@ -47,6 +47,10 @@
   transition: opacity 400ms linear;
   opacity: 0; }
 
+.content-banner-transition-none {
+  opacity: 100;
+}
+
 .content-banner-in {
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);

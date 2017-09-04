@@ -67,18 +67,16 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 .momentLocation {
   text-align: left; 
-  margin: 5px; 
-  font-size: 18pt;
+  margin-top: 15px; 
+  font-size: 14pt;
 }
 .momentTime {
-  text-align: left; 
-  margin: 5px; 
-  font-size: 12pt
+  text-align: right; 
+  font-size: 18pt
 }
 .momentLikes {
-  text-align: center; 
-  margin-top: 10px; 
-  font-size: 32pt
+  margin-top: 5px; 
+  font-size: 18pt
 }
 .on-drag-next {
   position: absolute;
@@ -163,6 +161,20 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 
 /**My Moments**/
+.likes {
+  font-size: 18pt;
+  margin-top: 3px;
+  margin-left: 10px;
+}
+.time {
+  font-size: 18pt;
+  margin-top: 3px;
+  margin-left: 10px;
+  float: right;
+}
+.description {
+  margin-top: 5px;
+}
 .centerLikes {
   margin-left: 40%;
   margin-top: 25px;

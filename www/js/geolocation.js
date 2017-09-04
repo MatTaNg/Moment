@@ -40,7 +40,7 @@
 			return lng_mile_radius;
 		};
 
-		function setMomentInRadius(radius) {
+		function setMomentInRadius(radius) { //Do I use this?
 			moment_radius_in_miles = radius;
 			lat_mile_radius = 0.016880283 * moment_radius_in_miles;
 			lng_mile_radius = 0.019158007 * moment_radius_in_miles;
@@ -135,7 +135,6 @@
 
 		function calculateNearbyStates() {
 			var deferred = $q.defer();
-
 				var nearbyState = {north: "", south: "", west: "", east: ""};
 				var result = [];
 				vm.getStates().then(function(nearbyStates) {
@@ -186,7 +185,8 @@ function getMomentsWithinRadius(momentsInStates) {
 					location: metaData.location,
 					time: metaData.time,
 					uuids: metaData.uuids,
-					views: metaData.views
+					views: metaData.views,
+					media: metaData.media
 				};
 			}))
 		}
