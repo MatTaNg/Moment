@@ -78,13 +78,31 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   margin-top: 5px; 
   font-size: 18pt
 }
+.on-drag-next-invisible {
+  opacity: 0;
+  -webkit-transition: opacity 2s;
+  position: absolute;
+  left: 60%;
+  top: 15%;
+  z-index: 10;
+}
 .on-drag-next {
+  opacity: 100;
+  position: absolute;
+  left: 60%;
+  top: 15%;
+  z-index: 10;
+}
+.on-drag-liked-invisible {
+  opacity: 0;
+  -webkit-transition: opacity 2s;
   position: absolute;
   left: 60%;
   top: 15%;
   z-index: 10;
 }
 .on-drag-liked {
+  opacity: 100;
   position: absolute;
   left: 15%;
   top: 15%;

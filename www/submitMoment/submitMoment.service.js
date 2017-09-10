@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.submitMomentService', [])
 
-	.service('submitMomentService', ['core', 'constants', 'logger', '$q', submitMomentService]);
+	.service('submitMomentService', ['core', 'constants', 'logger', '$q', 'localStorageManager', submitMomentService]);
 
-	function submitMomentService(core, constants, logger, $q){
+	function submitMomentService(core, constants, logger, $q, localStorageManager){
 		var dataURItoBlob = dataURItoBlob;
 		this.uploadToAWS = uploadToAWS;
 		this.uploadToLocalStorage = uploadToLocalStorage;
@@ -11,18 +11,17 @@
 		this.dataURItoBlob = dataURItoBlob;
 
 		function updateTimeSinceLastMoment() {
-			localStorage.setItem('timeSinceLastMoment', new Date().getTime());
+			localStorageManager.set('timeSinceLastMoment', new Date().getTime());
 		};
 
 		//Untested
 		function uploadToAWS(media, moment) {
 			core.aVideoIsUploading = true;
 			var deferred = $q.defer();
-			console.log("TEST");
 			if(!(media.includes(".mp4"))) { //Its a picture
 				console.log("EQEQW");
 				var blob = new Blob([this.dataURItoBlob(media)], {type: 'image/jpeg'});
-				this.core.upload(blob, moment).then(function() {
+				core.upload(blob, moment).then(function() {
 					deferred.resolve(moment);
 					core.aVideoIsUploading = false;
 				});
@@ -44,11 +43,11 @@
 
 		function uploadToLocalStorage(moment) {
 			var localMoments = [];
-			if(JSON.parse(localStorage.getItem('myMoments'))) {
-				localMoments = JSON.parse(localStorage.getItem('myMoments'));
+			if(localStorageManager.get('myMoments')) {
+				localMoments = localStorageManager.get('myMoments');
 			}
 			localMoments.push(moment);
-			localStorage.setItem('myMoments', JSON.stringify(localMoments));
+			localStorageManager.set('myMoments',localMoments);
 		};
 
 		function dataURItoBlob(dataURI) {

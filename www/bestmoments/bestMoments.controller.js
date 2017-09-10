@@ -1,12 +1,12 @@
 (function() {
 	angular.module('app.BestMomentsController', [])
 
-	.controller('BestMomentsController', ['core', 'constants', '$stateParams', '$scope', 'components','bestMomentsService', BestMomentsController]);
-	function BestMomentsController (core, constants, $stateParams, $scope, components, bestMomentsService) {
+	.controller('BestMomentsController', ['core', 'constants', '$stateParams', '$scope', 'components','bestMomentsService', 'localStorageManager', BestMomentsController]);
+	function BestMomentsController (core, constants, $stateParams, $scope, components, bestMomentsService, localStorageManager) {
 		var vm = this;
 		vm.initialize = initialize;
 
-		vm.moments = JSON.parse(localStorage.getItem('bestMoments'));
+		vm.moments = localStorageManager.get('bestMoments');
 		vm.imageExpanded = false;
 		vm.sort = "Likes";
 		vm.sortLabel = "Likes";

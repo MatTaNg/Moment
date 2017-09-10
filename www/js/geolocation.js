@@ -109,7 +109,6 @@
 		function initializeUserLocation(mockTown) {
 			var deferred = $q.defer();
 			var town = "";
-
 			if(!mockTown) {
 				vm.getCurrentLatLong().then(function(response) {
 					var lat = response.lat;
@@ -135,20 +134,20 @@
 
 		function calculateNearbyStates() {
 			var deferred = $q.defer();
-				var nearbyState = {north: "", south: "", west: "", east: ""};
-				var result = [];
-				vm.getStates().then(function(nearbyStates) {
-					result.push(nearbyStates.north);
-					if(result.indexOf(nearbyStates.south) === -1) {
-						result.push(nearbyStates.south);
-					}
-					if(!result.indexOf(nearbyStates.west) === -1) {
-						result.push(nearbyStates.west);
-					}
-					if(!result.indexOf(nearbyStates.east) === -1) {
-						result.push(nearbyStates.east);
-					}
-					deferred.resolve(result);
+			var nearbyState = {north: "", south: "", west: "", east: ""};
+			var result = [];
+			vm.getStates().then(function(nearbyStates) {
+				result.push(nearbyStates.north);
+				if(result.indexOf(nearbyStates.south) === -1) {
+					result.push(nearbyStates.south);
+				}
+				if(!result.indexOf(nearbyStates.west) === -1) {
+					result.push(nearbyStates.west);
+				}
+				if(!result.indexOf(nearbyStates.east) === -1) {
+					result.push(nearbyStates.east);
+				}
+				deferred.resolve(result);
 			}, function(error) {
 				console.log("INIT REJECTED");
 				console.log(error);

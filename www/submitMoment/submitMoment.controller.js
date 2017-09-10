@@ -2,8 +2,8 @@
 
   angular.module('app.SubmitMomentController', [])
 
-  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'geolocation', 'submitMomentService', 'constants', '$ionicContentBanner', '$ionicPopup', 'components', '$sce', SubmitMomentController]);
-  function SubmitMomentController($stateParams, $state, core, geolocation, submitMomentService, constants, $ionicContentBanner, $ionicPopup, components, $sce) {
+  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'geolocation', 'submitMomentService', 'constants', '$ionicContentBanner', '$ionicPopup', 'components', '$sce', 'localStorageManager', SubmitMomentController]);
+  function SubmitMomentController($stateParams, $state, core, geolocation, submitMomentService, constants, $ionicContentBanner, $ionicPopup, components, $sce, localStorageManager) {
     var vm = this;
     vm.changeLocation = changeLocation;
     vm.cancel = cancel;
@@ -82,7 +82,7 @@
             submitMomentService.uploadToLocalStorage(vm.moment);
             // thankUserForSubmission();
             submitMomentService.updateTimeSinceLastMoment();
-            localStorage.setItem('timeSinceLastMoment', new Date().getTime().toString());
+            localStorageManager.set('timeSinceLastMoment', new Date().getTime().toString());
             $state.go('tabsController.moments');
           }
         else {
