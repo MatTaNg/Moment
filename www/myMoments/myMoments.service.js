@@ -1,16 +1,16 @@
 (function() {
 	angular.module('myMomentsService', [])
 
-	.service('myMomentsService', ['core', '$q', 'logger', myMomentsService]);
+	.service('myMomentsService', ['core', '$q', 'logger', 'localStorageManager', myMomentsService]);
 
-	function myMomentsService(core, $q, logger) {
+	function myMomentsService(core, $q, logger, localStorageManager) {
 		this.removeFromLocalStorage = removeFromLocalStorage;
 		this.uploadFeedback = uploadFeedback;
 		this.initialize = initialize;
 		this.getTotalLikes = getTotalLikes;
 		this.getExtraLikes = getExtraLikes;
 
-		this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
+		this.momentArray = localStorageManager.get('myMoments');
 		this.userLocation;
 		
 		totalLikes = 0;
@@ -43,9 +43,8 @@
 
 		//Untested
 		function initialize() {
-			console.log("INITIALIZE");
-			console.log(this.momentArray);
-			this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
+			this.momentArray = localStorageManager.get('myMoments');
+			// this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
 			var oldMomentArray = this.momentArray; //Variable get overriden somewhere...
 			var promises = [];
 			totalLikes = 0;
@@ -54,7 +53,6 @@
 			for(var i = 0; i < this.momentArray.length; i++) {
 				promises.push(
 					core.getMoment(this.momentArray[i]).then(function(moment) {
-						console.log("CONTINUING...");
 						if(moment !== "Not Found") {
 							this.momentArray = oldMomentArray; //Variable gets overriden somewhere...
 							updateExtraLikesAndTotalLikes(moment);
@@ -70,9 +68,9 @@
 		};
 
 		function removeFromLocalStorage(location) {
-			var localMoments = JSON.parse(localStorage.getItem('myMoments'));
+			var localMoments = localStorageManager.get('myMoments');
 			localMoments.splice(localMoments.findIndex(findMoment), 1);
-			localStorage.setItem('myMoments', JSON.stringify(localMoments));
+			localStorageManager.set('myMoments', JSON.stringify(localMoments));
 		};
 
 		function uploadFeedback(feedback, isBug) {

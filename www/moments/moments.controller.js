@@ -1,12 +1,12 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['$timeout', '$rootScope', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', MomentsController]);
+	.controller('MomentsController', ['$timeout', '$rootScope', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', MomentsController]);
 
-	function MomentsController ($timeout, $rootScope, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants) {
+	function MomentsController ($timeout, $rootScope, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager) {
 		var vm = this;
 
-		vm.moments = JSON.parse(localStorage.getItem('moments'));
+		vm.moments = localStorageManager.get('moments');
 		vm.liked = liked;		
 		vm.dragRight = dragRight;
 		vm.dragLeft = dragLeft;
@@ -20,25 +20,7 @@
 		vm.loadingMoments = false;
 		vm.currentLocation = core.currentLocation;
 		vm.touchXposition = 0;
-
-	    // $rootScope.$on('upload start', function(event, args) {
-	    //         console.log("START UPLOAD");
-	    //       $timeout(function() {
-		   //        $ionicContentBanner.show({
-		   //          text: ["Uploading, please do not close the app"],
-		   //          autoClose: 3000
-		   //        });	
-	    //       }, 500);
-	          
-	    // });
-
-	    // $rootScope.$on('upload complete', function(event, args) {
-	    //         console.log("FINISH UPLAOD");
-	    //       $ionicContentBanner.show({
-	    //         text: ["Upload Complete"],
-	    //         autoClose: 3000
-	    //       });
-	    // });
+		vm.keepFindingLocation = keepFindingLocation;
 
 		if(!vm.moments) {
 			vm.moments = [];
@@ -59,6 +41,17 @@
 				autoClose: 3000
 			});
 		}
+
+		function keepFindingLocation() {
+			var keepFindingLocation = $interval(function() {
+				  core.getLocation().then(function() {
+					initialize();
+					$interval.cancel(keepFindingLocation);
+				  }, function(error) {
+
+				  });
+			}, 1000);
+		};
 
 		function setCoords() {
 			vm.touchXposition = event.gesture.center.pageX;

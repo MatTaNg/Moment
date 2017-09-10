@@ -1,11 +1,11 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', MyMomentsController]);
-	function MyMomentsController(core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner) {
+	.controller('MyMomentsController', ['core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
+	function MyMomentsController(core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
 		var vm = this;
 		vm.initialize = initialize;
-		vm.moments = JSON.parse(localStorage.getItem('myMoments'));
+		vm.moments = localStorageManager.get('myMoments');
 		vm.remove = remove;
 		vm.feedback = feedback;
 		vm.toggleDescription = toggleDescription;
@@ -16,15 +16,41 @@
 		vm.userLocation = core.currentLocation.town || "Could not find location";
 		vm.totalLikes = 0;
 		vm.showShortDescription = true;
-		vm.customUserLocation = "";
+		// vm.customUserLocation = "";
 		vm.locationErrorMsg = false;
-		vm.distance = localStorage.getItem('momentRadiusInMiles');
+		vm.distance = localStorageManager.get('momentRadiusInMiles');
+		vm.watchingForLocationChange = true;
+		vm.watchForLocationChange = watchForLocationChange;
+		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
+		vm.watchID;
 
 		if(!(vm.moments)) {
 			vm.moments = [];
 		}
 
 		initialize();
+		if(vm.customUserLocation) {
+			watchForLocationChange();	
+		}
+		
+
+		function stopWatchingForLocationChange() {
+			if(vm.watchID) {
+				navigator.geolocation.clearWatch(vm.watchID);
+			}
+		};
+
+		function watchForLocationChange() {
+			vm.watchID = navigator.geolocation.watchPosition(function(position) {
+				var lat = position.coords.latitude;
+				var lng = position.coords.longitude;
+				geolocation.getLocationFromCoords(lat, lng).then(function(location) {
+					vm.userLocation = location.town;
+				});
+			}, function(error) {
+
+			});
+		};
 
 		$rootScope.$on("$locationChangeStart", function(event, next, current) {
 			if(current.indexOf('myMoments') !== -1) {
@@ -129,6 +155,7 @@
 		function getCurrentLocation() {
 			components.showLoader().then(function() {
 				core.getLocation().then(function(location) {
+					vm.watchingForLocationChange = location.town;
 					vm.customUserLocation = location.town;
 					components.hideLoader();
 				}, function(error) {
@@ -179,35 +206,25 @@
 			if(vm.customUserLocation.length > 3) {
 				components.showLoader()
 				.then(function() {
-					if(/^\d+$/.test(location)) { //If it is a number...
-						core.getLocation(vm.customUserLocation).then(function(response) {
-							components.hideLoader().then(function() {
-								vm.userLocation = response.town;
-								vm.customUserLocation = "";
-								vm.locationErrorMsg = false;
-								deferred.resolve();
-							});
-						}, function(error) {
-							console.log("ERROR");
-							console.log(error);
-							components.hideLoader();
-							deferred.reject();
-						});
-					} else {
-						core.getLocation(vm.customUserLocation).then(function(response) {
-							components.hideLoader().then(function() {
-								vm.userLocation = response.town;
-								vm.customUserLocation = "";
-								vm.locationErrorMsg = false;
-								deferred.resolve();
-							});
-						}, function(error) {
-							console.log("ERROR");
-							vm.locationErrorMsg = true;
-							components.hideLoader();
-							deferred.reject();
-						});
+					if(vm.watchingForLocationChange === vm.customUserLocation) {
+						watchForLocationChange();						
 					}
+					else {
+						stopWatchingForLocationChange();
+					}
+					core.getLocation(vm.customUserLocation).then(function(response) {
+						components.hideLoader().then(function() {
+							vm.userLocation = response.town;
+							vm.customUserLocation = "";
+							vm.locationErrorMsg = false;
+							deferred.resolve();
+						});
+					}, function(error) {
+						console.log("ERROR");
+						console.log(error);
+						components.hideLoader();
+						deferred.reject();
+					});	
 				})
 
 			}

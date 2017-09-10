@@ -1,10 +1,10 @@
 (function() {
 	angular.module('app.bestMomentsService', [])
 
-	.service('bestMomentsService', ['core', '$q', 'constants', bestMomentsService]);
+	.service('bestMomentsService', ['core', '$q', 'constants', 'localStorageManager', bestMomentsService]);
 
-	function bestMomentsService(core, $q, constants){
-		this.momentArray = JSON.parse(localStorage.getItem('bestMoments'));
+	function bestMomentsService(core, $q, constants, localStorageManager){
+		this.momentArray = localStorageManager.get('bestMoments');
 		this.initializeView = initializeView;
 		this.loadMore = loadMore;
 
@@ -18,7 +18,7 @@
 				core.listMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
 					this.momentArray = [];
 					this.momentArray.push(moments);
-					localStorage.setItem('bestMoments', JSON.stringify(moments));
+					localStorageManager.set('bestMoments', moments);
 					deferred.resolve(moments);		
 				}, function(error) {
 					console.log("ERROR");

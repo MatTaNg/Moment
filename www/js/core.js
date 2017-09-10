@@ -15,7 +15,7 @@
  		vm.getCurrentTime = getCurrentTime;
  		vm.getUUID = getUUID;
  		vm.didUserChangeRadius = false;
- 		vm.currentLocation = "Could not find location";;
+ 		vm.currentLocation = "Could not find location";
 
  		vm.remove = remove;
  		vm.edit = edit;
@@ -29,8 +29,6 @@
 		vm.finishedVideoUpload = finishedVideoUpload;
 		vm.locationNotFound = false;
 		vm.aVideoIsUploading = false;
-
-		this.getLocation();
 
 		function finishedVideoUpload() {
 			vm.aVideoIsUploading = false;
@@ -46,6 +44,8 @@
 			var deferred = $q.defer();
 			if(!location) {
 				geolocation.initializeUserLocation().then(function(location) {
+					console.log("GET LOCATION");
+					console.log(location);
 					vm.currentLocation = location;
 					vm.didUserChangeRadius = true;
 					vm.locationNotFound = false;
@@ -114,18 +114,14 @@
  				var path = moment.Key;
  			}
  			return awsServices.remove(path).then(function() {
- 				// deferred.resolve();
  			}, function(error) {
+ 				console.log("REMOVE FAILED");
  				logger.logFile('aws_services.remove', {Path: path}, error, 'errors.txt').then(function() {
- 					// deferred.reject(error);	
  				});
  			});
- 			// return deferred.promise;
  		};
 
  		var verifyMetaData = function(moment) {
- 			console.log("VERIFY META DATA");
- 			console.log(moment);
  			if(moment.key.includes('reports')) {
  				return true;
  			}
