@@ -49,7 +49,7 @@ Delete your moments
 1. Increment versionCode and versionName in AndroidManifest.xml
 2. Run "Cordova build --release android"
   - This will crease a "android-release-unsigned.apk" file in moment\platforms\android\build\outputs\apk
-3.  Copy the the android-x86-release-unsigned.apk into the same folder the same folder as the keystore which should be moment/platforms/android.  Then CD into that folder.
+3.  Copy the the C:\Users\Andy\Google Drive\Programming\moment\platforms\android\build\outputs\apk\android-x86-release-unsigned.apk into the same folder as the keystore which should be moment/platforms/android.  Then CD into that folder.
   -  This step is optional but will make things easier
 4. Run "jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore Moment.keystore android-x86-release-unsigned.apk moment"
   -  In this step we sign the unreleased apk with our keystore.
