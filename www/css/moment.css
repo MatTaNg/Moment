@@ -78,8 +78,8 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   margin-top: 5px; 
   font-size: 18pt
 }
-.on-drag-next-invisible {
-  opacity: 0;
+.on-drag-next.invisible {
+  opacity: 100;
   -webkit-transition: opacity 2s;
   position: absolute;
   left: 60%;
@@ -93,8 +93,8 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   top: 15%;
   z-index: 10;
 }
-.on-drag-liked-invisible {
-  opacity: 0;
+.on-drag-liked.invisible {
+  opacity: 100;
   -webkit-transition: opacity 2s;
   position: absolute;
   left: 60%;

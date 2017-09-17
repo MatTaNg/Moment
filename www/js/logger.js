@@ -19,11 +19,16 @@
 				};
 
 				function convertMetaDataToString(metaData) {
-					return "KEY: " + metaData.key + '\r\n\r\n' +
-							"LIKES: " + metaData.likes + '\r\n\r\n' +
-							"LOCATION: " + metaData.location + '\r\n\r\n' +
-							"TIME: " + metaData.time + '\r\n\r\n' +
-							"UUIDS: " + metaData.uuids;
+					if(metaData.key) {
+						return "KEY: " + metaData.key + '\r\n\r\n' +
+								"LIKES: " + metaData.likes + '\r\n\r\n' +
+								"LOCATION: " + metaData.location + '\r\n\r\n' +
+								"TIME: " + metaData.time + '\r\n\r\n' +
+								"UUIDS: " + metaData.uuids;
+						}
+						else {
+							return "";
+						}
 				};
 		/*
 			function: What class and function did it fail?  Ex: core.logFile
@@ -58,7 +63,9 @@
 			};
 
 			function logReport(report, moment, key) {
-				key = 'reports/' + key;
+				if(key.indexOf("reports") === -1) {
+					key = 'reports/' + key;
+				}
 				var deferred = $q.defer();
 				var params = {
 					Bucket: constants.BUCKET_NAME,
@@ -79,12 +86,21 @@
 			};
 
 			function uploadLog(message, key) {
+				console.log("UPLOAD LOG");
+				console.log(message);
+				console.log(key);
 				var moment = {key: key};
 				var deferred = $q.defer();
 				awsServices.getObject(key).then(function(data) {
-					data = data.Body;
-					newMessage = message + '\r\n\r\n' + data;
-					var blob = new Blob([newMessage], {type: "text"});
+					console.log("NEW MESSAGE");
+					console.log(data);
+					data =  data.Body.toString('ascii');
+					// data = new TextDecoder("utf-8").decode(data.Body);
+					// data = Utf8ArrayToStr(data.Body);
+					console.log(data);
+					console.log(message);
+					newMessage = message.toString() + '\r\n\r\n' + data;
+					var blob = new Blob([newMessage.toString()], {type: "text"});
 					var file =  new File([blob], key);
 					awsServices.upload(file, moment.key, moment).then(function() {
 						deferred.resolve();
@@ -110,4 +126,37 @@
 				return result;
 			};
 		};
+	function Utf8ArrayToStr(array) {
+	    var out, i, len, c;
+	    var char2, char3;
+
+	    out = "";
+	    len = array.length;
+	    i = 0;
+	    while(i < len) {
+	    c = array[i++];
+	    switch(c >> 4)
+	    { 
+	      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+	        // 0xxxxxxx
+	        out += String.fromCharCode(c);
+	        break;
+	      case 12: case 13:
+	        // 110x xxxx   10xx xxxx
+	        char2 = array[i++];
+	        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+	        break;
+	      case 14:
+	        // 1110 xxxx  10xx xxxx  10xx xxxx
+	        char2 = array[i++];
+	        char3 = array[i++];
+	        out += String.fromCharCode(((c & 0x0F) << 12) |
+	                       ((char2 & 0x3F) << 6) |
+	                       ((char3 & 0x3F) << 0));
+	        break;
+	    }
+	    }
+
+	    return out;
+	}
 	})();

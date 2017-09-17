@@ -23,6 +23,7 @@
 		}
 
 		function getNearbyMoments() {
+			console.log("GET NEARBYU MOMENTS");
 			var getLocation = core.getLocation;
 			var calculateNearbyStates = geolocation.calculateNearbyStates;
 			var getMomentsByState = geolocation.getMomentsByState;
@@ -66,7 +67,7 @@
 			var deferred = $q.defer();
 			var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
 			var checkAndDeleteExpiredMoments = this.checkAndDeleteExpiredMoments;
-			// this.momentArray = [];
+			// var getNearbyMoments = this.getNearbyMoments;
 			getNearbyMoments()
 			.then(deleteOrUploadToBestMoments)
 			.then(checkAndDeleteExpiredMoments).then(function(moments) {
@@ -199,7 +200,7 @@ function checkAndDeleteExpiredMoments(moments) {
 				momentsToBeDeleted.push(i);
 			}
 			if(i === moments.length - 1) {
-				for(var x = momentsToBeDeleted.length - 1; x > 0; x--){
+				for(var x = momentsToBeDeleted.length - 1; x >= 0; x--){
 					tempMoments.splice(momentsToBeDeleted[x], 1);
 				}
 				deferred.resolve(tempMoments);
@@ -214,14 +215,17 @@ function addExtraClassesandSetTime(moments) {
 	for(var i = 0; i < moments.length; i++) {
 		if(i === 0) {
 			moments[0].class = "layer-top";
+			moments[0].animate = "invisible";
 			moments[0].time = core.timeElapsed(moments[0].time);
 		}
 		else if(i === 1) {
 			moments[1].class = "layer-next";
+			moments[1].animate = "invisible";
 			moments[1].time = core.timeElapsed(moments[1].time);
 		}
 		else {
 			moments[i].class = "layer-hide";
+			moments[i].animate = "invisible";
 			moments[i].time = core.timeElapsed(moments[i].time); 
 		}
 	}

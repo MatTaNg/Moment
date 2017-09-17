@@ -42,50 +42,54 @@
 
 		function getLocation(location) {
 			var deferred = $q.defer();
-			if(!location) {
-				geolocation.initializeUserLocation().then(function(location) {
-					console.log("GET LOCATION");
-					console.log(location);
-					vm.currentLocation = location;
-					vm.didUserChangeRadius = true;
-					vm.locationNotFound = false;
-					deferred.resolve(vm.currentLocation);
-				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
-					vm.currentLocation.town = "Could not find location";
-					vm.locationNotFound = true;
-					deferred.reject();
-				});
-			}
-			else if(!(/^\d+$/.test(location))) { //Does not contain digits
-				geolocation.getCoordinatesFromTown(location).then(function(location) {
-					vm.currentLocation = location;
-					vm.didUserChangeRadius = true;
-					geolocation.customLocation = location;
-					geolocation.setMaxNESW(location.lat, location.lng);
-					deferred.resolve(location);
-				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
-					vm.currentLocation.town = "Could not find location";
-					deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
-				});
-			}
-			else { //It is a zip code
-				geolocation.getCoordsFromZipCode(location).then(function(location) {
-					vm.currentLocation = location;
-					vm.didUserChangeRadius = true;
-					geolocation.customLocation = location;
-					geolocation.setMaxNESW(location.lat, location.lng);
-					deferred.resolve(location);
-				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
-					vm.currentLocation.town = "Could not find location";
-					deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
+				console.log("GET LOCATION");
+			if(!constants.DEV_MODE) {
+				if(!location) {
+					geolocation.initializeUserLocation().then(function(location) {
+						vm.currentLocation = location;
+						vm.didUserChangeRadius = true;
+						vm.locationNotFound = false;
+						deferred.resolve(vm.currentLocation);
+					}, function(error) {
+						console.log("ERROR");
+						console.log(error);
+						vm.currentLocation.town = "Could not find location";
+						vm.locationNotFound = true;
+						deferred.reject();
+					});
+				}
+				else if(!(/^\d+$/.test(location))) { //Does not contain digits
+					geolocation.getCoordinatesFromTown(location).then(function(location) {
+						vm.currentLocation = location;
+						vm.didUserChangeRadius = true;
+						geolocation.customLocation = location;
+						geolocation.setMaxNESW(location.lat, location.lng);
+						deferred.resolve(location);
+					}, function(error) {
+						console.log("ERROR");
+						console.log(error);
+						vm.currentLocation.town = "Could not find location";
+						deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
+					});
+				}
+				else { //It is a zip code
+					geolocation.getCoordsFromZipCode(location).then(function(location) {
+						vm.currentLocation = location;
+						vm.didUserChangeRadius = true;
+						geolocation.customLocation = location;
+						geolocation.setMaxNESW(location.lat, location.lng);
+						deferred.resolve(location);
+					}, function(error) {
+						console.log("ERROR");
+						console.log(error);
+						vm.currentLocation.town = "Could not find location";
+						deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
 
-				});
+					});
+				}
+			}
+			else {
+				return deferred.resolve( {lat: 40.0084, lng: 75.2605, town: "Narberth, PA"} );
 			}
 			return deferred.promise;
 		};
@@ -107,6 +111,7 @@
  		};
 
  		function remove(moment) {
+ 			console.log("CORE REMOVING...");
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
  				var path = splitUrlOff(moment.key);
@@ -235,11 +240,8 @@
  			});
  		};
  		function getMoment(moment){
- 			console.log("GET MOMENT");
  			return awsServices.getObject(splitUrlOff(moment.key)).then(function(moment) {
  				if(moment !== "Not Found") {
- 					console.log("12312321");
- 					console.log(moment);
  					return moment.Metadata;
  				} else {
  					return moment;

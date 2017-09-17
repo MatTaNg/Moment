@@ -43,13 +43,13 @@
 
 		//Untested
 		function initialize() {
+			console.log("-=-=-=-INITIALIZEING");
 			this.momentArray = localStorageManager.get('myMoments');
 			// this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
 			var oldMomentArray = this.momentArray; //Variable get overriden somewhere...
 			var promises = [];
 			totalLikes = 0;
 			updateOldLikes(this.momentArray);
-
 			for(var i = 0; i < this.momentArray.length; i++) {
 				promises.push(
 					core.getMoment(this.momentArray[i]).then(function(moment) {
@@ -57,6 +57,7 @@
 							this.momentArray = oldMomentArray; //Variable gets overriden somewhere...
 							updateExtraLikesAndTotalLikes(moment);
 							moment = addShortDescriptionAndTime(moment);
+							console.log(moment);
 							return moment;
 						} else {
 							return null; //Find a better way to handle this
@@ -75,7 +76,7 @@
 
 		function uploadFeedback(feedback, isBug) {
 			var defered = $q.defer();
-			logger.logReport(feedback, createKey(isBug)).then(function() {
+			logger.logReport(feedback, '', createKey(isBug)).then(function() {
 				defered.resolve();
 			}, function(error) {
 				defered.reject(error);

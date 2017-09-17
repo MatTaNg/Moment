@@ -1,5 +1,5 @@
 describe('Moment Service', function() {
-	var core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
+	var $rootScope, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
 	beforeEach(module('app'));
 	var mockLat = 40.008446;
 	var mockLng = -75.260460;
@@ -33,6 +33,7 @@ describe('Moment Service', function() {
         $http = $injector.get('$http');
         awsServices = $injector.get('awsServices');
         core = $injector.get('core');
+        $rootScope = $injector.get('$rootScope');
 
         constants.DEV_MODE = false;
     }));
@@ -58,6 +59,10 @@ describe('Moment Service', function() {
             return Math.random();
         });
 
+        spyOn(geolocation, 'initializeUserLocation').and.callFake(function() {
+            return $q.resolve( { town: "Narberth, PA" } );
+        });
+
         geolocation.max_north.lat = 99999;
         geolocation.max_west.lng = -99999;
         geolocation.max_east.lng = 99999;
@@ -65,159 +70,166 @@ describe('Moment Service', function() {
     }));
 
     //==========Mocks do not work without using "this"
-//     it('Should correctly initialize the view with extra classes', function(done) {
-//         var mock_moment = {
-//             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             description: "MOCK_DESCRIPTION",
-//             likes: 1000,
-//             location: "MOCK_LOCATION",
-//             time: new Date().getTime(),
-//             uuids: "123",
-//             views: 1000
-//         };
-//         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-//             console.log("========== 1 GET MOMENT META DATA");
-//             return $q.resolve(mock_moment);
-//         });
+    it('Should correctly initialize the view with extra classes', function(done) {
+        var mock_moment = {
+            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            description: "MOCK_DESCRIPTION",
+            likes: 1000,
+            location: "MOCK_LOCATION",
+            time: new Date().getTime(),
+            uuids: "123",
+            views: 1000
+        };
+        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
+            console.log("========== 1 GET MOMENT META DATA");
+            return $q.resolve(mock_moment);
+        });
 
-//         spyOn(awsServices, 'copyObject').and.callFake(function() {
-//             return $q.resolve([mock_moment]);
-//         });
+        spyOn(awsServices, 'copyObject').and.callFake(function() {
+            return $q.resolve([mock_moment]);
+        });
 
-//         var deferred = $q.defer();
-//         service.momentArray.push(mock_moment);
-//     	spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-//     		expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
-//     		expect(startAfter).toEqual('');
-//             var deferred = $q.defer();
-//             deferred.resolve([mock_moment, mock_moment, mock_moment]);
-//             return deferred.promise;
-//     	});
-//     	service.initializeView().then(function(moments) {
-//             areMomentsCorrectlyInitialized(moments);
-//     		done();
-//     	});
-//     	$scope.$apply();
-//     });
-
-//==========Mocks do not work without using "this"
-//     it('Should correctly initialize the view and delete expired moments', function(done) {
-//         var mock_moment = {
-//             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             description: "MOCK_DESCRIPTION",
-//             likes: 1000,
-//             location: "MOCK_LOCATION",
-//             time: 15,
-//             uuids: "123",
-//             views: 1000
-//         };
-//         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-//             console.log("========== 2 GET MOMENT META DATA");
-//             return $q.resolve(mock_moment);
-//         });
-
-//         spyOn(awsServices, 'copyObject').and.callFake(function() {
-//             return $q.resolve([mock_moment]);
-//         });
-
-//         var deferred = $q.defer();
-//         service.momentArray.push(mock_moment);
-//         spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-//             expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
-//             expect(startAfter).toEqual('');
-//             var deferred = $q.defer();
-//             deferred.resolve([mock_moment]);
-//             return deferred.promise;
-//         });
-//         service.initializeView().then(function(moments) {
-//             areMomentsCorrectlyInitialized(moments);
-//             expect(moments.length).toBe(0);
-//             done();
-//         });
-//         $scope.$apply();
-//     });
+        var deferred = $q.defer();
+        service.momentArray.push(mock_moment);
+    	spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
+    		expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
+    		expect(startAfter).toEqual('');
+            var deferred = $q.defer();
+            deferred.resolve([mock_moment, mock_moment, mock_moment]);
+            return deferred.promise;
+    	});
+    	service.initializeView().then(function(moments) {
+            areMomentsCorrectlyInitialized(moments);
+    		done();
+    	});
+    	$rootScope.$apply();
+    });
 
 //==========Mocks do not work without using "this"
-// it('Should correctly initialize the view and upload to best moments', function(done) {
-//         var mock_moment = {
-//             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             description: "MOCK_DESCRIPTION",
-//             likes: 900,
-//             location: "MOCK_LOCATION",
-//             time: 15,
-//             uuids: "123",
-//             views: 1000
-//         };
-//         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-//             console.log("========== 3 GET MOMENT META DATA");
-//             return $q.resolve(mock_moment);
-//         });
+    it('Should correctly initialize the view and delete expired moments', function(done) {
+        var mock_moment = {
+            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            description: "MOCK_DESCRIPTION",
+            likes: 1000,
+            location: "MOCK_LOCATION",
+            time: 15,
+            uuids: "123",
+            views: 1000
+        };
+        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
+            console.log("========== 2 GET MOMENT META DATA");
+            return $q.resolve(mock_moment);
+        });
 
-//         spyOn(awsServices, 'copyObject').and.callFake(function() {
-//             return $q.resolve([mock_moment]);
-//         });
+        spyOn(awsServices, 'copyObject').and.callFake(function() {
+            return $q.resolve([mock_moment]);
+        });
 
-//         spyOn(core, 'uploadToBestMoments');
+        spyOn(awsServices, 'remove').and.callFake(function() {
+            return $q.resolve();
+        })
 
-//         var deferred = $q.defer();
-//         service.momentArray.push(mock_moment);
-//         spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-//             expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
-//             expect(startAfter).toEqual('');
-//             var deferred = $q.defer();
-//             deferred.resolve([mock_moment]);
-//             return deferred.promise;
-//         });
-//         service.initializeView().then(function(moments) {
-//             areMomentsCorrectlyInitialized(moments);
-//             expect(core.uploadToBestMoments).toHaveBeenCalled();
-//             done();
-//         });
-//         $scope.$apply();
-//     });
+        var deferred = $q.defer();
+        service.momentArray.push(mock_moment);
+        spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
+            expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
+            expect(startAfter).toEqual('');
+            var deferred = $q.defer();
+            deferred.resolve([mock_moment]);
+            return deferred.promise;
+        });
+        service.initializeView().then(function(moments) {
+            areMomentsCorrectlyInitialized(moments);
+            expect(moments.length).toBe(0);
+            done();
+        });
+        $scope.$apply();
+    });
 
 //==========Mocks do not work without using "this"
-// it('Should correctly initialize the view and remove moment from best moments', function(done) {
-//         var mock_moment = {
-//             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-//             description: "MOCK_DESCRIPTION",
-//             likes: 400,
-//             location: "MOCK_LOCATION",
-//             time: 15,
-//             uuids: "123",
-//             views: 1000
-//         };
-//         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-//             console.log("========== 4 GET MOMENT META DATA");
-//             return $q.resolve(mock_moment);
-//         });
+it('Should correctly initialize the view and upload to best moments', function(done) {
+        var mock_moment = {
+            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            description: "MOCK_DESCRIPTION",
+            likes: 900,
+            location: "MOCK_LOCATION",
+            time: 15,
+            uuids: "123",
+            views: 1000
+        };
+        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
+            console.log("========== 3 GET MOMENT META DATA");
+            return $q.resolve(mock_moment);
+        });
 
-//         spyOn(awsServices, 'copyObject').and.callFake(function() {
-//             return $q.resolve([mock_moment]);
-//         });
+        spyOn(awsServices, 'copyObject').and.callFake(function() {
+            return $q.resolve([mock_moment]);
+        });
 
-//         spyOn(core, 'removeFromBestMoments');
+        spyOn(awsServices, 'remove').and.callFake(function() {
+            return $q.resolve();
+        });
 
-//         var deferred = $q.defer();
-//         service.momentArray.push(mock_moment);
-//         spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-//             expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
-//             expect(startAfter).toEqual('');
-//             var deferred = $q.defer();
-//             deferred.resolve([mock_moment]);
-//             return deferred.promise;
-//         });
-//         service.initializeView().then(function(moments) {
-//             areMomentsCorrectlyInitialized(moments);
-//             expect(core.removeFromBestMoments).toHaveBeenCalled();
-//             done();
-//         });
-//         $scope.$apply();
-//     });
+        spyOn(core, 'uploadToBestMoments');
+
+        var deferred = $q.defer();
+        service.momentArray.push(mock_moment);
+        spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
+            expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
+            expect(startAfter).toEqual('');
+            var deferred = $q.defer();
+            deferred.resolve([mock_moment]);
+            return deferred.promise;
+        });
+        service.initializeView().then(function(moments) {
+            areMomentsCorrectlyInitialized(moments);
+            expect(core.uploadToBestMoments).toHaveBeenCalled();
+            done();
+        });
+        $scope.$apply();
+    });
+
+//==========Mocks do not work without using "this"
+it('Should correctly initialize the view and remove moment from best moments', function(done) {
+        var mock_moment = {
+            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            description: "MOCK_DESCRIPTION",
+            likes: 400,
+            location: "MOCK_LOCATION",
+            time: 15,
+            uuids: "123",
+            views: 1000
+        };
+        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
+            return $q.resolve(mock_moment);
+        });
+
+        spyOn(awsServices, 'remove').and.callFake(function() {
+            return $q.resolve();
+        });
+
+        spyOn(core, 'removeFromBestMoments');
+
+        var deferred = $q.defer();
+        service.momentArray.push(mock_moment);
+        spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
+            expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
+            expect(startAfter).toEqual('');
+            var deferred = $q.defer();
+            deferred.resolve([mock_moment]);
+            return deferred.promise;
+        });
+        service.initializeView().then(function(moments) {
+            areMomentsCorrectlyInitialized(moments);
+            expect(core.removeFromBestMoments).toHaveBeenCalled();
+            done();
+        });
+        $rootScope.$apply();
+    });
 
     it('Should successfully upload Report', function() {
     });

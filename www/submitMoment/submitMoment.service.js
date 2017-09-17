@@ -19,7 +19,6 @@
 			core.aVideoIsUploading = true;
 			var deferred = $q.defer();
 			if(!(media.includes(".mp4"))) { //Its a picture
-				console.log("EQEQW");
 				var blob = new Blob([this.dataURItoBlob(media)], {type: 'image/jpeg'});
 				core.upload(blob, moment).then(function() {
 					deferred.resolve(moment);

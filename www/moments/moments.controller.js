@@ -58,16 +58,19 @@
 		};
 
 		function dragRight() {
+			vm.moments[0].animate = '';
 			vm.moments[0].swipedRight = true;
 			vm.moments[0].swipedLeft = false;
 		};
 
 		function dragLeft() {
+			vm.moments[0].animate = '';
 			vm.moments[0].swipedLeft = true;
 			vm.moments[0].swipedRight = false;
 		};
 
 		function release(event) {
+			vm.moments[0].animate = 'invisible'
 			var threshold = constants.HOW_FAR_USER_MUST_DRAG * $window.innerWidth;
 			var releasedXposition = event.gesture.center.pageX;
 			var distDragged = releasedXposition - vm.touchXposition;
@@ -95,7 +98,6 @@
 				}, function(error) {
 					vm.loadingMoments = false;
 					console.log("ERRROR initialize");
-					console.log(core.locationNotFound);
 					if(core.locationNotFound) {
 						$ionicContentBanner.show({
 							text: [constants.LOCATION_NOT_FOUND_TXT],
@@ -104,13 +106,6 @@
 						});
 					}
 					components.hideLoader()
-					// .then(function() {
-					// 	$ionicContentBanner.show({
-					// 		text: ["An error occured getting the Moment."],
-					// 		type: "error",
-					// 		autoClose: 3000
-					// 	});
-					// });
 				}); //End of initializeView
 		};
 
@@ -122,8 +117,9 @@
 				}
 				momentsService.updateMoment(liked).then(function(moments) {
 					vm.loadingMoments = false;
-						vm.moments = moments;
-						vm.flagClass = "ion-ios-flag-outline";
+					components.hideLoader();
+					vm.moments = moments;
+					vm.flagClass = "ion-ios-flag-outline";
 				}, function(error) {
 					vm.loadingMoments = false;
 					vm.moments.splice(0,1);
