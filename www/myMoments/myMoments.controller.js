@@ -243,7 +243,7 @@
 
 			$ionicPopup.show({
 				template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
-				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox> {{vm.moment.feedback}}',
+				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox>',
 				title: 'Feedback',
 				scope: $scope,
 				subTitle: 'How can we improve?',
@@ -258,15 +258,19 @@
 								e.preventDefault();
 							}
 							else {
-								myMomentsService.uploadFeedback(vm.moment.feedback, vm.moment.isBug).then(function() {
-									$ionicPopup.alert({
-										title: '<b>Thank you for your feedback!</b>',
-										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
-									});
-								}, function(error) {
-									$ionicPopup.alert({
-										title: '<b>Something went wrong.  Sorry, our fault!</b>',
-										template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
+								components.showLoader().then(function() {
+									myMomentsService.uploadFeedback(vm.moment.feedback, vm.moment.isBug).then(function() {
+										components.hideLoader();
+										$ionicPopup.alert({
+											title: '<b>Thank you for your feedback!</b>',
+											template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
+										});
+									}, function(error) {
+										components.hideLoader();
+										$ionicPopup.alert({
+											title: '<b>Something went wrong.  Sorry, our fault!</b>',
+											template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
+										});
 									});
 								});
 

@@ -27,6 +27,10 @@ describe('Core', function() {
     beforeEach(function() {
     });
 
+    it("DEV_MODE should be off", function() {
+    	expect(constants.DEV_MODE).toBe(false);
+    });
+
     it('Should split URL off key', function() {
     	var sampleKey = "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg";
     	var key = core.splitUrlOff(sampleKey);

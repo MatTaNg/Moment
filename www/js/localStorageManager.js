@@ -9,15 +9,12 @@
 		localStorage.setItem('momentRadiusInMiles', JSON.stringify(25));
 
 		function get(storage) {
-			console.log("GET");
-			console.log(storage);
-			console.log(localStorage.getItem(storage));
 			if(localStorage.getItem(storage)) {
 				return JSON.parse(localStorage.getItem(storage));	
 			}
 			else {
 				set(storage, []);
-				return JSON.parse(localStorage.getItem(storage));
+				return false;
 			}
 			
 		};

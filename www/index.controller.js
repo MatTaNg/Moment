@@ -2,9 +2,9 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$timeout', 'core', '$rootScope', '$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', IndexController]);
+  .controller('IndexController', ['$timeout', 'core', '$rootScope', '$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', 'localStorageManager', IndexController]);
   
-  function IndexController($timeout, core, $rootScope, $scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup) {
+  function IndexController($timeout, core, $rootScope, $scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup, localStorageManager) {
     var indexController = this,
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
     indexController.camera = camera;
@@ -157,10 +157,13 @@
     $interval(function() {
       $scope.momentTimer = "0m";
       if(!constants.DEV_MODE) {
-        if(localStorage.getItem('timeSinceLastMoment')) {
+        if(!localStorageManager.get('timeSinceLastMoment')) {
           var currentTime = new Date().getTime();
-          var timeUntilNextMoment = parseInt(localStorage.getItem('timeSinceLastMoment')) + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
+          var timeUntilNextMoment = parseInt(localStorageManager.get('timeSinceLastMoment')) + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
           var timeLeft = timeUntilNextMoment - currentTime;
+          console.log("TEST");
+          console.log(localStorageManager.get('timeSinceLastMoment'));
+          console.log(timeLeft);
           $scope.momentTimer = core.timeElapsed(currentTime + timeLeft);
           if(currentTime > timeUntilNextMoment) {
             $scope.momentTimer = "0m";

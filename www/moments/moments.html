@@ -27,8 +27,8 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 			<div class="momentLocation">{{image.location}}</div>
 		</div>
 	</div>
-	<img src="img/logo.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked"></img>
-	<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next"></img>
+	<img src="img/logo.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked {{image.animate}}"></img>
+	<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next {{image.animate}}"></img>
 	<hr>
 	<div style="height=20%">
 	<span ng-show="image.description">{{ image.description }}  </span>
