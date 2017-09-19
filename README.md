@@ -60,6 +60,8 @@ Delete your moments
 
 Tinder Cards - https://github.com/ionic-team/ionic-ion-tinder-cards
 
+Videogular - http://www.videogular.com/
+
 Content Banner - https://github.com/djett41/ionic-content-banner
 
 Geolocation - http://ngcordova.com/docs/plugins/geolocation/
@@ -127,3 +129,7 @@ Moment's AWS S3 Database is set up like so:
 2.  $ionicPopUp takes up quite a lot of space in the code.  It would be nice to find a way to refactor this code into some kind of custom directive along with the $ionicContentBanner.
 
 3.  Errors can probably be handled better.
+
+4.  Half of the Unit tests don't work.  You have to add a 'this.' in the production code - Which breaks the production code.
+ --> https://stackoverflow.com/questions/46044025/jasmine-spyon-does-not-mock-function-correctly/46265370#46265370
+ 
