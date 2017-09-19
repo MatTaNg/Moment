@@ -56,6 +56,14 @@ Delete your moments
   -  The password is the same as your old WoW password.
 5. Run "zipalign -v 4 android-x86-release-unsigned.apk android-release-signed.apk"
  
+<b>Used APIs/Libraries</b>
+Tinder Cards - https://github.com/ionic-team/ionic-ion-tinder-cards
+Content Banner - https://github.com/djett41/ionic-content-banner
+Geolocation - http://ngcordova.com/docs/plugins/geolocation/
+Google Maps - https://developers.google.com/maps/documentation/javascript/geolocation (To get current position)
+AWS S3 - http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
+Cordova Camera - https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-camera/
+Cordova Media Capture - https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-media-capture/index.html
 
 <b>Stuff you should know:</b>
 
