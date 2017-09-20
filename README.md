@@ -133,3 +133,4 @@ Moment's AWS S3 Database is set up like so:
 4.  Half of the Unit tests don't work.  You have to add a 'this.' in the production code - Which breaks the production code.
  --> https://stackoverflow.com/questions/46044025/jasmine-spyon-does-not-mock-function-correctly/46265370#46265370
  
+5.  There is a problem with logger.js where I cannot get a text file returned as a String.  It keeps coming back as an [object Object].  As a band-aid the function just adds a new file for each new feedback, log or error.
