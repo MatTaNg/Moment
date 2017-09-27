@@ -1,9 +1,9 @@
  (function() {
  	angular.module('awsServices', [])
 
- 	.service('awsServices', ['$q', 'constants', awsServices]);
+ 	.service('awsServices', ['$q', 'constants', 'multipartUpload', awsServices]);
 
- 	function awsServices($q, constants){
+ 	function awsServices($q, constants, multipartUpload){
 
  		var vm = this;
  		vm.initiateBucket = initiateBucket;
@@ -13,6 +13,7 @@
  		vm.getMoments = getMoments;
  		vm.getMomentMetaData = getMomentMetaData;
  		vm.getObject = getObject;
+ 		vm.multiPartUpload = multiPartUpload;
 
  		function initiateBucket() {
  			var albumBucketName = 'mng-moment';
@@ -32,16 +33,32 @@
  			});
  		};
 
-		//If file size is greater than 100 MB conside Multipart upload
+ 		function multiPartUpload(buffer, key, metaData) {
+	      var multiPartParams = {
+		      Bucket: constants.BUCKET_NAME,
+		      Key: key,
+		      ContentType: 'video/mp4',
+		      Metadata: metaData
+		  };
+ 			return multipartUpload.createMultipartUpload(initiateBucket(), multiPartParams, buffer);
+ 		};
+
  		function upload(file, key, metaData) {
  			var deferred = $q.defer();
  			var s3 = vm.initiateBucket();
- 			// metaData.location = metaData.location.trim();
+ 			var contentType;
+ 			if(key.indexOf("reports") !== -1) {
+ 				contentType = "text/plain";
+ 			}
+ 			else {
+ 				contentType = "image/jpg";
+ 			}
  			var params = {	
  				Key: key,
  				Body: file,
  				ACL: 'public-read',
  				Metadata: metaData,
+ 				ContentType: contentType
  			};
  			s3.upload(params, function(error, data) {
  				if(error) {

@@ -43,12 +43,13 @@
 
 		//Untested
 		function initialize() {
-			console.log("-=-=-=-INITIALIZEING");
-			this.momentArray = localStorageManager.get('myMoments');
+			this.momentArray = JSON.parse(localStorageManager.get('myMoments'));
 			// this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
 			var oldMomentArray = this.momentArray; //Variable get overriden somewhere...
 			var promises = [];
 			totalLikes = 0;
+			console.log("INIT");
+			console.log(typeof(this.momentArray));
 			updateOldLikes(this.momentArray);
 			for(var i = 0; i < this.momentArray.length; i++) {
 				promises.push(
@@ -57,7 +58,6 @@
 							this.momentArray = oldMomentArray; //Variable gets overriden somewhere...
 							updateExtraLikesAndTotalLikes(moment);
 							moment = addShortDescriptionAndTime(moment);
-							console.log(moment);
 							return moment;
 						} else {
 							return null; //Find a better way to handle this
@@ -68,10 +68,10 @@
 			return $q.all(promises);
 		};
 
-		function removeFromLocalStorage(location) {
+		function removeFromLocalStorage(moment) {
 			var localMoments = localStorageManager.get('myMoments');
 			localMoments.splice(localMoments.findIndex(findMoment), 1);
-			localStorageManager.set('myMoments', JSON.stringify(localMoments));
+			localStorageManager.remove('myMoments', moment);
 		};
 
 		function uploadFeedback(feedback, isBug) {
@@ -97,9 +97,14 @@
 		};
 
 		function updateOldLikes(momentArray) {
+			console.log("UPDATE OLD LIKES");
+			console.log(JSON.stringify(momentArray));
+			console.log(momentArray.length);
 			if(momentArray) {
 				this.oldLikes = 0;
 				for(var i = 0; i < momentArray.length; i++) {
+					console.log(momentArray[i]);
+					console.log(momentArray[i].likes);
 					momentArray[i].likes = momentArray[i].likes.toString();
 					this.oldLikes = this.oldLikes + parseInt(momentArray[i].likes);
 				}

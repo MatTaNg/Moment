@@ -299,31 +299,35 @@ function extractAddressFrom_FormattedAddress(address) {
 function getLocationFromCoords(latitude, longitude) {
 	var deferred = $q.defer();
 	var latLng = ({lat: latitude, lng: longitude});
-	$http.get(constants.GEOLOCATION_URL + "latlng=" + latitude + "," + longitude).then(function(response) {
-		response = response.data.results;
+	if(!constants.DEV_MODE) {
+		$http.get(constants.GEOLOCATION_URL + "latlng=" + latitude + "," + longitude).then(function(response) {
+			response = response.data.results;
 
-		if(response.length < 3) {
-			deferred.resolve({lat: latitude, lng: longitude, town: "", state: ""});
-		} else {
-			var town = extractAddressFrom_FormattedAddress(response[2].formatted_address);
-			town = town.trim();
-			if(town.indexOf(',') !== -1) {
-				var state = town.split(',')[1].trim();
+			if(response.length < 3) {
+				deferred.resolve({lat: latitude, lng: longitude, town: "", state: ""});
 			} else {
-				var state = town
+				var town = extractAddressFrom_FormattedAddress(response[2].formatted_address);
+				town = town.trim();
+				if(town.indexOf(',') !== -1) {
+					var state = town.split(',')[1].trim();
+				} else {
+					var state = town
+				}
+				deferred.resolve({lat: latitude, lng: longitude, town: town, state: state});
 			}
-			deferred.resolve({lat: latitude, lng: longitude, town: town, state: state});
-		}
-	}, function(error) {
-		var parameters = {
-			Lat: latitude,
-			Lng: longitude
-		};
-		logger.logFile("geolocation.getLocationFromCoords", parameters, error, 'errors.txt').then(function() {
-			deferred.reject(error);	
+		}, function(error) {
+			var parameters = {
+				Lat: latitude,
+				Lng: longitude
+			};
+			logger.logFile("geolocation.getLocationFromCoords", parameters, error, 'errors.txt').then(function() {
+				deferred.reject(error);	
+			});
+			deferred.reject(error);
 		});
-		deferred.reject(error);
-	});
+	} else {
+		deferred.resolve( constants.MOCKED_COORDS );
+	}
 	return deferred.promise;
 };
 

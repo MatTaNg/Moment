@@ -2,12 +2,12 @@
 <widget id="com.ionicframework.moment2380651" version="0.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>moment</name>
     <description>
-    An Ionic Framework and Cordova project.
+    Moment
   </description>
-    <author email="you@example.com" href="http://example.com/">
-    Your Name Here
+    <author email="mattang5280@gmail.com" href="http://example.com/">
+    Matt
   </author>
-    <content original-src="index.html" src="http://192.168.0.6:8100" />
+    <content src="index.html" />
     <access origin="*" />
     <access launch-external="yes" origin="tel:*" />
     <access origin="*" />
@@ -26,6 +26,8 @@
     <preference name="BackupWebStorage" value="none" />
     <preference name="loadUrlTimeoutValue" value="700000" />
     <preference name="phonegap-version" value="3.7.0" />
+    <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+    <preference name="AndroidExtraFilesystems" value="sdcard,cache" />
     <platform name="android">
         <splash density="port-ldpi" height="426" src="resources/screen/android/splash-portrait-ldpi.png" width="320" />
         <splash density="port-mdpi" height="470" src="resources/screen/android/splash-portrait-mdpi.png" width="320" />
@@ -76,6 +78,8 @@
     <engine name="android" spec="^6.2.3" />
     <engine name="ios" spec="~4.3.1" />
     <plugin name="cordova-plugin-camera" spec="~2.4.1" />
+    <plugin name="cordova-plugin-file" spec="~4.3.3" />
+    <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
     <plugin name="cordova-plugin-media-capture" spec="~1.4.3">
         <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
         <variable name="MICROPHONE_USAGE_DESCRIPTION" value=" " />

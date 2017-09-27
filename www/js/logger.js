@@ -86,33 +86,37 @@
 			};
 
 			function uploadLog(message, key) {
-				console.log("UPLOAD LOG");
-				console.log(message);
-				console.log(key);
+				key = key.replace('.txt', '');
 				var moment = {key: key};
 				var deferred = $q.defer();
-				awsServices.getObject(key).then(function(data) {
-					console.log("NEW MESSAGE");
-					console.log(data);
-					data =  data.Body.toString('ascii');
-					// data = new TextDecoder("utf-8").decode(data.Body);
-					// data = Utf8ArrayToStr(data.Body);
-					console.log(data);
-					console.log(message);
-					newMessage = message.toString() + '\r\n\r\n' + data;
-					var blob = new Blob([newMessage.toString()], {type: "text"});
-					var file =  new File([blob], key);
-					awsServices.upload(file, moment.key, moment).then(function() {
-						deferred.resolve();
-					}, function(error) {
-						console.log("UPLOAD LOG REJECT");
-						deferred.reject();
-					});
-				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
-					deferred.reject();
+				console.log(moment.key);
+				var date = new Date().getMonth() + "-" + new Date().getDate() + "-" +
+				 new Date().getHours() + "Hr" + new Date().getMinutes() + "Min" + new Date().getSeconds() + "Sec";
+				moment.key = moment.key + "/" + date + ".txt";
+				var blob = new Blob([message], {type: "text"});
+				var file =  new File([blob], key);
+				awsServices.upload(file, moment.key).then(function() {
+					deferred.resolve();
 				});
+
+				// awsServices.getObject(key).then(function(data) {
+				// 	data = data.Body.toString('ascii');
+				// 	// data = new TextDecoder("ascii").decode(data.Body);
+				// 	// data = uintToString(data.Body);
+				// 	newMessage = message.toString() + '\r\n\r\n' + data;
+				// 	var blob = new Blob([newMessage.toString()], {type: "text"});
+				// 	var file =  new File([blob], key);
+				// 	awsServices.upload(file, moment.key, moment).then(function() {
+				// 		deferred.resolve();
+				// 	}, function(error) {
+				// 		console.log("UPLOAD LOG REJECT");
+				// 		deferred.reject();
+				// 	});
+				// }, function(error) {
+				// 	console.log("ERROR");
+				// 	console.log(error);
+				// 	deferred.reject();
+				// });
 				return deferred.promise;
 			};
 
@@ -126,6 +130,12 @@
 				return result;
 			};
 		};
+
+		function uintToString(uintArray) {
+    var encodedString = String.fromCharCode.apply(null, uintArray),
+        decodedString = decodeURIComponent(escape(encodedString));
+    return decodedString;
+}
 	function Utf8ArrayToStr(array) {
 	    var out, i, len, c;
 	    var char2, char3;

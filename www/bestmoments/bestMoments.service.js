@@ -18,8 +18,9 @@
 				core.listMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
 					this.momentArray = [];
 					this.momentArray.push(moments);
-					localStorageManager.set('bestMoments', moments);
-					deferred.resolve(moments);		
+					localStorageManager.set('bestMoments', moments).then(function() {
+						deferred.resolve(moments);		
+					});
 				}, function(error) {
 					console.log("ERROR");
 					deferred.reject(error);

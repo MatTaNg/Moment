@@ -16,6 +16,9 @@
 
 		//Untested
 		function uploadToAWS(media, moment) {
+			console.log("UPLOAD TO AWS");
+			console.log(media);
+			console.log(moment);
 			core.aVideoIsUploading = true;
 			var deferred = $q.defer();
 			if(!(media.includes(".mp4"))) { //Its a picture
@@ -28,10 +31,13 @@
 			else {
 		        var xhr = new XMLHttpRequest();
 		        xhr.open("GET", media);
-		        xhr.responseType = "blob";
+		        xhr.responseType = "arraybuffer";
 		        xhr.addEventListener('load', function() {
+		        	console.log("XHJR");
+		        	console.log(xhr);
 		            core.upload(xhr.response, moment).then(function() {
-		            	deferred.resolve(moment);
+		            	console.log("UPLOAD COMPLETE");
+						deferred.resolve(moment);
 		            });
 		        });
 		        xhr.send();
@@ -41,12 +47,8 @@
 		};
 
 		function uploadToLocalStorage(moment) {
-			var localMoments = [];
-			if(localStorageManager.get('myMoments')) {
-				localMoments = localStorageManager.get('myMoments');
-			}
-			localMoments.push(moment);
-			localStorageManager.set('myMoments',localMoments);
+			console.log("UPLAOD TO LOCAL STORAGE");
+			return localStorageManager.addandDownload('myMoments', moment);
 		};
 
 		function dataURItoBlob(dataURI) {

@@ -46,8 +46,11 @@
 		};
 
 		function initialize() {
+			console.log("initialize");
 			bestMomentsService.initializeView()
 			.then(function(moments){
+				console.log("SERVICE");
+				console.log(moments);
 				vm.stopLoadingData = false;
 				$scope.$broadcast('scroll.refreshComplete');
 				components.hideLoader().then(function() {

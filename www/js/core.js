@@ -1,9 +1,9 @@
  (function() {
  	angular.module('core', [])
 
- 	.service('core', ['$rootScope', '$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
+ 	.service('core', ['$cordovaFileTransfer', '$rootScope', '$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
 
- 	function core($rootScope, $q, constants, awsServices, logger, geolocation){
+ 	function core($cordovaFileTransfer, $rootScope, $q, constants, awsServices, logger, geolocation){
  		var vm = this,
  		deferred = $q.defer();
  		verifyMetaData = verifyMetaData;
@@ -27,6 +27,7 @@
 		vm.listMoments = listMoments;
 		vm.getLocation = getLocation;
 		vm.finishedVideoUpload = finishedVideoUpload;
+		vm.downloadFiles = downloadFiles;
 		vm.locationNotFound = false;
 		vm.aVideoIsUploading = false;
 
@@ -35,14 +36,40 @@
 			$rootScope.$emit("upload complete");
 		};
 
-		function startVideoUpload() {
+		function showVideoBanner() {
 			vm.aVideoIsUploading = true;
 			$rootScope.$emit("upload start");
 		}
 
+		function downloadFiles(moments) {
+			var deferred = $q.defer();
+			var x = 0;
+			var downloaded_Moments = [];
+			if(cordova.file) {
+			async.each(moments, function(moment, callback) {
+				$cordovaFileTransfer.download(moment.key,
+					cordova.file.externalDataDirectory + 'moments',
+					{}, true).then(function(result) {
+						moment.nativeURL = result.nativeURL;
+						downloaded_Moments.push(moment);
+						callback();
+					});
+				}, function(error) {
+					if(error) {
+						console.log("ERROR");
+						console.log(error);
+						deferred.reject();
+					}
+					deferred.resolve(downloaded_Moments);
+				});
+			} else {
+				deferred.resolve();
+			}
+			return deferred.promise;
+		}
+
 		function getLocation(location) {
 			var deferred = $q.defer();
-				console.log("GET LOCATION");
 			if(!constants.DEV_MODE) {
 				if(!location) {
 					geolocation.initializeUserLocation().then(function(location) {
@@ -89,7 +116,7 @@
 				}
 			}
 			else {
-				return deferred.resolve( {lat: 40.0084, lng: 75.2605, town: "Narberth, PA"} );
+				deferred.resolve( constants.MOCKED_COORDS );
 			}
 			return deferred.promise;
 		};
@@ -111,7 +138,6 @@
  		};
 
  		function remove(moment) {
- 			console.log("CORE REMOVING...");
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
  				var path = splitUrlOff(moment.key);
@@ -175,26 +201,43 @@
  		};
 
  		function upload(file, moment) {
- 			startVideoUpload();
+ 			showVideoBanner();
   			var deferred = $q.defer();
  			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
  				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
  			}
  			if(verifyMetaData(moment)) {
  				var key = splitUrlOff(moment.key);
- 				awsServices.upload(file, key, moment).then(function() {
- 					finishedVideoUpload();
- 					deferred.resolve();
- 				}, function(error) {
- 					var parameters = {
- 						File: file,
- 						Key: key,
- 						Moment: moment
+ 				if(file instanceof ArrayBuffer) {
+ 					if(file.byteLength > 1024 * 1024 * 5) {
+ 						awsServices.multiPartUpload(file, key, moment).then(function() {
+ 							finishedVideoUpload();
+ 							deferred.resolve();
+ 						});
  					}
- 					logger.logFile("aws_services.upload", parameters, error, 'errors.txt').then(function() {
- 						deferred.reject(error);	
- 					});
- 				});
+ 					else {
+ 						return awsServices.upload(file, key, moment).then(function() {
+ 							finishedVideoUpload();
+ 							deferred.resolve();
+ 						});
+ 					}
+ 				}
+ 				else {
+	 				awsServices.upload(file, key, moment)
+		 				.then(function() {
+		 					finishedVideoUpload();
+		 					deferred.resolve();
+		 				}, function(error) {
+		 					var parameters = {
+		 						File: file,
+		 						Key: key,
+		 						Moment: moment
+		 					}
+		 					logger.logFile("aws_services.upload", parameters, error, 'errors.txt').then(function() {
+		 						deferred.reject(error);	
+		 					});
+		 				});
+	 			}
  			}
  			else {
  				deferred.reject("invalid MetaData");

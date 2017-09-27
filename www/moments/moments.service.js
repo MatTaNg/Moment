@@ -23,7 +23,6 @@
 		}
 
 		function getNearbyMoments() {
-			console.log("GET NEARBYU MOMENTS");
 			var getLocation = core.getLocation;
 			var calculateNearbyStates = geolocation.calculateNearbyStates;
 			var getMomentsByState = geolocation.getMomentsByState;
@@ -70,7 +69,8 @@
 			// var getNearbyMoments = this.getNearbyMoments;
 			getNearbyMoments()
 			.then(deleteOrUploadToBestMoments)
-			.then(checkAndDeleteExpiredMoments).then(function(moments) {
+			.then(checkAndDeleteExpiredMoments)
+			.then(function(moments) {
 				for(var i = 0; i < moments.length; i) {
 					if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
 						moments.splice(i, 1);
@@ -82,8 +82,9 @@
 				core.didUserChangeRadius = false;
 				this.momentArray = moments;
 				temp = addExtraClassesandSetTime(temp);
-				localStorageManager.set('moments', temp);
-				deferred.resolve(temp);		
+				localStorageManager.set('moments', temp).then(function() {
+					deferred.resolve(temp);			
+				});
 				}, function(error) {
 					console.log("ERROR");
 					console.log(error);
@@ -285,7 +286,8 @@ function createTempVariable(moments) {
 			time: moments[i].time,
 			uuids: moments[i].uuids,
 			views: moments[i].views,
-			media: moments[i].media
+			media: moments[i].media,
+			nativeURL: moments[i].nativeURL
 		});
 	}
 	return temp;

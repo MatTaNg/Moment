@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
-	function MyMomentsController(core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
+	.controller('MyMomentsController', ['$sce','core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
+	function MyMomentsController($sce, core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.moments = localStorageManager.get('myMoments');
@@ -22,6 +22,7 @@
 		vm.watchingForLocationChange = true;
 		vm.watchForLocationChange = watchForLocationChange;
 		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
+		vm.createVideogularObj = createVideogularObj;
 		vm.watchID;
 
 		if(!(vm.moments)) {
@@ -67,6 +68,32 @@
 			}
 		});
 
+
+		function createVideogularObj(moments) {
+			var sources_array = [];
+			for(var i = 0; i < moments.length; i++) {
+				sources_array.push( {src: $sce.trustAsResourceUrl(moments.nativeURL), type: "video/mp4"} );
+			}
+			console.log("CREATE ANGULAR OBJ");
+			console.log(src);
+			vm.config = {
+		        sources: sources_array,
+		        tracks: [
+		          {
+		            src: "http://www.videogular.com/assets/subs/pale-blue-dot.vtt",
+		            kind: "subtitles",
+		            srclang: "en",
+		            label: "English",
+		            default: ""
+		          }
+		        ],
+		        theme: "lib/videogular-themes-default/videogular.css",
+		        plugins: {
+		          poster: "http://www.videogular.com/assets/images/videogular.png"
+		        }
+		      };
+		};
+
 		function refreshing() {
 			initialize().then(function() {
 				$scope.$broadcast('scroll.refreshComplete');
@@ -96,8 +123,10 @@
 						vm.moments = moments;
 						vm.totalLikes = myMomentsService.getTotalLikes();
 						vm.extraLikes = myMomentsService.getExtraLikes();
-						localStorage.setItem('myMoments', JSON.stringify(moments));
-						vm.errorMessage = false;
+						localStorageManager.set('myMoments', JSON.stringify(moments)).then(function() {
+							createVideogularObj(moments);
+							vm.errorMessage = false;
+						});
 					} else {
 						vm.moments = [];
 					}

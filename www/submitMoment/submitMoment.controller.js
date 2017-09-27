@@ -9,6 +9,7 @@
     vm.cancel = cancel;
     vm.charLimit = charLimit;
     vm.submit = submit;
+    vm.createVideogularObj = createVideogularObj;
     vm.isPicture = false;
     vm.isVideo = false;
 
@@ -34,8 +35,11 @@
       vm.isPicture = true;
     }
     if(typeof(vm.media) === "object") {
+      console.log("VIDEO");
       vm.media = $sce.valueOf(vm.media);
+      console.log($sce.valueOf(vm.media) );
       vm.isVideo = true;
+      createVideogularObj(vm.media);
     }
 
     if(!geolocation.userLocation) {
@@ -48,6 +52,27 @@
         components.hideLoader();
       })
     }
+
+    function createVideogularObj(src) {
+      vm.config = {
+            sources: [
+              {src: $sce.trustAsResourceUrl(src), type: "video/mp4"},
+            ],
+            tracks: [
+              {
+                src: "http://www.videogular.com/assets/subs/pale-blue-dot.vtt",
+                kind: "subtitles",
+                srclang: "en",
+                label: "English",
+                default: ""
+              }
+            ],
+            theme: "lib/videogular-themes-default/videogular.css",
+            plugins: {
+              poster: "http://www.videogular.com/assets/images/videogular.png"
+            }
+          };
+    };
 
     function changeLocation() {
       vm.location = !vm.location;
@@ -79,12 +104,12 @@
           });
           updateMomentObject();
           submitMomentService.uploadToAWS(vm.media, vm.moment);
-            submitMomentService.uploadToLocalStorage(vm.moment);
-            // thankUserForSubmission();
-            submitMomentService.updateTimeSinceLastMoment();
-            localStorageManager.set('timeSinceLastMoment', new Date().getTime().toString());
-            $state.go('tabsController.moments');
-          }
+          submitMomentService.uploadToLocalStorage(vm.moment);
+          // thankUserForSubmission();
+          submitMomentService.updateTimeSinceLastMoment();
+          localStorageManager.set('timeSinceLastMoment', new Date().getTime().toString());
+          $state.go('tabsController.moments');
+        }
         else {
           $ionicContentBanner.show({
             text: ["Your description is too long."],

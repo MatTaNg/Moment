@@ -2,9 +2,9 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$timeout', 'core', '$rootScope', '$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', 'localStorageManager', IndexController]);
+  .controller('IndexController', ['$cordovaFile','$cordovaFileTransfer','$timeout', 'core', '$rootScope', '$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', 'localStorageManager', IndexController]);
   
-  function IndexController($timeout, core, $rootScope, $scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup, localStorageManager) {
+  function IndexController($cordovaFile, $cordovaFileTransfer, $timeout, core, $rootScope, $scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup, localStorageManager) {
     var indexController = this,
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
     indexController.camera = camera;
@@ -55,6 +55,7 @@
     });
 
     $rootScope.$on('upload complete', function(event, args) {
+        console.log("UPLOAD COMPLETE");
            if(indexController.contentBanner) {
               indexController.contentBanner();
               indexController.contentBanner = null;
@@ -99,6 +100,7 @@
           duration: constants.MAX_DURATION_OF_VIDEO
         });
       function onSuccess(mediaFiles) {
+        console.log(mediaFiles);
         var i, path, len;
         for (i = 0, len = mediaFiles.length; i < len; i += 1) {
             path = mediaFiles[i].fullPath;
@@ -157,7 +159,7 @@
     $interval(function() {
       $scope.momentTimer = "0m";
       if(!constants.DEV_MODE) {
-        if(!localStorageManager.get('timeSinceLastMoment')) {
+        if(typeof(localStorageManager.get('timeSinceLastMoment')) === Array) {
           var currentTime = new Date().getTime();
           var timeUntilNextMoment = parseInt(localStorageManager.get('timeSinceLastMoment')) + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
           var timeLeft = timeUntilNextMoment - currentTime;

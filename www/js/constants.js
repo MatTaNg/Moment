@@ -36,6 +36,7 @@
 		"MOMENT_EXTENSION": ".jpg",
 		"LOCATION_NOT_FOUND_TXT": "We could not find your location",
 
+		"MOCKED_COORDS": {lat: 40.0084, lng: 75.2605, town: "Narberth, PA"},
 		"DEV_MODE": false //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
 	})
 })();
