@@ -1,4 +1,34 @@
 <b>Gold Copy Testing</b>
+
+*Remove date cache and clear AWS test database
+1.	*App should prompt for location access.
+2.	*No Moments found image should appear
+3.	Take a 10s video – App should prompt for file access
+4.	Play video
+5.	Submit the moment while the video is playing.
+6.	Wait a little bit and then go over to the myMoments section. ***
+7.	Play the video
+8.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
+9.	Change the search radius to 50 miles.
+10.	Edit the location to “Malvern, PA”
+11.	Go to Moments – Your video should appear (If you are within 50 miles of Malvern, PA).
+12.	Play the video.
+13.	Swipe right on the video.
+14.	*No Moments should appear
+15.	Look at AWS and make sure likes and view has incremented to 1.
+16.	Take a picture
+17.	Attempt to add a description that’s too long and submit it.
+18.	Add a valid description and uncheck the location box
+19.	Go to myMoments and make sure the picture shows up.
+20.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
+21.	Go back to Moments and be sure your picuture appears with an “Unknown” location
+22.	Swipe right on the picture.
+23.	Go to best moments – Your picture and video should appear.
+24.	Go to AWS database and set your picture time to 10.
+25.	Go to Moments and swipe on your picture.
+26.	It should be removed from the Moments database but NOT from BestMoments.
+
+
 1.  Turn DEV mode on in constants.js
 
 1.  Delete everything in the test folder in S3 bucket
@@ -74,6 +104,8 @@ Cordova Camera - https://cordova.apache.org/docs/en/latest/reference/cordova-plu
 
 Cordova Media Capture - https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-media-capture/index.html (video)
 
+Permissions - https://github.com/NeoLSN/cordova-plugin-android-permissions
+
 
 <b>Stuff you should know:</b>
 
@@ -134,3 +166,11 @@ Moment's AWS S3 Database is set up like so:
  --> https://stackoverflow.com/questions/46044025/jasmine-spyon-does-not-mock-function-correctly/46265370#46265370
  
 5.  There is a problem with logger.js where I cannot get a text file returned as a String.  It keeps coming back as an [object Object].  As a band-aid the function just adds a new file for each new feedback, log or error.
+
+6.  When running unit tests you must comment out these lines:
+   'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards',
+   "ngSanitize",
+   "com.2fdevs.videogular",
+   "com.2fdevs.videogular.plugins.controls",
+   "com.2fdevs.videogular.plugins.overlayplay",
+   "com.2fdevs.videogular.plugins.poster"])
