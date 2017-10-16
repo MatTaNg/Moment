@@ -1,5 +1,5 @@
 describe('Moment Service', function() {
-	var core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
+	var localStorageManager, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
 	beforeEach(module('app'));
 	var mockLat = 40.008446;
 	var mockLng = -75.260460;
@@ -33,6 +33,7 @@ describe('Moment Service', function() {
         $http = $injector.get('$http');
         awsServices = $injector.get('awsServices');
         core = $injector.get('core');
+        localStorageManager = $injector.get('localStorageManager');
 
         constants.DEV_MODE = false;
     }));
@@ -57,6 +58,9 @@ describe('Moment Service', function() {
         spyOn(core, 'getUUID').and.callFake(function() {
             return Math.random();
         });
+        spyOn(localStorageManager, 'set').and.callFake(function() {
+        	return $q.resolve();
+        });
 
         geolocation.max_north.lat = 99999;
         geolocation.max_west.lng = -99999;
@@ -79,6 +83,31 @@ describe('Moment Service', function() {
             return $q.resolve(mock_moment);
         });
         service.initializeView().then(function() {
+            done();
+        })
+        $scope.$apply();
+    });
+
+    it('Should load more moments', function(done) {
+        var mock_moment = {
+            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            description: "MOCK_DESCRIPTION",
+            likes: 900,
+            location: "MOCK_LOCATION",
+            time: 15,
+            uuids: "123",
+            views: 1000
+        };
+        service.momentArray = [mock_moment];
+        spyOn(awsServices, 'getMoments').and.callFake(function() {
+            return $q.resolve(mock_moment);
+        });
+        spyOn(core, 'listMoments').and.callFake(function() {
+        	return $q.resolve();
+        });
+        service.loadMore().then(function() {
+        	expect(core.listMoments).toHaveBeenCalledWith(constants.BEST_MOMENT_PREFIX, 'bestMoments/40.008446_-75.26046_1499829188066.jpg');
             done();
         })
         $scope.$apply();

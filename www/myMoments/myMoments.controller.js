@@ -1,9 +1,10 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
-	function MyMomentsController(core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
+	.controller('MyMomentsController', ['$sce','core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
+	function MyMomentsController($sce, core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
 		var vm = this;
+		console.log("MY MOMENTS CONTROLLER");
 		vm.initialize = initialize;
 		vm.moments = localStorageManager.get('myMoments');
 		vm.remove = remove;
@@ -20,8 +21,10 @@
 		vm.locationErrorMsg = false;
 		vm.distance = localStorageManager.get('momentRadiusInMiles');
 		vm.watchingForLocationChange = true;
+		vm.loading = false;
 		vm.watchForLocationChange = watchForLocationChange;
 		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
+		vm.createVideogularObj = createVideogularObj;
 		vm.watchID;
 
 		if(!(vm.moments)) {
@@ -67,6 +70,33 @@
 			}
 		});
 
+
+		function createVideogularObj(moments) {
+			var sources_array = [];
+			for(var i = 0; i < moments.length; i++) {
+				if(moments[i].media === "video") {
+					sources_array.push( {src: $sce.trustAsResourceUrl(moments[i].nativeURL), type: "video/mp4"} );
+				}
+			}
+			vm.config = {
+		        sources: sources_array,
+		        preload: "preload",
+		        tracks: [
+		          {
+		            src: "http://www.videogular.com/assets/subs/pale-blue-dot.vtt",
+		            kind: "subtitles",
+		            srclang: "en",
+		            label: "English",
+		            default: ""
+		          }
+		        ],
+		        theme: "lib/videogular-themes-default/videogular.css",
+		        plugins: {
+		          poster: "http://www.videogular.com/assets/images/videogular.png"
+		        }
+		      };
+		};
+
 		function refreshing() {
 			initialize().then(function() {
 				$scope.$broadcast('scroll.refreshComplete');
@@ -87,16 +117,26 @@
 		};
 
 		function initialize() {
+			if(vm.moments.length === 0){
+				vm.loading = true;
+			}
+			else {
+				for(var i = 0; i < vm.moments.length; i++ ){
+					vm.moments[i].time = core.timeElapsed(vm.moments[i].time);
+				}
+				createVideogularObj(vm.moments);
+			}
 			var deferred = $q.defer();
 			if(vm.moments !== []) {
 				myMomentsService.initialize().then(function(moments) {
 					moments = removeNullObject(moments); //Band-aid
-					if(moments !== null) {
+					if(moments !== null && moments.length > 0) {
 						vm.refresh = false;
 						vm.moments = moments;
 						vm.totalLikes = myMomentsService.getTotalLikes();
 						vm.extraLikes = myMomentsService.getExtraLikes();
-						localStorage.setItem('myMoments', JSON.stringify(moments));
+						vm.loading = false;
+						createVideogularObj(moments);
 						vm.errorMessage = false;
 					} else {
 						vm.moments = [];

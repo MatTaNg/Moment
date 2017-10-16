@@ -1,9 +1,9 @@
  (function() {
  	angular.module('core', [])
 
- 	.service('core', ['$rootScope', '$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
+ 	.service('core', ['$cordovaFileTransfer', '$rootScope', '$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
 
- 	function core($rootScope, $q, constants, awsServices, logger, geolocation){
+ 	function core($cordovaFileTransfer, $rootScope, $q, constants, awsServices, logger, geolocation){
  		var vm = this,
  		deferred = $q.defer();
  		verifyMetaData = verifyMetaData;
@@ -23,10 +23,11 @@
  		vm.uploadToBestMoments = uploadToBestMoments;
  		vm.removeFromBestMoments = removeFromBestMoments;
  		vm.getMoment = getMoment;
-		vm.getMomentMetaData = getMomentMetaData;
+		vm.getMomentMetaData = getMomentMetaData; 
 		vm.listMoments = listMoments;
 		vm.getLocation = getLocation;
 		vm.finishedVideoUpload = finishedVideoUpload;
+		vm.downloadFiles = downloadFiles;
 		vm.locationNotFound = false;
 		vm.aVideoIsUploading = false;
 
@@ -35,14 +36,54 @@
 			$rootScope.$emit("upload complete");
 		};
 
-		function startVideoUpload() {
+		function showVideoBanner() {
 			vm.aVideoIsUploading = true;
 			$rootScope.$emit("upload start");
 		}
 
+		function downloadFiles(moments) {
+			var deferred = $q.defer();
+			var x = 0;
+			var downloaded_Moments = []; 
+			if(cordova.file && moments) {
+				async.each(moments, function(moment, callback) {
+					var temp = moment.key.split("/");
+					uniqueKey = temp[temp.length - 1];
+					var fileURL = cordova.file.externalDataDirectory + 'moments' + new Date().getTime() + '/';
+					$cordovaFileTransfer.download(moment.key, fileURL, {}, true).then(function(result) {
+						moment.nativeURL = result.nativeURL;
+						downloaded_Moments.push(moment);
+						callback();
+					}, function(error) {
+						console.log("ERROR");
+						console.log(error);
+						var parameters = {
+							moments: moments
+						}
+						logger.logFile("core.downloadFiles", parameters, error, 'errors.txt');
+					});
+				}, function(error) {
+					if(error) {
+						var parameters = {
+							moments: moments,
+						}
+						logger.logFile("core.downloadFiles", parameters, error, 'errors.txt');
+						deferred.reject();
+					}
+					deferred.resolve(downloaded_Moments);
+				});
+			} else {
+				var parameters = {
+					moments: moments,
+				}
+				logger.logFile("core.downloadFiles", parameters, error, 'errors.txt');
+				deferred.reject();
+			}
+			return deferred.promise;
+		}
+
 		function getLocation(location) {
 			var deferred = $q.defer();
-				console.log("GET LOCATION");
 			if(!constants.DEV_MODE) {
 				if(!location) {
 					geolocation.initializeUserLocation().then(function(location) {
@@ -51,8 +92,6 @@
 						vm.locationNotFound = false;
 						deferred.resolve(vm.currentLocation);
 					}, function(error) {
-						console.log("ERROR");
-						console.log(error);
 						vm.currentLocation.town = "Could not find location";
 						vm.locationNotFound = true;
 						deferred.reject();
@@ -66,8 +105,6 @@
 						geolocation.setMaxNESW(location.lat, location.lng);
 						deferred.resolve(location);
 					}, function(error) {
-						console.log("ERROR");
-						console.log(error);
 						vm.currentLocation.town = "Could not find location";
 						deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
 					});
@@ -80,8 +117,6 @@
 						geolocation.setMaxNESW(location.lat, location.lng);
 						deferred.resolve(location);
 					}, function(error) {
-						console.log("ERROR");
-						console.log(error);
 						vm.currentLocation.town = "Could not find location";
 						deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
 
@@ -89,7 +124,9 @@
 				}
 			}
 			else {
-				return deferred.resolve( {lat: 40.0084, lng: 75.2605, town: "Narberth, PA"} );
+				vm.currentLocation = constants.MOCKED_COORDS;
+				geolocation.setMaxNESW(vm.currentLocation.lat, vm.currentLocation.lng);
+				deferred.resolve( constants.MOCKED_COORDS );
 			}
 			return deferred.promise;
 		};
@@ -111,19 +148,13 @@
  		};
 
  		function remove(moment) {
- 			console.log("CORE REMOVING...");
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
  				var path = splitUrlOff(moment.key);
  			} else { //AWS S3 SDK returns a key with a capital 'K'
  				var path = moment.Key;
  			}
- 			return awsServices.remove(path).then(function() {
- 			}, function(error) {
- 				console.log("REMOVE FAILED");
- 				logger.logFile('aws_services.remove', {Path: path}, error, 'errors.txt').then(function() {
- 				});
- 			});
+ 			return awsServices.remove(path);
  		};
 
  		var verifyMetaData = function(moment) {
@@ -133,68 +164,56 @@
  			if(	moment.location &&
  				moment.likes &&
  				moment.description !== undefined &&
- 				moment.time &&
+ 				moment.time !== undefined &&
  				moment.views &&
  				moment.uuids &&
  				moment.media)
  				return true;
  			else {
- 				logger.logFile('core.verifyMetaData', {Moment: moment}, "", 'errors.txt').then(function() {
- 					return false;
- 				});
+ 				logger.logFile('core.verifyMetaData', {Moment: moment}, "", 'errors.txt');
+ 				return false;
  			}
  		}
 
  		function edit(moment){
- 			var deferred = $q.defer();
  			var key = moment.key;
  			if(verifyMetaData(moment)) {
  				key = this.splitUrlOff(key);
- 				awsServices.copyObject(key, key, moment, "REPLACE").then(function() {
- 					deferred.resolve();
- 				}, function(error) {
- 					var parameters = {
- 						Key: key,
- 						CopySource: key,
- 						MetaData: moment,
- 						Directive: "REPLACE"
- 					};
- 					console.log("ERROR");
- 					console.log(error);
- 					console.log(parameters);
-					// error = "FAILURE - aws_services.copyObject" + "\r\n" + "KEY: " + key + " | copySource: " + copySource + " | META DATA: " + metaData + " | DIRECTIVE: " + directive + "\r\n" + error;
-					logger.logFile("aws_services.copyObject", parameters, error, 'errors.txt').then(function() {
-						deferred.reject(error);	
-					});
-				});
+ 				return awsServices.copyObject(key, key, moment, "REPLACE");
+ 			} else {
+ 				return $q.reject();
  			}
- 			else {
- 				deferred.reject();
- 			}
- 			return deferred.promise;
  		};
 
  		function upload(file, moment) {
- 			startVideoUpload();
+ 			showVideoBanner();
   			var deferred = $q.defer();
  			if(!moment.key.includes(".txt") && !moment.key.includes("_")) {
  				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
  			}
  			if(verifyMetaData(moment)) {
  				var key = splitUrlOff(moment.key);
- 				awsServices.upload(file, key, moment).then(function() {
- 					finishedVideoUpload();
- 					deferred.resolve();
- 				}, function(error) {
- 					var parameters = {
- 						File: file,
- 						Key: key,
- 						Moment: moment
+ 				if(file instanceof ArrayBuffer) {
+ 					if(file.byteLength > 1024 * 1024 * 5) {
+ 						awsServices.multiPartUpload(file, key, moment).then(function() {
+ 							finishedVideoUpload();
+ 							deferred.resolve();
+ 						});
  					}
- 					logger.logFile("aws_services.upload", parameters, error, 'errors.txt').then(function() {
- 						deferred.reject(error);	
- 					});
- 				});
+ 					else {
+ 						return awsServices.upload(file, key, moment).then(function() {
+ 							finishedVideoUpload();
+ 							deferred.resolve();
+ 						});
+ 					}
+ 				}
+ 				else {
+	 				awsServices.upload(file, key, moment)
+		 				.then(function() {
+		 					finishedVideoUpload();
+		 					deferred.resolve();
+		 				});
+	 			}
  			}
  			else {
  				deferred.reject("invalid MetaData");
@@ -203,15 +222,14 @@
  		};
 
  		function uploadToBestMoments(moment) {
+ 			var momentKey = moment.key;
  			var copySource = this.splitUrlOff(moment.key);
 			var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
 			// var log = "New BestMoment - moment.uploadToBestMoments" + "\r\n" + "MOMENT: " + moment + "\r\n" + error;
-			return logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt')
-				.then(function() {
-					var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
-					moment.key = moment.key.replace('moments/.../', "bestMoments/");
-					awsServices.copyObject(key, copySource, moment, "REPLACE");
-				});
+			logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt');
+			var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
+			moment.key = moment.key.replace(/\/moment\/../, "/bestMoments");
+			awsServices.copyObject(key, copySource, moment, "REPLACE");
  		};
 
  		function removeFromBestMoments(moment) {
@@ -233,6 +251,7 @@
  			var promises = [];
  			return awsServices.getMoments(prefix, startAfter).then(function(moments) {
  				for(var i = 0; i < moments.length; i++) {
+ 					moments[i].key = moments[i].Key;
  					// moments[i].Key = constants.IMAGE_URL + moments[i].Key;
  					promises.push(getMomentMetaData(moments[i]));
  				}
@@ -258,18 +277,38 @@
  		};
 
  		function timeElapsed(time) {
-			if(time.toString().match(/[a-z]/i)) { //It is already in the correct format
+		if(time.toString().match(/[a-z]/i)) { //It is already in the correct format
+		// 	console.log("LETTER FORMAT");
+		// 	if(time.indexOf('m') > -1) {
+		// 		time = time.replace('m', '');
+		// 		time = time * 60000;
+		// 		time = time + "";
+		// 		return time;
+		// 	}
+		// 	else if(time.indexOf('h') > -1) {
+		// 		time = time.replace('h', '');
+		// 		time = time * 3600000;
+		// 		time = time + "";
+		// 		return time;
+		// 	}
+		// 	else if(time.indexOf('d') > -1) {
+		// 		time = time.replace('d', '');
+		// 		time = time * 86400000;
+		// 		time = time + "";
+		// 		return time;
+		// 	}
+		// 	else {
 				return time;
-			}
-			time = parseInt(time);
-
-			var currentTime = new Date().getTime();
-			var minute = 60;
-			var hour = 3600;
-			var day = 86400;
-			var counter = 0;
-			var timeElapsed = Math.abs(currentTime - time);
-			timeElapsed = timeElapsed / 1000;
+		// 	}
+		}
+		time = parseInt(time);
+		var currentTime = new Date().getTime();
+		var minute = 60;
+		var hour = 3600;
+		var day = 86400;
+		var counter = 0;
+		var timeElapsed = Math.abs(currentTime - time);
+		timeElapsed = timeElapsed / 1000;
 		//How many days are in timeElasped?
 		for(var i = timeElapsed; i > day; i = i - day) {
 			counter++;
@@ -305,7 +344,9 @@
 	function getUUID() {
 		// return window.device.uuid;
 		if(constants.DEV_MODE) {
-			return new Date().getTime().toString(); //Temporary	
+			// return new Date().getTime().toString(); //Temporary	
+			// return "123";
+			return "a3052d4fa4ec79a5";
 		} else {
 			return window.device.uuid;
 		}

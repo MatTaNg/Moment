@@ -21,6 +21,7 @@
 			if(!(media.includes(".mp4"))) { //Its a picture
 				var blob = new Blob([this.dataURItoBlob(media)], {type: 'image/jpeg'});
 				core.upload(blob, moment).then(function() {
+					localStorageManager.addandDownload('myMoments', moment);
 					deferred.resolve(moment);
 					core.aVideoIsUploading = false;
 				});
@@ -28,11 +29,15 @@
 			else {
 		        var xhr = new XMLHttpRequest();
 		        xhr.open("GET", media);
-		        xhr.responseType = "blob";
+		        xhr.responseType = "arraybuffer";
 		        xhr.addEventListener('load', function() {
-		            core.upload(xhr.response, moment).then(function() {
-		            	deferred.resolve(moment);
-		            });
+		        	core.upload(xhr.response, moment).then(function() {
+						deferred.resolve(moment);
+		           	 // });
+		        	}, function(error) {
+		        		console.log("UPLOAD ERROR");
+		        		console.log(error);
+		        	});
 		        });
 		        xhr.send();
 
@@ -41,12 +46,7 @@
 		};
 
 		function uploadToLocalStorage(moment) {
-			var localMoments = [];
-			if(localStorageManager.get('myMoments')) {
-				localMoments = localStorageManager.get('myMoments');
-			}
-			localMoments.push(moment);
-			localStorageManager.set('myMoments',localMoments);
+			return localStorageManager.addandDownload('myMoments', moment);
 		};
 
 		function dataURItoBlob(dataURI) {

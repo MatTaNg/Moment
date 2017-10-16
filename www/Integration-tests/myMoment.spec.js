@@ -1,5 +1,5 @@
 describe('myMoment Service', function() {
-    var core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
+    var localStorageManager, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
     beforeEach(module('app'));
     var mockLat = 40.008446;
     var mockLng = -75.260460;
@@ -14,6 +14,7 @@ describe('myMoment Service', function() {
             results: ['', '', {formatted_address: "Narberth, PA"}]
         }
     };
+
     beforeEach(inject(function($templateCache) {
         $templateCache.put('layout/tabsController.html', 'layout/tabsController.html');
         $templateCache.put('myMoments/myMoments.html', 'layout/tabsController.html');
@@ -33,6 +34,7 @@ describe('myMoment Service', function() {
         $http = $injector.get('$http');
         awsServices = $injector.get('awsServices');
         core = $injector.get('core');
+        localStorageManager = $injector.get('localStorageManager');
 
         constants.DEV_MODE = false;
     }));
@@ -40,13 +42,27 @@ describe('myMoment Service', function() {
     beforeEach(inject(function() {
         var deferred = $q.defer();
 
+        // spyOn(localStorageManager, 'get').and.callFake(function() {
+        //     console.log("MOCK CALLED");
+        //     return $q.resolve(mock_moment);
+        // });
+
+        spyOn(core, 'downloadFiles').and.callFake(function() {
+            return $q.resolve();
+        });
+
         spyOn($http, 'get').and.callFake(function(url) {
             return $q.resolve(mock_http_response);
+        });
+
+        spyOn(awsServices, 'multiPartUpload').and.callFake(function() {
+            return $q.resolve();
         });
 
         spyOn(awsServices, 'upload').and.callFake(function() {
             return $q.resolve('test');
         });
+
         spyOn(core, 'getUUID').and.callFake(function() {
             return Math.random();
         });
@@ -58,15 +74,16 @@ describe('myMoment Service', function() {
     }));
 
     it('Should initialize the moments', function(done) {
-        var mock_moment = {
+         var mock_moment = {
             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
             key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
             description: "MOCK_DESCRIPTION",
-            likes: 900,
+            likes: '900',
             location: "MOCK_LOCATION",
-            time: 15,
+            time: new Date().getTime(),
             uuids: "123",
-            views: 1000
+            views: 1000,
+            gainedLikes: 0
         };
         service.momentArray = mock_moment;
         spyOn(localStorage, 'getItem').and.callFake(function() {
@@ -74,12 +91,12 @@ describe('myMoment Service', function() {
         });
 
         spyOn(awsServices, 'getObject').and.callFake(function() {
-        	console.log("====-=-=-=-GET OBJECT MOCKED");
             return $q.resolve( { Metadata: mock_moment });
         });
-
         service.initialize().then(function(moment) {
-        	expect(moment[0]).toBe(mock_moment);
+        	        	mock_moment.time = core.timeElapsed(mock_moment.time);
+        	mock_moment.shortDescription = "MOCK_DESCRIPTION";
+        	expect(moment[0]).toEqual(mock_moment);
             done();
         });
         $scope.$apply();

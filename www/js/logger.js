@@ -1,35 +1,84 @@
 		(function() {
 			angular.module('logger', [])
 
-			.service('logger', ['$q', 'constants', 'awsServices', logger]);
+			.service('logger', ['$q', 'constants', logger]);
 
-			function logger($q, constants, awsServices) {
+			function logger($q, constants) {
 				var vm = this;
 				vm.logFile = logFile;
 				vm.logReport = logReport;
+				vm.logOutMessage = logOutMessage;
+				vm.upload = upload;
 
-				//Prevents any new log files from being created due to typos and whatnot
-				function fileExists(key) {
-					if(key.startsWith('reports/') &&
-						constants.REPORT_FILES.indexOf(key.split('/')[1] !== -1)) {
-						return true;
-					} else {
-						return false;
+
+			function upload(file, key) {
+				var deferred = $q.defer();
+				var albumBucketName = 'mng-moment';
+	 			var bucketRegion = 'us-east-1';
+	 			var IdentityPoolId = 'us-east-1:9d3f5c80-78c8-4505-a52e-0d811dccc8e4';
+
+	 			AWS.config.update({
+	 				region: bucketRegion,
+	 				credentials: new AWS.CognitoIdentityCredentials({
+	 					IdentityPoolId: IdentityPoolId
+	 				})
+	 			});
+
+	 			var s3 = new AWS.S3({
+	 				apiVersion: '2006-03-01',
+	 				params: {Bucket: albumBucketName}
+	 			});
+
+	 			var params = {	
+	 				Key: key,
+	 				Body: file,
+	 				ACL: 'public-read',
+	 				ContentType: 'text/plain'
+	 			};
+
+	 			s3.upload(params, function(error, data) {
+	 				if(error) {
+	 					logOutMessage("logger.upload", parameters, error);
+	 					deferred.reject();
+	 				}
+	 				else {
+	 					deferred.resolve();
+	 				}
+	 			});
+	 			return deferred.promise;
+ 			};
+
+			//Prevents any new log files from being created due to typos and whatnot
+			function fileExists(key) {
+				if(key.startsWith('reports/') &&
+					constants.REPORT_FILES.indexOf(key.split('/')[1] !== -1)) {
+					return true;
+				} else {
+					return false;
+				}
+			};
+
+			function convertMetaDataToString(metaData) {
+				if(metaData.key) {
+					return "KEY: " + metaData.key + '\r\n\r\n' +
+							"LIKES: " + metaData.likes + '\r\n\r\n' +
+							"LOCATION: " + metaData.location + '\r\n\r\n' +
+							"TIME: " + metaData.time + '\r\n\r\n' +
+							"UUIDS: " + metaData.uuids;
 					}
-				};
+					else {
+						return "";
+					}
+			};
 
-				function convertMetaDataToString(metaData) {
-					if(metaData.key) {
-						return "KEY: " + metaData.key + '\r\n\r\n' +
-								"LIKES: " + metaData.likes + '\r\n\r\n' +
-								"LOCATION: " + metaData.location + '\r\n\r\n' +
-								"TIME: " + metaData.time + '\r\n\r\n' +
-								"UUIDS: " + metaData.uuids;
-						}
-						else {
-							return "";
-						}
-				};
+			function logOutMessage(failed_function, parameters, error) {
+				console.log("============================================");
+				console.log("ERROR in " + JSON.stringify(failed_function));
+				console.log("Parameters:");
+				console.log(JSON.stringify(parameters, null, 4));
+				console.log(error);
+				console.log("============================================");
+			}
 		/*
 			function: What class and function did it fail?  Ex: core.logFile
 			parameters: What parameters did it fail with? Ex: {metaData: metaData, key: key}
@@ -37,8 +86,8 @@
 			key: What kind of error is it?
 			*/
 			function logFile(failed_function, parameters, error, key) {
-				var deferred = $q.defer();
 				var key = 'reports/' + key;
+				logOutMessage(failed_function, parameters, error);
 				if(parameters.MetaData) {
 					parameters.MetaData = convertMetaDataToString(parameters.MetaData);
 				}
@@ -49,71 +98,37 @@
 						Bucket: constants.BUCKET_NAME,
 						Key: key
 					};
-					uploadLog(msg, key).then(function() {
-						deferred.resolve();
-					}, function(error) {
-						deferred.reject(error);
-					});
+					return uploadLog(msg, key);
 				} else {
-					uploadLog("File does not exist", key).then(function() {
-						deferred.reject();
-					});
+					return uploadLog("File does not exist", key);
 				}
-				return deferred.promise;
 			};
 
 			function logReport(report, moment, key) {
 				if(key.indexOf("reports") === -1) {
 					key = 'reports/' + key;
 				}
-				var deferred = $q.defer();
 				var params = {
 					Bucket: constants.BUCKET_NAME,
 					Key: key
 				}
 				if(fileExists(key)){
-					uploadLog(Date() + ": " + report + '\r\n\r\n' + convertMetaDataToString(moment), key).then(function() {
-						deferred.resolve();
-					}, function(error) {
-						deferred.reject();
-					});
+					return uploadLog(Date() + ": " + report + '\r\n\r\n' + convertMetaDataToString(moment), key);
 				} else {
-					uploadLog("File does not exist", key).then(function() {
-						deferred.reject();
-					});
+					return uploadLog("File does not exist", key);
 				}
-				return deferred.promise;
 			};
 
 			function uploadLog(message, key) {
-				console.log("UPLOAD LOG");
-				console.log(message);
-				console.log(key);
-				var moment = {key: key};
 				var deferred = $q.defer();
-				awsServices.getObject(key).then(function(data) {
-					console.log("NEW MESSAGE");
-					console.log(data);
-					data =  data.Body.toString('ascii');
-					// data = new TextDecoder("utf-8").decode(data.Body);
-					// data = Utf8ArrayToStr(data.Body);
-					console.log(data);
-					console.log(message);
-					newMessage = message.toString() + '\r\n\r\n' + data;
-					var blob = new Blob([newMessage.toString()], {type: "text"});
-					var file =  new File([blob], key);
-					awsServices.upload(file, moment.key, moment).then(function() {
-						deferred.resolve();
-					}, function(error) {
-						console.log("UPLOAD LOG REJECT");
-						deferred.reject();
-					});
-				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
-					deferred.reject();
-				});
-				return deferred.promise;
+				key = key.replace('.txt', '');
+				var moment = {key: key};
+				var date = new Date().getMonth() + "-" + new Date().getDate() + "-" +
+				new Date().getHours() + "Hr" + new Date().getMinutes() + "Min" + new Date().getSeconds() + "Sec";
+				moment.key = moment.key + "/" + date + ".txt";
+				var blob = new Blob([message], {type: "text"});
+				return upload(blob, moment.key);
+
 			};
 
 			function createLogMessage(failed_function, parameters, error, key) {
@@ -126,6 +141,12 @@
 				return result;
 			};
 		};
+
+		function uintToString(uintArray) {
+    var encodedString = String.fromCharCode.apply(null, uintArray),
+        decodedString = decodeURIComponent(escape(encodedString));
+    return decodedString;
+}
 	function Utf8ArrayToStr(array) {
 	    var out, i, len, c;
 	    var char2, char3;

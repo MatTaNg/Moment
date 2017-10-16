@@ -7,9 +7,17 @@
 		this.momentArray = localStorageManager.get('bestMoments');
 		this.initializeView = initializeView;
 		this.loadMore = loadMore;
+		this.convertTime = convertTime;
 
 		if(!this.momentArray) {
 			this.momentArray = [];
+		}
+
+		function convertTime(moments) {
+			for(var i = 0; i < moments.length; i++) {
+				moments[i].time = core.timeElapsed(moments[i].time);
+			}
+			return moments;
 		}
 
 		function initializeView() {
@@ -18,8 +26,10 @@
 				core.listMoments(constants.BEST_MOMENT_PREFIX, '').then(function(moments) {
 					this.momentArray = [];
 					this.momentArray.push(moments);
-					localStorageManager.set('bestMoments', moments);
-					deferred.resolve(moments);		
+					localStorageManager.set('bestMoments', moments).then(function() {
+						convertTime(moments);
+						deferred.resolve(moments);		
+					});
 				}, function(error) {
 					console.log("ERROR");
 					deferred.reject(error);
@@ -40,6 +50,7 @@
 						description: metaData.description,
 						likes: parseInt(metaData.likes),
 						location: metaData.location,
+						media: metaData.media,
 						time: core.timeElapsed(metaData.time),
 						uuids: metaData.uuids,
 						views: metaData.views
@@ -55,13 +66,7 @@
 				startAfter = startAfter.split('/');
 				startAfter = startAfter[startAfter.length - 1];
 				startAfter = "bestMoments/" + startAfter;
-				return core.listMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
-					promises = createPromiseObjects(moments);
-					return Promise.all(promises);
-				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
-				});
+				return core.listMoments(constants.BEST_MOMENT_PREFIX, startAfter);
 			} else {
 				return Promise.resolve([]);
 			}

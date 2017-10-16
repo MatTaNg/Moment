@@ -81,6 +81,29 @@ describe('Core', function() {
     	$scope.$apply();
     });
 
+    it('Should do multipartUpload moments', function() {
+    	var mock_moment = {
+			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
+			description: "MOCK_DESCRIPTION1",
+			likes: 1,
+			location: "MOCK_LOCATION1",
+			time: 1500609179810,
+			uuids: "123",
+			views: 1,
+			media: ".mp4"
+		};
+		var arrayBuffer = new ArrayBuffer(1024 * 1024 * 5 * 2);
+
+		spyOn(core, "splitUrlOff").and.returnValue(mock_moment.key);
+		spyOn(awsServices, 'multiPartUpload').and.callFake(function() {
+			return $q.resolve();
+		});
+    	core.upload(arrayBuffer, mock_moment).then(function() {
+    		expect(awsServices.multiPartUpload).toHaveBeenCalledWith(arrayBuffer, mock_moment.key, mock_moment);
+    	});
+    	$scope.$apply();
+    });
+
     it('Should upload to best moments', function() {
     	var mock_moment = {
 			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
@@ -176,9 +199,6 @@ describe('Core', function() {
 			return $q.resolve(temp);
 		});
 		core.getMoment(mock_moment).then(function(moment) {
-			console.log("QWEQWEWQ");
-			console.log(moment);
-			console.log(mock_moment);
 			expect(moment).toEqual(mock_moment);
 			done();
 		});
