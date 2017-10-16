@@ -1,9 +1,9 @@
 (function() {
 	angular.module('myMomentsService', [])
 
-	.service('myMomentsService', ['core', '$q', 'logger', 'localStorageManager', myMomentsService]);
+	.service('myMomentsService', ['core', '$q', 'logger', 'localStorageManager', 'multipartUpload', myMomentsService]);
 
-	function myMomentsService(core, $q, logger, localStorageManager) {
+	function myMomentsService(core, $q, logger, localStorageManager, multipartUpload) {
 		this.removeFromLocalStorage = removeFromLocalStorage;
 		this.uploadFeedback = uploadFeedback;
 		this.initialize = initialize;
@@ -41,31 +41,53 @@
 			}
 		}
 
-		//Untested
 		function initialize() {
-			this.momentArray = JSON.parse(localStorageManager.get('myMoments'));
-			// this.momentArray = JSON.parse(localStorage.getItem('myMoments'));
+			var deferred = $q.defer();
+			this.momentArray = localStorageManager.get('myMoments');
 			var oldMomentArray = this.momentArray; //Variable get overriden somewhere...
-			var promises = [];
+			var deletedMoments = [];
 			totalLikes = 0;
-			console.log("INIT");
-			console.log(typeof(this.momentArray));
 			updateOldLikes(this.momentArray);
-			for(var i = 0; i < this.momentArray.length; i++) {
-				promises.push(
-					core.getMoment(this.momentArray[i]).then(function(moment) {
-						if(moment !== "Not Found") {
-							this.momentArray = oldMomentArray; //Variable gets overriden somewhere...
-							updateExtraLikesAndTotalLikes(moment);
-							moment = addShortDescriptionAndTime(moment);
-							return moment;
-						} else {
-							return null; //Find a better way to handle this
+			async.each(this.momentArray, function(moment, callback) {
+				this.momentArray = oldMomentArray; //Variable gets overriden somewhere...
+				core.getMoment(moment).then(function(returnedMoment) {
+					if(returnedMoment !== "Not Found") {
+						
+					} else {
+						deletedMoments.push(moment);
+					}
+					callback();
+				});
+			}, function(error) {
+				this.momentArray = oldMomentArray;
+				if(error) {
+					console.log("ERROR in myMomentsService.Initialize");
+					console.log(error);
+					deferred.reject();
+				}
+				if(this.momentArray) {
+					for(var i = 0; i < deletedMoments.length; i++) {
+						for(var x = 0; x < this.momentArray.length; x) {
+							if(this.momentArray[x].key === deletedMoments[i].key) 
+								this.momentArray.splice(x, 1);
+							else {
+								x++;
+							} 
 						}
-					})
-				);
-			}
-			return $q.all(promises);
+					}
+					core.downloadFiles(this.momentArray).then(function(moments) {
+						localStorageManager.set('myMoments', moments).then(function() {
+							console.log(this.momentArray.length);
+							this.momentArray =	updateExtraLikesAndTotalLikes(this.momentArray);
+							this.momentArray = addShortDescriptionAndTime(this.momentArray);
+							deferred.resolve(this.momentArray);
+						});
+					});
+				}
+			});
+			// 	);
+			// }
+			return deferred.promise;
 		};
 
 		function removeFromLocalStorage(moment) {
@@ -97,39 +119,39 @@
 		};
 
 		function updateOldLikes(momentArray) {
-			console.log("UPDATE OLD LIKES");
-			console.log(JSON.stringify(momentArray));
-			console.log(momentArray.length);
 			if(momentArray) {
 				this.oldLikes = 0;
 				for(var i = 0; i < momentArray.length; i++) {
-					console.log(momentArray[i]);
-					console.log(momentArray[i].likes);
 					momentArray[i].likes = momentArray[i].likes.toString();
 					this.oldLikes = this.oldLikes + parseInt(momentArray[i].likes);
 				}
 			}
 		};
 
-		function updateExtraLikesAndTotalLikes(moment) {
-			var currentLikes = 0;
-			for(var i = 0; i< this.momentArray.length; i++) {
-				if(this.momentArray[i].key === moment.key) {
-					currentLikes = this.momentArray[i].likes;
-					this.momentArray[i].likes = moment.likes;
+		function updateExtraLikesAndTotalLikes(moments) {
+			for(var x = 0; x < moments.length; x++) {
+				var currentLikes = 0;
+				for(var i = 0; i< this.momentArray.length; i++) {
+					if(this.momentArray[i].key === moments[x].key) {
+						currentLikes = this.momentArray[i].likes;
+						this.momentArray[i].likes = moments[x].likes;
+					}
 				}
+				totalLikes = totalLikes + parseInt(moments[x].likes);
+				extraLikes = totalLikes - this.oldLikes;
+				moments[x].gainedLikes = moments[x].likes - currentLikes;
 			}
-			totalLikes = totalLikes + parseInt(moment.likes);
-			extraLikes = totalLikes - this.oldLikes;
-			moment.gainedLikes = moment.likes - currentLikes;
+			return moments;
 		}
 
-		function addShortDescriptionAndTime(moment) {
-			moment.time = core.timeElapsed(moment.time);
-			if(moment.description.length > 0) {
-				moment.shortDescription = moment.description.substring(0,50);
+		function addShortDescriptionAndTime(moments) {
+			for(var i = 0; i < moments.length; i++) {
+				moments[i].time = core.timeElapsed(moments[i].time);
+				if(moments[i].description.length > 0) {
+					moments[i].shortDescription = moments[i].description.substring(0,50);
+				}
 			}
-			return moment;
+			return moments;
 		};
 
 

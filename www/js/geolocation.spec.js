@@ -1,5 +1,5 @@
 describe("Geolocation", function() {
-	var $q, constants, logger, geolocation, $scope, $templateCache, $http, awsServices;
+	var permissions, $q, constants, logger, geolocation, $scope, $templateCache, $http, awsServices;
 
 	beforeEach(module('app'));
 
@@ -24,6 +24,7 @@ describe("Geolocation", function() {
         $scope = $injector.get('$rootScope').$new();
         awsServices = $injector.get('awsServices');
         geolocation = $injector.get('geolocation');
+        permissions = $injector.get('permissions');
     }));
 
     beforeEach(function() {
@@ -53,8 +54,10 @@ describe("Geolocation", function() {
 	it('Get current Lat Long in DEV_MODE', function(done) {
 		constants.DEV_MODE = true;
 		geolocation.getCurrentLatLong().then(function(coords) {
-			expect(coords.lat).toEqual(40.008446);
-			expect(coords.lng).toEqual(-75.260460);
+			expect(coords.lat).toEqual(constants.MOCKED_COORDS.lat);
+			expect(coords.lng).toEqual(constants.MOCKED_COORDS.lng);
+			expect(coords.town).toEqual(constants.MOCKED_COORDS.town);
+			expect(coords.state).toEqual(constants.MOCKED_COORDS.state);
 			done();
 		});
 		$scope.$apply();
@@ -93,6 +96,9 @@ describe("Geolocation", function() {
 				town: mock_town
 			});
 		});
+		spyOn(permissions, 'checkPermission').and.callFake(function() {
+			return $q.resolve();
+		});
 		geolocation.initializeUserLocation().then(function(location) {
 			expect(location.lat).toEqual(mock_lat);
 			expect(location.lng).toEqual(mock_lng);
@@ -129,13 +135,23 @@ describe("Geolocation", function() {
 			expect(constants.MOMENT_PREFIX + 'PA');
 			expect(startAfter).toEqual('');
 		});
-		geolocation.getMomentsByState(["PA"]).then(function() {
+		geolocation.getMomentsByState('', ["PA"]).then(function() {
 			done();
 		});
 		$scope.$apply();
 	});
 
 	it('Should get moments within radius', function(done) {
+		var mockMoment = {
+			Key: "MOCK_KEY1",
+			key: "MOCK_KEY1",
+			description: "MOCK_DESCRIPTION1",
+			likes: 1,
+			location: "MOCK_LOCATION1",
+			time: "1d",
+			uuids: "123",
+			views: 1
+		};
 		geolocation.max_north.lat = 99999;
 		geolocation.max_south.lat = -99999;
 		geolocation.max_west.lng = -99999;
@@ -143,6 +159,7 @@ describe("Geolocation", function() {
 		spyOn(awsServices, 'getMomentMetaData').and.callFake(function(key) {
 			expect(key).toEqual("https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg");
 			done();
+			return $q.resolve(mockMoment);
 		});
 		geolocation.getMomentsWithinRadius([
 		{

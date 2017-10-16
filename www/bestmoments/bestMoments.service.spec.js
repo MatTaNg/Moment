@@ -1,5 +1,5 @@
 describe('Best Moment Service', function() {
-	var service, geolocation, core_Mock, $q, constants, $scope, $templateCache;
+	var localStorageManager, service, geolocation, core_Mock, $q, constants, $scope, $templateCache;
 
 	beforeEach(module('app'));
 
@@ -11,10 +11,6 @@ describe('Best Moment Service', function() {
     	$templateCache.put('submitMoment/submitMoment.html', 'layout/tabsController.html');
     	$templateCache.put('templates/page.html', 'layout/tabsController.html');
 	}));
-
-    beforeEach(function() {
-    	spyOn(localStorage, 'setItem');
-    });
 
     beforeEach(inject(function($injector) {
     	
@@ -28,7 +24,14 @@ describe('Best Moment Service', function() {
         constants = $injector.get('constants');
         $scope = $injector.get('$rootScope').$new();
         service = $injector.get('bestMomentsService');
+        localStorageManager = $injector.get('localStorageManager');
     }));
+
+    beforeEach(function() {
+    	spyOn(localStorageManager, 'set').and.callFake(function() {
+    		return $q.resolve();
+    	});
+    });
 
     function mockOutMoments() {
 		return [
@@ -89,7 +92,7 @@ describe('Best Moment Service', function() {
 			return $q.resolve(mockOutMoments());
 		});	
 		service.initializeView().then(function() {
-			expect(localStorage.setItem).toHaveBeenCalledWith('bestMoments', JSON.stringify(mockOutMoments()));
+			expect(localStorageManager.set).toHaveBeenCalled();
 			expect(service.momentArray.length).toEqual(mockOutMoments().length);
 			for(var i = 0; i < service.momentArray.length; i++) {
 				expect(service.momentArray[i].key).toEqual(mockOutMoments()[i].key);

@@ -28,7 +28,8 @@
 		"BEST_MOMENTS_RATIO": 0.5,
 		"DEFAULT_MOMENT_RADIUS_IN_MILES": 25,
 		"BEST_MOMENTS_MIN_VIEWS": 10,
-		"MAX_KEYS": 50,
+		"MAX_MOMENTS_PER_GET": 5,
+		"MAX_NUM_OF_MOMENTS": 30,
 		"MAX_DURATION_OF_VIDEO": 10, //In seconds
 		
 		//Minor Configurations
@@ -36,7 +37,7 @@
 		"MOMENT_EXTENSION": ".jpg",
 		"LOCATION_NOT_FOUND_TXT": "We could not find your location",
 
-		"MOCKED_COORDS": {lat: 40.0084, lng: 75.2605, town: "Narberth, PA"},
+		"MOCKED_COORDS": {lat: 40.0084, lng: 75.2605, town: "Narberth, PA", state: 'PA'},
 		"DEV_MODE": false //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
 	})
 })();

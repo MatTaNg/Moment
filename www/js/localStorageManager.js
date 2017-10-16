@@ -13,17 +13,13 @@
 
 		function get(storage) {
 			if(storage !== 'timeSinceLastMoment') {
-				// console.log("GET " + storage); 
-				// console.log(typeof localStorage.getItem(storage) === 'undefined'); 
-				// console.log(localStorage.getItem(storage) === null); 
 			}
 			if(localStorage.getItem(storage) !== null && localStorage.getItem(storage) !== "undefined") {
-				if(storage !== 'timeSinceLastMoment') { console.log(JSON.parse(localStorage.getItem(storage))); }
 				return JSON.parse(localStorage.getItem(storage));
 			}
 			else {
-				set(storage, JSON.stringify([]));
-				return false;
+				localStorage.setItem(storage, JSON.stringify([]));
+				return [];
 			}
 		};
 
@@ -33,22 +29,25 @@
 			}); 
 		};
 
-		function addandDownload(storage, item) {
-			console.log("ADD AND DOWNLOAD");
-			console.log(storage);
-			console.log(item);
-			return downloadFile(storage, item).then(function() {
-				var currentLocalStorage = this.get(storage);
-				currentLocalStorage.push(item);
+		function addandDownload(storage, items) {
+			if(!(items instanceof Array)) {
+				var temp = [];
+				temp.push(items);
+				items = temp;
+			}
+			return downloadFile(storage, items).then(function() {
+				var currentLocalStorage = get(storage);
+				currentLocalStorage = currentLocalStorage.concat(items);
 				localStorage.setItem(storage, JSON.stringify(currentLocalStorage));
-				console.log(this.get(storage));
 			});
 		}
 
 		function remove(storage, item) {
-			var currentLocalStorage = this.get(storage);
-			currentLocalStorage.splice(storage.findIndex(item), 1);
-			localStorage.setItem(storage, JSON.stringify(currentLocalStorage));
+			var currentLocalStorage = get(storage);
+			if(currentLocalStorage.indexOf(item) !== -1) {
+				currentLocalStorage.splice(currentLocalStorage.indexOf(item), 1);
+				localStorage.setItem(storage, JSON.stringify(currentLocalStorage));
+			}
 		};
 
 		function downloadFile(storage, items) {

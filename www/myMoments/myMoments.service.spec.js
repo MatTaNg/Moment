@@ -27,7 +27,6 @@ describe("Test myMoments Service", function() {
         service = $injector.get('myMomentsService');
     }));
 
-//Does not work
     it('Should initialize', function(done) {
     	var mocked_Moment = 		
     	{
@@ -39,7 +38,9 @@ describe("Test myMoments Service", function() {
 			uuids: "123",
 			views: 1
 		};
-
+    	spyOn(core_Mock, "downloadFiles").and.callFake(function() {
+    		return $q.resolve(mocked_Moment);
+    	});
 		spyOn(localStorage, 'getItem').and.callFake(function() {
 			return JSON.stringify([mocked_Moment]);
 		});
@@ -64,7 +65,7 @@ describe("Test myMoments Service", function() {
     		return $q.resolve();
     	});
     	service.uploadFeedback(bug, true).then(function() {
-	    	expect(logger.logReport).toHaveBeenCalledWith(bug, 'reports/bugs.txt');
+	    	expect(logger.logReport).toHaveBeenCalledWith(bug, '', 'reports/bugs.txt');
 	    	done();
     	});
     	$scope.$apply();
@@ -76,7 +77,7 @@ describe("Test myMoments Service", function() {
     		return $q.resolve();
     	});
     	service.uploadFeedback(feedback, false).then(function() {
-	    	expect(logger.logReport).toHaveBeenCalledWith(feedback, 'reports/feedback.txt');
+	    	expect(logger.logReport).toHaveBeenCalledWith(feedback, '', 'reports/feedback.txt');
 	    	done();
     	});
     	$scope.$apply();

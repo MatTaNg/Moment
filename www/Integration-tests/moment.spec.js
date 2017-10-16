@@ -1,5 +1,5 @@
 describe('Moment Service', function() {
-	var $rootScope, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
+	var localStorageManager, $rootScope, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
 	beforeEach(module('app'));
 	var mockLat = 40.008446;
 	var mockLng = -75.260460;
@@ -34,6 +34,7 @@ describe('Moment Service', function() {
         awsServices = $injector.get('awsServices');
         core = $injector.get('core');
         $rootScope = $injector.get('$rootScope');
+        localStorageManager = $injector.get('localStorageManager');
 
         constants.DEV_MODE = false;
     }));
@@ -62,6 +63,9 @@ describe('Moment Service', function() {
         spyOn(geolocation, 'initializeUserLocation').and.callFake(function() {
             return $q.resolve( { town: "Narberth, PA" } );
         });
+        spyOn(localStorageManager, 'addandDownload').and.callFake(function() {
+            return $q.resolve();
+        });
 
         geolocation.max_north.lat = 99999;
         geolocation.max_west.lng = -99999;
@@ -82,7 +86,6 @@ describe('Moment Service', function() {
             views: 1000
         };
         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-            console.log("========== 1 GET MOMENT META DATA");
             return $q.resolve(mock_moment);
         });
 
@@ -94,7 +97,7 @@ describe('Moment Service', function() {
         service.momentArray.push(mock_moment);
     	spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
     		expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
-    		expect(startAfter).toEqual('');
+    		expect(startAfter).toEqual('PA/40.008446_-75.26046_1499829188066.jpg');
             var deferred = $q.defer();
             deferred.resolve([mock_moment, mock_moment, mock_moment]);
             return deferred.promise;
@@ -119,7 +122,6 @@ describe('Moment Service', function() {
             views: 1000
         };
         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-            console.log("========== 2 GET MOMENT META DATA");
             return $q.resolve(mock_moment);
         });
 
@@ -135,7 +137,7 @@ describe('Moment Service', function() {
         service.momentArray.push(mock_moment);
         spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
             expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
-            expect(startAfter).toEqual('');
+            expect(startAfter).toEqual('PA/40.008446_-75.26046_1499829188066.jpg');
             var deferred = $q.defer();
             deferred.resolve([mock_moment]);
             return deferred.promise;
@@ -148,7 +150,7 @@ describe('Moment Service', function() {
         $scope.$apply();
     });
 
-//==========Mocks do not work without using "this"
+// //==========Mocks do not work without using "this"
 it('Should correctly initialize the view and upload to best moments', function(done) {
         var mock_moment = {
             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
@@ -156,12 +158,11 @@ it('Should correctly initialize the view and upload to best moments', function(d
             description: "MOCK_DESCRIPTION",
             likes: 900,
             location: "MOCK_LOCATION",
-            time: 15,
+            time: new Date().getTime(),
             uuids: "123",
-            views: 1000
+            views: 20
         };
         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-            console.log("========== 3 GET MOMENT META DATA");
             return $q.resolve(mock_moment);
         });
 
@@ -170,13 +171,12 @@ it('Should correctly initialize the view and upload to best moments', function(d
         });
 
         spyOn(awsServices, 'remove').and.callFake(function() {
-            return $q.resolve();
+            return $q.resolve(); 
         });
 
         spyOn(core, 'uploadToBestMoments');
 
         var deferred = $q.defer();
-        service.momentArray.push(mock_moment);
         spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
             expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
             expect(startAfter).toEqual('');
@@ -192,7 +192,7 @@ it('Should correctly initialize the view and upload to best moments', function(d
         $scope.$apply();
     });
 
-//==========Mocks do not work without using "this"
+// //==========Mocks do not work without using "this"
 it('Should correctly initialize the view and remove moment from best moments', function(done) {
         var mock_moment = {
             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
@@ -200,7 +200,7 @@ it('Should correctly initialize the view and remove moment from best moments', f
             description: "MOCK_DESCRIPTION",
             likes: 400,
             location: "MOCK_LOCATION",
-            time: 15,
+            time: new Date().getTime(),
             uuids: "123",
             views: 1000
         };
@@ -215,10 +215,8 @@ it('Should correctly initialize the view and remove moment from best moments', f
         spyOn(core, 'removeFromBestMoments');
 
         var deferred = $q.defer();
-        service.momentArray.push(mock_moment);
         spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
             expect(key).toEqual(constants.MOMENT_PREFIX + 'Narberth');
-            expect(startAfter).toEqual('');
             var deferred = $q.defer();
             deferred.resolve([mock_moment]);
             return deferred.promise;
@@ -231,8 +229,8 @@ it('Should correctly initialize the view and remove moment from best moments', f
         $rootScope.$apply();
     });
 
-    it('Should successfully upload Report', function() {
-    });
+//     it('Should successfully upload Report', function() {
+//     });
 
     function areMomentsCorrectlyInitialized(moments) {
         for(var i = 0; i  < moments.length; i++) {

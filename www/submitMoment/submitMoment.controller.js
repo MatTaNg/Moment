@@ -35,9 +35,7 @@
       vm.isPicture = true;
     }
     if(typeof(vm.media) === "object") {
-      console.log("VIDEO");
       vm.media = $sce.valueOf(vm.media);
-      console.log($sce.valueOf(vm.media) );
       vm.isVideo = true;
       createVideogularObj(vm.media);
     }
@@ -104,7 +102,6 @@
           });
           updateMomentObject();
           submitMomentService.uploadToAWS(vm.media, vm.moment);
-          submitMomentService.uploadToLocalStorage(vm.moment);
           // thankUserForSubmission();
           submitMomentService.updateTimeSinceLastMoment();
           localStorageManager.set('timeSinceLastMoment', new Date().getTime().toString());

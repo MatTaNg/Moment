@@ -60,6 +60,10 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   font-size:20px;
 }
 
+.openDialog .popup {
+  width: 80%;
+}
+
 /**Moment**/
 .noDescription {
   font-size: 14pt;
@@ -146,6 +150,10 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
   white-space: normal;
   margin-top: 5px;
+}
+.myMoments_spinner {
+  margin-left: 45%;
+  margin-right: auto;
 }
 .myMoments_NotFound {
   text-align: center; 
