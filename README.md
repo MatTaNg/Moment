@@ -1,12 +1,12 @@
 <b>Gold Copy Testing</b>
 
-*Remove date cache and clear AWS test database
+*Remove date cache and change GPS location to -25.104357, 135.332945
 1.	*App should prompt for location access.
 2.	*No Moments found image should appear
-3.	Take a 10s video – App should prompt for file access
+3.	Attempt to take a max-length video – App should prompt for file access
 4.	Play video
 5.	Submit the moment while the video is playing.
-6.	Wait a little bit and then go over to the myMoments section. ***
+6.	Wait a little bit and then go over to the myMoments section. 
 7.	Play the video
 8.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
 9.	Change the search radius to 50 miles.
