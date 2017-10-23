@@ -77,7 +77,7 @@ Delete your moments
 <b>Updating the app on Google Play</b>
 <b>Reference</b>https://stackoverflow.com/questions/42290083/how-do-i-publish-an-updated-version-of-my-existing-ionic-app-on-google-play-stor
 1. Increment versionCode and versionName in AndroidManifest.xml
-2. Run "Cordova build --release android"
+2. Run "cordova build --release android" in the root folder of the project.
   - This will crease a "android-release-unsigned.apk" file in moment\platforms\android\build\outputs\apk
 3.  Copy the the C:\Users\Andy\Google Drive\Programming\moment\platforms\android\build\outputs\apk\android-x86-release-unsigned.apk into the same folder as the keystore which should be moment/platforms/android.  Then CD into that folder.
   -  This step is optional but will make things easier
@@ -85,6 +85,7 @@ Delete your moments
   -  In this step we sign the unreleased apk with our keystore.
   -  The password is the same as your old WoW password.
 5. Run "zipalign -v 4 android-x86-release-unsigned.apk android-release-signed.apk"
+6. Go to https://play.google.com/apps/publish/?account=7835354612490500415#ManageReleasesPlace:p=com.ionicframework.moment2380651
  
 <b>Used APIs/Libraries</b>
 
