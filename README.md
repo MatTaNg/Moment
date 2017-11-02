@@ -1,10 +1,10 @@
 <b>Gold Copy Testing</b>
 
-*Remove date cache and change GPS location to -25.104357, 135.332945
+*Remove date cache and change GPS location to -25.104357, 135.332945.  Be sure DEV_MODE is false.
 1.	*App should prompt for location access.
 2.	*No Moments found image should appear
 3.	Attempt to take a max-length video – App should prompt for file access
-4.	Play video
+4.	Play video and add a description
 5.	Submit the moment while the video is playing.
 6.	Wait a little bit and then go over to the myMoments section. 
 7.	Play the video
@@ -15,7 +15,7 @@
 12.	Play the video.
 13.	Swipe right on the video.
 14.	*No Moments should appear
-15.	Look at AWS and make sure likes and view has incremented to 1.
+15.	Look at AWS and make sure likes and view has incremented to 1. (101 Likes & 21 Views)
 16.	Take a picture
 17.	Attempt to add a description that’s too long and submit it.
 18.	Add a valid description and uncheck the location box
