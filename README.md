@@ -24,7 +24,7 @@
 21.	Go back to Moments and be sure your picuture appears with an “Unknown” location
 22.	Swipe right on the picture.
 23.	Go to best moments – Your picture and video should appear.
-24.	Go to AWS database and set your picture time to 10.
+24.	Go to AWS database and set your picture time meta data to 10 and remove your UUID once again.
 25.	Go to Moments and swipe on your picture.
 26.	It should be removed from the Moments database but NOT from BestMoments.
 
@@ -79,13 +79,8 @@ Delete your moments
 1. Increment versionCode and versionName in AndroidManifest.xml
 2. Run "cordova build --release android" in the root folder of the project.
   - This will crease a "android-release-unsigned.apk" file in moment\platforms\android\build\outputs\apk
-3.  Copy the the C:\Users\Andy\Google Drive\Programming\moment\platforms\android\build\outputs\apk\android-x86-release-unsigned.apk into the same folder as the keystore which should be moment/platforms/android.  Then CD into that folder.
-  -  This step is optional but will make things easier
-4. Run "jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore Moment.keystore android-x86-release-unsigned.apk moment"
-  -  In this step we sign the unreleased apk with our keystore.
-  -  The password is the same as your old WoW password.
-5. Run "zipalign -v 4 android-x86-release-unsigned.apk android-release-signed.apk"
-6. Go to https://play.google.com/apps/publish/?account=7835354612490500415#ManageReleasesPlace:p=com.ionicframework.moment2380651
+3. Go to https://play.google.com/apps/publish/?account=7835354612490500415#ManageReleasesPlace:p=com.ionicframework.moment2380651
+4. Upload the debug apk in moment\platforms\android\build\outputs\apk.
  
 <b>Used APIs/Libraries</b>
 
