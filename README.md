@@ -170,3 +170,5 @@ Moment's AWS S3 Database is set up like so:
    "com.2fdevs.videogular.plugins.controls",
    "com.2fdevs.videogular.plugins.overlayplay",
    "com.2fdevs.videogular.plugins.poster"])
+   
+7.  If a moments UUID has only a space character then swiping will fail to update the UUID.  This can only occur if an admin manually erases the UUID.
