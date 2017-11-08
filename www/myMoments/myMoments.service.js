@@ -49,27 +49,34 @@
 			totalLikes = 0;
 			updateOldLikes(this.momentArray);
 			async.each(this.momentArray, function(moment, callback) {
+				//Remove moments which have been deleted
 				this.momentArray = oldMomentArray; //Variable gets overriden somewhere...
-				core.getMoment(moment).then(function(returnedMoment) {
+				core.getMomentMetaData(moment).then(function(returnedMoment) {
 					if(returnedMoment !== "Not Found") {
-						
+						for(var i = 0; i < oldMomentArray.length;i++) {
+							if(oldMomentArray[i].key === returnedMoment.key) {
+								oldMomentArray[i] = returnedMoment;
+							}
+						}
 					} else {
 						deletedMoments.push(moment);
 					}
+					callback();
+				}, function(error) {
+					deletedMoments.push(moment);
 					callback();
 				});
 			}, function(error) {
 				this.momentArray = oldMomentArray;
 				if(error) {
-					console.log("ERROR in myMomentsService.Initialize");
-					console.log(error);
 					deferred.reject();
 				}
 				if(this.momentArray) {
 					for(var i = 0; i < deletedMoments.length; i++) {
 						for(var x = 0; x < this.momentArray.length; x) {
-							if(this.momentArray[x].key === deletedMoments[i].key) 
+							if(this.momentArray[x].key === deletedMoments[i].key) { 
 								this.momentArray.splice(x, 1);
+							}
 							else {
 								x++;
 							} 
@@ -77,7 +84,6 @@
 					}
 					core.downloadFiles(this.momentArray).then(function(moments) {
 						localStorageManager.set('myMoments', moments).then(function() {
-							console.log(this.momentArray.length);
 							this.momentArray =	updateExtraLikesAndTotalLikes(this.momentArray);
 							this.momentArray = addShortDescriptionAndTime(this.momentArray);
 							deferred.resolve(this.momentArray);
@@ -85,14 +91,12 @@
 					});
 				}
 			});
-			// 	);
-			// }
 			return deferred.promise;
 		};
 
 		function removeFromLocalStorage(moment) {
-			var localMoments = localStorageManager.get('myMoments');
-			localMoments.splice(localMoments.findIndex(findMoment), 1);
+			// var localMoments = localStorageManager.get('myMoments');
+			// localMoments.splice(localMoments.findIndex(findMoment), 1);
 			localStorageManager.remove('myMoments', moment);
 		};
 

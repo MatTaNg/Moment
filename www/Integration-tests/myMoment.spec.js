@@ -42,11 +42,6 @@ describe('myMoment Service', function() {
     beforeEach(inject(function() {
         var deferred = $q.defer();
 
-        // spyOn(localStorageManager, 'get').and.callFake(function() {
-        //     console.log("MOCK CALLED");
-        //     return $q.resolve(mock_moment);
-        // });
-
         spyOn(core, 'downloadFiles').and.callFake(function() {
             return $q.resolve();
         });
@@ -90,13 +85,15 @@ describe('myMoment Service', function() {
             return JSON.stringify([mock_moment]);
         });
 
-        spyOn(awsServices, 'getObject').and.callFake(function() {
+        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
             return $q.resolve( { Metadata: mock_moment });
         });
         service.initialize().then(function(moment) {
-        	        	mock_moment.time = core.timeElapsed(mock_moment.time);
+        	mock_moment.time = core.timeElapsed(mock_moment.time);
         	mock_moment.shortDescription = "MOCK_DESCRIPTION";
         	expect(moment[0]).toEqual(mock_moment);
+            expect(service.getTotalLikes()).toEqual(parseInt(mock_moment.likes));
+            expect(service.getExtraLikes()).toEqual(0);
             done();
         });
         $scope.$apply();

@@ -46,7 +46,7 @@ describe("Test myMoments Service", function() {
 		});
 
     	service.momentArray = [mocked_Moment];
-    	spyOn(core_Mock, 'getMoment').and.callFake(function() {
+    	spyOn(core_Mock, 'getMomentMetaData').and.callFake(function() {
     		return $q.resolve(mocked_Moment);
     	});
     	service.initialize().then(function() {

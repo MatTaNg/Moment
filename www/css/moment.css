@@ -36,12 +36,8 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 .ion-ios-upload {
   font-size: 35px;
-  color: #2695c0;
 }
-.ion-ios-upload-outline {
-  font-size: 35px;
-}
-.ion-ios-camera-outline {
+.ion-ios-camera {
   font-size: 35px;
 }
 .ion-happy {
@@ -72,6 +68,7 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 .momentLocation {
   text-align: left; 
   margin-top: 15px; 
+  margin-bottom: 3px;
   font-size: 14pt;
 }
 .momentTime {
@@ -122,12 +119,22 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
+.layer-next {
+  position: absolute;
+  z-index: 1;
+  width: 95%;
+  height: 95%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
 .layer-hide {
   display: none;
 }
 .ion-ios-flag {
   position:fixed;
-  left: 94%;
+  left: 92%;
   top: 93%;
   width:75%;
   font-size: 30px;
@@ -135,10 +142,28 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 .ion-ios-flag-outline {
   position:fixed;
-  left: 94%;
+  left: 92%;
   top: 93%;
   width:75%;
   font-size: 30px;
+}
+.ion-archive {
+  position:fixed;
+  left: 3%;
+  top: 93%;
+  width:75%;
+  font-size: 30px; 
+}
+.loadingMoments {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding-top: 10%;
+  z-index: -1;
+}
+.noMoments {
+  padding-top: 10%;
+  z-index: -1;
 }
 /**My Moment**/
 .myMoments_description{
@@ -249,7 +274,9 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   margin-top: 20px;
   margin-bottom: 20px;
 }
-
+.ion-android-close {
+  float: right;
+}
 .toggle input:checked + .track {
     background-color: #8577b5;
     border-color: #8577b5;

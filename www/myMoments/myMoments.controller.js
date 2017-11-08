@@ -1,10 +1,9 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['$sce','core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
-	function MyMomentsController($sce, core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
+	.controller('MyMomentsController', ['$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
+	function MyMomentsController($ionicLoading, $sce, core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
 		var vm = this;
-		console.log("MY MOMENTS CONTROLLER");
 		vm.initialize = initialize;
 		vm.moments = localStorageManager.get('myMoments');
 		vm.remove = remove;
@@ -26,6 +25,7 @@
 		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
 		vm.createVideogularObj = createVideogularObj;
 		vm.watchID;
+		vm.initRunning = false;
 
 		if(!(vm.moments)) {
 			vm.moments = [];
@@ -65,7 +65,7 @@
 		});
 
 		$scope.$watch('vm.distance', function() {
-			if(vm.distance !== localStorage.getItem('momentRadiusInMiles')) {
+			if(JSON.stringify(vm.distance) !== JSON.stringify(localStorageManager.get('momentRadiusInMiles'))) {
 				core.didUserChangeRadius = true;
 			}
 		});
@@ -127,8 +127,10 @@
 				createVideogularObj(vm.moments);
 			}
 			var deferred = $q.defer();
-			if(vm.moments !== []) {
+			if(vm.moments !== [] && vm.initRunning === false) {
+				vm.initRunning = true;
 				myMomentsService.initialize().then(function(moments) {
+					vm.initRunning = false;
 					moments = removeNullObject(moments); //Band-aid
 					if(moments !== null && moments.length > 0) {
 						vm.refresh = false;
@@ -143,8 +145,6 @@
 					}
 					deferred.resolve();
 				}, function(error) {
-					console.log("ERROR");
-					console.log(error);
 					$ionicContentBanner.show({
 						text: ["There was a problem getting the moments"],
 						type: "error",
@@ -166,24 +166,29 @@
 			})
 			.then(function(confirm) {
 				if(confirm) {
-					core.remove(moment).then(function() {
-						myMomentsService.removeFromLocalStorage(moment);
-						vm.moments = JSON.parse(localStorage.getItem('myMoments'));
+					$ionicLoading.show({}).then(function() {
+						var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
+						var bestMomentKey = moment.key.replace(/\/moment\/../, "/bestMoments");
+						core.remove(moment).then(function() {
+							moment.key = bestMomentKey
+							core.remove(moment).then(function() {
+								myMomentsService.removeFromLocalStorage(moment);
+								vm.moments.splice(vm.moments.indexOf(moment), 1);
+								$ionicLoading.hide();
+								if(vm.moments.length === 0) {
+									vm.errorMessage = true;
+								}	
+							});
+						});
 
-						if(vm.moments.length === 0) {
-							vm.errorMessage = true;
-						}	
-					}, function(error) {
-						console.log("REMOVE FAILED");
-						console.log(error);
 					});
-
 				}
 				else{
 					console.log("!CONFIRM");
 				}
 			});
 		};
+
 		function toggleDescription(image) {
 			if(image.showShortDescription) {
 				image.showShortDescription = false;
@@ -260,8 +265,6 @@
 							deferred.resolve();
 						});
 					}, function(error) {
-						console.log("ERROR");
-						console.log(error);
 						components.hideLoader();
 						deferred.reject();
 					});	
@@ -270,7 +273,6 @@
 			}
 			else {
 				components.hideLoader().then(function() {
-					console.log("ERROR");
 					vm.locationErrorMsg = true;
 					deferred.reject();
 				});

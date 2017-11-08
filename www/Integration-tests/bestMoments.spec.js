@@ -104,7 +104,7 @@ describe('Moment Service', function() {
             return $q.resolve(mock_moment);
         });
         spyOn(core, 'listMoments').and.callFake(function() {
-        	return $q.resolve();
+        	return $q.resolve([mock_moment]);
         });
         service.loadMore().then(function() {
         	expect(core.listMoments).toHaveBeenCalledWith(constants.BEST_MOMENT_PREFIX, 'bestMoments/40.008446_-75.26046_1499829188066.jpg');

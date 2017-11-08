@@ -1,4 +1,4 @@
-// //Taken from: https://gist.github.com/sevastos/5804803
+  // //Taken from: https://gist.github.com/sevastos/5804803
 
 (function() {
   angular.module('multipartUpload', [])
@@ -34,6 +34,7 @@
             }
             currentLocalStorage.push(metaData);
             localStorage.setItem('myMoments', JSON.stringify(currentLocalStorage));
+            console.log("MULTIPART UPLOAD FINISHED"); //Required for manual testing
           }, function(error) {
             console.log("ERROR");
             console.log(error);
@@ -45,6 +46,7 @@
         };
 
         function completeMultipartUpload(s3, doneParams, metaData) {
+          console.log("COMPLETED MULTIPART UPLOAD");
           s3.completeMultipartUpload(doneParams, function(err, data) {
             if (err) {
               console.log("An error occurred while completing the multipart upload");
@@ -59,8 +61,11 @@
         }
 
         function uploadPart(s3, multipart, partParams, metaData) {
+          console.log("UPLOAD PART");
           var tryNum = tryNum || 1;
-          return s3.uploadPart(partParams, function(multiErr, mData) {
+            s3.uploadPart(partParams, function(multiErr, mData) {
+              console.log("Uplaod Part Complete");
+              console.log(mData);
             if (multiErr){
               console.log('multiErr, upload part error:', multiErr);
               if (tryNum < maxUploadTries) {
@@ -75,18 +80,18 @@
               ETag: mData.ETag,
               PartNumber: Number(this.request.params.PartNumber)
             };
-    if (--numPartsLeft > 0) return; // complete only when all parts uploaded
+            if (--numPartsLeft > 0) return; // complete only when all parts uploaded
 
-    var doneParams = {
-      Bucket: partParams.Bucket,
-      Key: partParams.Key,
-      MultipartUpload: multipartMap,
-      UploadId: multipart.UploadId
-    };
+            var doneParams = {
+              Bucket: partParams.Bucket,
+              Key: partParams.Key,
+              MultipartUpload: multipartMap,
+              UploadId: multipart.UploadId
+            };
 
-    completeMultipartUpload(s3, doneParams, metaData);
-  });
-}
+            completeMultipartUpload(s3, doneParams, metaData);
+          });
+      }
 
       // Multipart
       function createMultipartUpload(s3, multiPartParams, buffer) {

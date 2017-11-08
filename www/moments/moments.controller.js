@@ -6,7 +6,6 @@
 	function MomentsController ($sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager) {
 		var vm = this;
 		vm.moments = localStorageManager.get('moments');
-		// vm.moments = [{"key":"https://s3.amazonaws.com/mng-moment/moment/PA/40.0015241_-75.2701684_1506032532039.mp4","description":"iii","likes":"1","location":"Wynnewood, PA","time":"3h","uuids":"a30 a a3","views":"5","media":"video","nativeURL":"file:///storage/emulated/0/Android/data/com.ionicframework.moment2380651/files/moments","class":"layer-top","animate":"invisible"}];
 		vm.liked = liked;		
 		vm.dragRight = dragRight;
 		vm.dragLeft = dragLeft;
@@ -22,7 +21,8 @@
 		vm.touchXposition = 0;
 		vm.keepFindingLocation = keepFindingLocation;
 		vm.createVideogularObj = createVideogularObj;
-		// alert("TEST");
+		vm.downloadMoment = downloadMoment;
+		vm.initRunning = false;
 		if(!vm.moments) {
 			vm.moments = [];
 		}
@@ -40,7 +40,7 @@
 		if($stateParams.showErrorBanner === true) {
 			$ionicContentBanner.show({
 				text: ["An error has occured"],
-				type: "error",
+				type: "error", 
 				autoClose: 3000
 			});
 		}
@@ -48,6 +48,11 @@
 		// if(core.currentLocation === "Could not find location") {
 		// 	core.getLocation();
 		// }
+
+		function downloadMoment(moment) {
+			core.downloadToDevice(moment.key).then(function() {
+			});
+		};
 
 		function createVideogularObj(src) {
 			vm.config = {
@@ -117,48 +122,60 @@
 		};		
 
 		function initialize() {
-			return momentsService.initializeView()
-			.then(function(moments){
-				vm.loadingMoments = false;
-				for(var i = 0; i < moments.length; i++ ) {
-					vm.moments.push(moments[i]);
-				}
-				// vm.moments = vm.moments.concat(moments);
-				if(moments.length > 0 && moments[0].media === 'video') {
-					createVideogularObj(vm.moments[0].nativeURL);
-				}
-				momentsService.setMomentArray(vm.moments);
-				components.hideLoader();
-				if(moments.length > 0 && vm.moments.length < constants.MAX_NUM_OF_MOMENTS) {
-					vm.loadingMoments = true;
-					initialize();
-				}
-			}, function(error) {
-				vm.loadingMoments = false;
-				console.log("ERRROR initialize");
-				console.log(error);
-				initialize(); //Try again
-				components.hideLoader()
-			}); //End of initializeView
+			if(vm.initRunning === false) {
+				return momentsService.initializeView()
+				.then(function(moments){
+					vm.loadingMoments = false;
+					for(var i = 0; i < moments.length; i++ ) {
+						vm.moments.push(moments[i]);
+					}
+					// vm.moments = vm.moments.concat(moments);
+					if(moments.length > 0 && moments[0].media === 'video') {
+						createVideogularObj(vm.moments[0].nativeURL);
+					}
+					momentsService.setMomentArray(vm.moments);
+					components.hideLoader();
+					vm.moments = momentsService.addExtraClassesandSetTime(vm.moments);
+					localStorageManager.set('moments', vm.moments);
+					if(momentsService.getStartAfterKey() !== "" && vm.moments.length < constants.MAX_NUM_OF_MOMENTS) {
+						vm.loadingMoments = true;
+						initialize();
+					}
+					else {
+						vm.initRunning = false;
+					}
+				}, function(error) {
+					vm.loadingMoments = false;
+					initialize(); //Try again
+					components.hideLoader()
+				}); //End of initializeView
+			}
 		};
 
 		function liked(liked) {
 			momentsService.momentArray = vm.moments; //Moment Array in the service does not update the likes for some reason
 			sendReport().then(function() {
-				if(vm.moments.length === 1) {
-					vm.loadingMoments = true;
+			momentsService.updateMoment(liked).then(function() {
+				if(vm.moments.length < constants.MAX_NUM_OF_MOMENTS) {
+					initialize();
 				}
-				components.hideLoader();
-				vm.flagClass = "ion-ios-flag-outline";
-				momentsService.updateMoment(liked).then(function() {
+				}, function(error) {
 					if(vm.moments.length < constants.MAX_NUM_OF_MOMENTS) {
-						vm.moments.splice(0, 1);
 						initialize();
 					}
-				}, function(error) {
-					vm.moments.splice(0, 1);
-					initialize();
+					// vm.moments.splice(0, 1);
+					// initialize();
 				});
+			if(vm.moments.length === 1) {
+				vm.loadingMoments = true;
+			}
+			vm.moments.splice(0, 1);
+			vm.moments = momentsService.addExtraClassesandSetTime(vm.moments);
+			if(vm.moments.length > 0 && vm.moments[0].media === 'video') {
+				createVideogularObj(vm.moments[0].nativeURL);
+			}
+			components.hideLoader();
+			vm.flagClass = "ion-ios-flag-outline";
 			});//End of sendReport
 		};
 

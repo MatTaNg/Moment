@@ -20,21 +20,14 @@
 
  		function requestPermissions(permission) {
  			var deferred = $q.defer();
- 			console.log("REQUEST PERMISSSION");
- 			console.log(permission);
 		    permission.hasPermission(permission.ACCESS_COARSE_LOCATION, function(status) {
-		        console.log("HAS PERRMISSION!");
-		        console.log(status);
 		        if(!status.hasPermission) {
 		        	 permission.requestPermission(permission.ACCESS_COARSE_LOCATION, success, error);
 			         function error(error) {
-			           console.log("REQUEST ERROR");
 			           console.warn(error);
 			           deferred.reject();
 			         }
 			         function success( status ) {
-			           console.log("REQUEST SUCCESS");
-			           console.log(status);
 			           if( !status.hasPermission ) error();
 			           deferred.resolve();
 		          	}

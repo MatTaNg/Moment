@@ -15,7 +15,7 @@
 
 		function convertTime(moments) {
 			for(var i = 0; i < moments.length; i++) {
-				moments[i].time = core.timeElapsed(moments[i].time);
+				moments[i].convertedTime = core.timeElapsed(moments[i].time);
 			}
 			return moments;
 		}
@@ -27,11 +27,9 @@
 					this.momentArray = [];
 					this.momentArray.push(moments);
 					localStorageManager.set('bestMoments', moments).then(function() {
-						convertTime(moments);
-						deferred.resolve(moments);		
+						deferred.resolve(convertTime(moments));		
 					});
 				}, function(error) {
-					console.log("ERROR");
 					deferred.reject(error);
 				});
 			}
@@ -66,7 +64,9 @@
 				startAfter = startAfter.split('/');
 				startAfter = startAfter[startAfter.length - 1];
 				startAfter = "bestMoments/" + startAfter;
-				return core.listMoments(constants.BEST_MOMENT_PREFIX, startAfter);
+				return core.listMoments(constants.BEST_MOMENT_PREFIX, startAfter).then(function(moments) {
+					return convertTime(moments);
+				});
 			} else {
 				return Promise.resolve([]);
 			}
