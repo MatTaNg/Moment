@@ -16,12 +16,20 @@
 		this.getNearbyMoments = getNearbyMoments;
 		this.deleteOrUploadToBestMoments = deleteOrUploadToBestMoments;
 
+		this.addExtraClassesandSetTime = addExtraClassesandSetTime;
 		this.updateMomentMetaData = updateMomentMetaData;
 		this.setMomentArray = setMomentArray;
+		this.getStartAfterKey = getStartAfterKey;
+
+		var startAfterKey = "";
 
 		if(!this.momentArray) {
 			this.momentArray = [];
 		}
+
+		function getStartAfterKey() {
+			return startAfterKey;
+		};
 
 		function setMomentArray(moments) {
 			this.momentArray = moments;
@@ -49,23 +57,16 @@
 				return deferred.promise;
 			};
 			var getMomentsWithinRadius = geolocation.getMomentsWithinRadius;
-			if(currentMoments.length > 0) { 
-				uniqueKey = currentMoments[currentMoments.length - 1].key.split("/");
-				var startAfter = uniqueKey[uniqueKey.length - 2] + "/" + uniqueKey[uniqueKey.length - 1];
-			}
-			else {
-				var startAfter = '';
-			} 
 			if(core.currentLocation === "Could not find location") {
 				return core.getLocation()
 				.then(calculateNearbyStates)
-				.then(getMomentsByState.bind(null, startAfter))
+				.then(getMomentsByState.bind(null, startAfterKey))
 				.then(concatMoments)
 				.then(getMomentsWithinRadius)
 			}
 			else {
 				return calculateNearbyStates()
-					.then(getMomentsByState.bind(null, startAfter))
+					.then(getMomentsByState.bind(null, startAfterKey))
 					.then(concatMoments)
 					.then(getMomentsWithinRadius)		
 			}
@@ -81,6 +82,12 @@
 			.then(checkAndDeleteExpiredMoments)
 			.then(deleteOrUploadToBestMoments)
 			.then(function(moments) {
+				if(moments.length > 0) {
+					var uniqueKey = moments[moments.length - 1].key.split("/");
+					startAfterKey = 'moment/' + uniqueKey[uniqueKey.length - 2] + "/" + uniqueKey[uniqueKey.length - 1];
+				} else {
+					startAfterKey = ""; //This tells the controller to stop calling initialize
+				}
 				for(var i = 0; i < moments.length; i) {
 					if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
 						moments.splice(i, 1);
@@ -90,7 +97,7 @@
 				}
 				var temp = createTempVariable(moments);
 				core.didUserChangeRadius = false;
-				temp = addExtraClassesandSetTime(temp);
+				// temp = addExtraClassesandSetTime(temp);
 				if(moments.length > 0) {
 					localStorageManager.addandDownload('moments', temp).then(function() {
 						deferred.resolve(temp);			
@@ -121,7 +128,6 @@
 			updatedMoment = updateMomentMetaData(updatedMoment, liked);
 			updatedMoment.time = new Date().getTime() - parseInt(core.timeElapsed(updatedMoment.time));
 			updatedMoment.time = updatedMoment.time.toString();
-			this.momentArray.splice(0, 1);
 			localStorageManager.set('moments', this.momentArray);
 			return core.edit(updatedMoment);
 		};
@@ -178,8 +184,6 @@ function deleteOrUploadToBestMoments(moments) {
 		callback();
 	}, function(error) {
 		if(error) {
-			console.log("ERROR");
-			console.log(error);
 			deferred.reject();
 		}
 		deferred.resolve(moments);
@@ -196,8 +200,9 @@ function checkAndDeleteExpiredMoments(moments) {
 		deferred.resolve(moments);
 	}
 	async.each(moments, function(moment, callback) {
+		var extraTimeFromLikes = parseInt(moment.likes) * constants.EXTRA_TIME_LIKES_GIVES_MOMENTS_MULTIPLIER;
 		// timeElapsed = core.timeElapsed(moment.time);
-		if(currentTime - moment.time > timeBetweenMoments) {
+		if(currentTime - moment.time > timeBetweenMoments + extraTimeFromLikes) {
 			if(localStorageManager.get('moments')) {
 				removeMomentFromLocalStorage(moment);
 			}
@@ -209,8 +214,6 @@ function checkAndDeleteExpiredMoments(moments) {
 	}, function(error) {
 		moments = tempMoments;
 		if(error) {
-			console.log("ERROR");
-			console.log(error);
 			deferred.reject();
 		}
 		deferred.resolve(moments);

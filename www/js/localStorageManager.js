@@ -24,9 +24,17 @@
 		};
 
 		function set(storage, items) {
-			return downloadFile(storage, items).then(function(moment) {
-				localStorage.setItem(storage, JSON.stringify(moment));
-			}); 
+			if(storage === "timeSinceLastMoment") {
+				localStorage.setItem(storage, items);
+				return;
+			}
+			else {
+				return downloadFile(storage, items).then(function(moment) {
+					localStorage.setItem(storage, JSON.stringify(moment));
+				}, function(error) {
+					localStorage.setItem(storage, JSON.stringify(moment));
+				}); 
+			}
 		};
 
 		function addandDownload(storage, items) {

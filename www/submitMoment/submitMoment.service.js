@@ -33,10 +33,6 @@
 		        xhr.addEventListener('load', function() {
 		        	core.upload(xhr.response, moment).then(function() {
 						deferred.resolve(moment);
-		           	 // });
-		        	}, function(error) {
-		        		console.log("UPLOAD ERROR");
-		        		console.log(error);
 		        	});
 		        });
 		        xhr.send();

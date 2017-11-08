@@ -18,7 +18,7 @@
   </select>
 </label>
 <br>
-  <ion-grid ng-repeat="image in vm.moments">
+  <ion-grid ng-repeat="image in vm.moments | orderBy:vm.sort">
     <ion-row>
       <ion-col style="font-size: 18pt;">{{image.location}}</ion-col>
     </ion-row>
@@ -65,7 +65,7 @@
         <div style="margin-left: 5px; font-size: 18pt; float:left">{{image.likes}}</div>
       </ion-col>
       <ion-col>
-          <div class="ion-ios-clock-outline momentTime" style="text-align:right; font-size: 18pt">{{image.time}}</div>
+          <div class="ion-ios-clock-outline momentTime" style="text-align:right; font-size: 18pt">{{image.convertedTime}}</div>
         </ion-col>
     </ion-row>
     <div data-ng-show="{{image.description.length > 0}}">

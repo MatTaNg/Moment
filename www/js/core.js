@@ -1,9 +1,9 @@
  (function() {
  	angular.module('core', [])
 
- 	.service('core', ['$cordovaFileTransfer', '$rootScope', '$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
+ 	.service('core', ['$cordovaFile', '$cordovaFileTransfer', '$rootScope', '$q', 'constants', 'awsServices', 'logger', 'geolocation', core]);
 
- 	function core($cordovaFileTransfer, $rootScope, $q, constants, awsServices, logger, geolocation){
+ 	function core($cordovaFile, $cordovaFileTransfer, $rootScope, $q, constants, awsServices, logger, geolocation){
  		var vm = this,
  		deferred = $q.defer();
  		verifyMetaData = verifyMetaData;
@@ -28,6 +28,7 @@
 		vm.getLocation = getLocation;
 		vm.finishedVideoUpload = finishedVideoUpload;
 		vm.downloadFiles = downloadFiles;
+		vm.downloadToDevice = downloadToDevice;
 		vm.locationNotFound = false;
 		vm.aVideoIsUploading = false;
 
@@ -40,6 +41,52 @@
 			vm.aVideoIsUploading = true;
 			$rootScope.$emit("upload start");
 		}
+
+		function downloadToDevice(momentNativeURL) {
+			 if (ionic.Platform.isIOS()) {
+				 var path = cordova.file.documentsDirectory;
+				 var filename = "preview.mp4";
+			 } else {
+				 var path = cordova.file.externalRootDirectory;
+				 var filename = "preview" + new Date().getTime() + ".mp4";
+			 }
+
+			 $cordovaFile.createDir(path, "dir", true).then(function(success) {
+				// var fileName = momentNativeURL.split("/").pop();
+				var targetPath = path + "dir/" + filename;
+				// var fileURL = cordova.file.externalDataDirectory + fileName;
+				return $cordovaFileTransfer.download(momentNativeURL, targetPath, {}, true).then(function(result) {
+				     if (ionic.Platform.isIOS()) {
+			         function saveLibrary() {
+			             cordova.plugins.photoLibrary.saveVideo(targetPath, album,     function(success) {}, function(err) {
+			                 if (err.startsWith('Permission')) {
+			                         cordova.plugins.photoLibrary.requestAuthorization(function() {
+			                             saveLibrary();
+			                         }, function(err) {
+			                             $ionicLoading.hide();
+			                             // $cordovaToast.show("Oops! unable to save video, please try after sometime.", "long", "center");
+			                             // User denied the access
+			                         }, // if options not provided, defaults to {read: true}.
+			                         {
+			                             read: true,
+			                             write: true
+			                         });
+			                 }
+			             });
+			         }
+			         saveLibrary()
+				     } else {
+				         //add refresh media plug in for refresh the gallery for android to see the downloaded video.
+				         refreshMedia.refresh(targetPath);
+				     }
+				}, function(error) {
+					var parameters = {
+						momentNativeURL: momentNativeURL
+					}
+					logger.logFile("core.downloadToDevice", parameters, error, 'errors.txt');
+				});
+			 });
+		};
 
 		function downloadFiles(moments) {
 			var deferred = $q.defer();
@@ -55,8 +102,6 @@
 						downloaded_Moments.push(moment);
 						callback();
 					}, function(error) {
-						console.log("ERROR");
-						console.log(error);
 						var parameters = {
 							moments: moments
 						}
@@ -88,7 +133,6 @@
 				if(!location) {
 					geolocation.initializeUserLocation().then(function(location) {
 						vm.currentLocation = location;
-						vm.didUserChangeRadius = true;
 						vm.locationNotFound = false;
 						deferred.resolve(vm.currentLocation);
 					}, function(error) {
@@ -212,6 +256,8 @@
 		 				.then(function() {
 		 					finishedVideoUpload();
 		 					deferred.resolve();
+		 				}, function(error) {
+		 					deferred.reject();
 		 				});
 	 			}
  			}
@@ -229,7 +275,11 @@
 			logger.logFile("New BestMoment - moment.uploadToBestMoments", {Moment: moment}, {}, 'logs.txt');
 			var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
 			moment.key = moment.key.replace(/\/moment\/../, "/bestMoments");
-			awsServices.copyObject(key, copySource, moment, "REPLACE");
+			awsServices.getObject(key).then(function(data) { //Does this key already exist?
+				if(data === "Not Found") {
+					awsServices.copyObject(key, copySource, moment, "REPLACE");
+				}
+			});
  		};
 
  		function removeFromBestMoments(moment) {
@@ -269,7 +319,10 @@
  		};
 
  		function getMomentMetaData(moment) {
- 			return awsServices.getMomentMetaData(moment.Key);
+ 			if(moment.Key)
+ 				return awsServices.getMomentMetaData(splitUrlOff(moment.Key));
+ 			if(moment.key)
+ 				return awsServices.getMomentMetaData(splitUrlOff(moment.key));
  		};
 
  		function getCurrentTime() {
@@ -278,28 +331,7 @@
 
  		function timeElapsed(time) {
 		if(time.toString().match(/[a-z]/i)) { //It is already in the correct format
-		// 	console.log("LETTER FORMAT");
-		// 	if(time.indexOf('m') > -1) {
-		// 		time = time.replace('m', '');
-		// 		time = time * 60000;
-		// 		time = time + "";
-		// 		return time;
-		// 	}
-		// 	else if(time.indexOf('h') > -1) {
-		// 		time = time.replace('h', '');
-		// 		time = time * 3600000;
-		// 		time = time + "";
-		// 		return time;
-		// 	}
-		// 	else if(time.indexOf('d') > -1) {
-		// 		time = time.replace('d', '');
-		// 		time = time * 86400000;
-		// 		time = time + "";
-		// 		return time;
-		// 	}
-		// 	else {
 				return time;
-		// 	}
 		}
 		time = parseInt(time);
 		var currentTime = new Date().getTime();
@@ -342,6 +374,7 @@
 	};
 
 	function getUUID() {
+		// return new Date().getTime().toString();
 		// return window.device.uuid;
 		if(constants.DEV_MODE) {
 			// return new Date().getTime().toString(); //Temporary	

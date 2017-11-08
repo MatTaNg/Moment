@@ -29,6 +29,7 @@ describe('Core', function() {
 
     it("DEV_MODE should be off", function() {
     	expect(constants.DEV_MODE).toBe(false);
+    	expect(constants.HOURS_BETWEEN_MOMENTS).not.toBe(0);
     });
 
     it('Should split URL off key', function() {
@@ -116,6 +117,10 @@ describe('Core', function() {
 			media: ".mp4"
 		};
 		spyOn(logger, 'logFile').and.callFake(function(done) {
+			return $q.resolve();
+		});
+		spyOn(awsServices, 'getObject').and.callFake(function(key) {
+			expect(key).toEqual("bestMoments/40.008446_-75.26046_1499829188066.jpg");
 			return $q.resolve();
 		});
 		spyOn(core, 'splitUrlOff').and.returnValue(mock_moment.key);

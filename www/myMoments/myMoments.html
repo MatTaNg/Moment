@@ -6,9 +6,6 @@
 <ion-refresher
 on-refresh="vm.refreshing()">
 </ion-refresher>
-<div ng-show="vm.errorMessage" class="myMoments_NotFound">
-	No Moments to Show
-</div>
 <div class="centerLikes">
 	<img src="img/logo.png" class="totalLikesImage" height="50px" width="50px"></img></div>
 	<div class="totalLikesText">{{vm.totalLikes}}<span class="totalNumberOfExtraLikes" ng-if="vm.extraLikes > 0"> (+{{vm.extraLikes}})</span></div>
@@ -36,9 +33,12 @@ on-refresh="vm.refreshing()">
 	</div>  
 	<hr> 
 <br>
+
 <ion-list ng-if="vm.loading === false">
 <div ng-repeat="image in vm.moments">
 	<div data-ng-if="vm.config.sources">
+		<div class="ion-android-close" style="margin-right: 5px" data-ng-click="vm.remove(image)"></div>
+		<div class="momentLocation" style="margin-left: 5px">{{image.location}}</div>
 	<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
 
 		<!--Video Begin-->
@@ -68,10 +68,6 @@ on-refresh="vm.refreshing()">
 		    </videogular>
 		  </div>
 <!--End of Video-->
-	
-	<!--<video data-ng-if="image.media === 'video'" width="100%" height="300px"preload="auto" controls>
-		<source src="{{image.key}}" type="video/mp4"></source>
-	</video>-->
 		<div class="row row-no-padding">
 			<div class="col">
 				<img src="img/logo.png" width="25px" height"25px" style="float: left"></img>		
@@ -90,42 +86,10 @@ on-refresh="vm.refreshing()">
 		<hr>
 		<br>
 	</div>
-
-<!-- 	<ion-item-sliding>
-	<ion-item ng-click="vm.toggleDescription(image)">
-	<ion-thumbnail item-left>
-	<img src="{{image.key}}" data-ng-if="image.media === 'picture'" width="30%" height="30%" style="float: left;">
-	<video data-ng-if="image.media === 'video'" width="30%" height="30%" style="float: left;" controls>
-		<source src="{{image.key}}" type="video/mp4"></source>
-	</video>
-
-</ion-thumbnail>
-<div class="myMoments_metaData">
-	<div class="myMoments_likes">	
-		<img src="img/logo.png" class="logoMomentLikes" height="30px" width="30px"></img>
-		<div style="margin-bottom:2px">{{image.likes}} 
-		<span class="numberOfExtraMomentLikes" ng-if="image.gainedLikes > 0"> (+{{image.gainedLikes}})</span></div>
-	</div>
-	<div class="ion-ios-clock-outline myMoments_time">{{image.time}}</div>
-	<br>
-	<div class="myMoments_description" ng-show="image.description.length > 0">
-		<div ng-hide="image.showShortDescription > 0">{{image.shortDescription}}<br>
-			<div class="myMoments_toggleDescription">show more...</div>
-		</div>
-		<div ng-show="image.showShortDescription > 0">{{image.description}}<br> 			
-			<div class="myMoments_toggleDescription">show less</div> 
-		</div>
-		<br>
-	</div>
-			<div class="noDescription" ng-hide="image.description.length > 0">
-				<br>No Description
-	</div>
-</div>
-</ion-item>
-<ion-item-options slide="left">
-</ion-item-options>
-</ion-item-sliding> -->
 </div> <!--End of ng-repeat -->
+<div data-ng-if="vm.initRunning === true">
+	<ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
+</div>
 </ion-list>
 <div class = "row">
 	<button class="col button button-assertive" data-ng-click="vm.feedback()" style="margin: 5px">Feedback</button>

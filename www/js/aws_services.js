@@ -44,9 +44,6 @@
 		  multipartUpload.createMultipartUpload(initiateBucket(), multiPartParams, buffer).then(function() {
 		  	deferred.resolve();
 		  });
- 			// multipartUpload.createMultipartUpload(initiateBucket(), multiPartParams, buffer).then(function() {
- 			// 	deferred.resolve();
- 			// });
  			return deferred.promise;
  		};
 
@@ -58,7 +55,11 @@
  				contentType = "text/plain";
  			}
  			else {
- 				contentType = "image/jpg";
+ 				if(metaData.media === "video") {
+ 					contentType = "video/mp4";
+ 				} else {
+	 				contentType = "image/jpg";
+ 				}
  			}
  			var params = {	
  				Key: key,
@@ -78,7 +79,9 @@
 					deferred.reject(error);	
  				}
  				else {
- 					deferred.resolve();
+ 					console.log("UPLOAD SUCCESS");
+ 					console.log(data);
+ 					deferred.resolve(data);
  				}
  			});
  			return deferred.promise;
@@ -204,12 +207,7 @@
  			};
  			s3.getObject(params, function(error, data) {
  				if(error) {
- 					parameters = {
- 						key: key
- 					};
- 					logger.logFile("aws_services.getObject", parameters, error, 'error.txt');
-					// logger.logFile("aws_services.getObject", parameters, error, 'errors.txt');
-						deferred.resolve("Not Found");	
+					deferred.resolve("Not Found");	
  				}
  				else {
  					deferred.resolve(data);

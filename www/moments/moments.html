@@ -53,21 +53,22 @@ on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
 			<div class="momentLocation">{{image.location}}</div>
 		</div>
 	</div>
-	<img src="img/logo.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked {{image.animate}}"></img>
+	<img src="img/Liked.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked {{image.animate}}"></img>
 	<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next {{image.animate}}"></img>
 	<hr>
 	<div style="height=20%">
 	<span ng-show="image.description">{{ image.description }}  </span>
-	<div ng-hide="image.description" class="noDescription">No Description Found {{ image.nativeURL }}</div>
+	<div ng-hide="image.description" class="noDescription">No Description Found</div>
 	<div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
+	<!--<div class="ion-archive" ng-click="vm.downloadMoment(image)"> </div>-->
 	</div>
 
 </td-card>
 </td-cards>
 </div> <!--End of ng-show-->
 
-<img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img> 
-<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" style="position: absolute; top: 0px; left: 0px; padding-top: 10%"></img>
+<img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" class="noMoments"></img> 
+<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" class="loadingMoments"></img>
 
 </ion-content>
 </ion-view>

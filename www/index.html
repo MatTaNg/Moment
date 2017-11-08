@@ -80,11 +80,11 @@
      <div ng-controller="IndexController as indexController">
       <ion-nav-bar class="bar-stable" align-title="center">
       <ion-nav-buttons side="left">
-      <div class="{{indexController.uploadLogo}}" data-ng-if="momentTimer === '0m'" ng-click="indexController.gallery()"></div>
+      <div class="ion-ios-upload" data-ng-if="momentTimer === '0m'" ng-click="indexController.gallery()"></div>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
     <!--<span data-ng-if="momentTimer === '0m'" class="ion-ios-camera-outline" ng-click="indexController.camera()"></span>-->
-    <span data-ng-if="momentTimer === '0m'" class="ion-ios-camera-outline" ng-click="indexController.openDialog()"></span>
+    <span data-ng-if="momentTimer === '0m'" class="ion-ios-camera" ng-click="indexController.openDialog()"></span>
     <!-- <span data-ng-if="momentTimer === '0m'" class="ion-ios-videocam-outline" ng-click="indexController.video()"></span> -->
     <div style="font-size: 18pt; margin-top: 5px;" ng-if="momentTimer !== '0m'">{{momentTimer}}</div>
 

@@ -45,8 +45,6 @@
       geolocation.initializeUserLocation().then(function(response) {
         components.hideLoader();
       }, function(error) {
-        console.log("ERROR");
-        console.log(error.message);
         components.hideLoader();
       })
     }
@@ -87,9 +85,13 @@
         return "color: green;"
     };
 
-    function thankUserForSubmission() {
+    function thankUserForSubmission(media) {
+      var message = '<b>Thank you for your Submission!</b>';
+      if(media.indexOf(".mp4") !== -1) {
+        message = '<b>Thank you for your Submission. This may take up to a minute.</b>';
+      }
       $ionicPopup.alert({
-        title: '<b>Thank you for your Submission!</b>',
+        title: message,
         template: '<img width="100%" height="100%" src="img/ThankYou.png"></img>'
       });
     };
@@ -102,7 +104,7 @@
           });
           updateMomentObject();
           submitMomentService.uploadToAWS(vm.media, vm.moment);
-          // thankUserForSubmission();
+          thankUserForSubmission(vm.media);
           submitMomentService.updateTimeSinceLastMoment();
           localStorageManager.set('timeSinceLastMoment', new Date().getTime().toString());
           $state.go('tabsController.moments');
@@ -113,7 +115,7 @@
             autoClose: 3000
           });
         }
-};
+  };
 
 function updateMomentObject() {
   if(vm.location) {
@@ -121,7 +123,7 @@ function updateMomentObject() {
   }
   vm.moment.time = new Date().getTime().toString();
   vm.moment.description = vm.moment.description;
-  var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + core.currentLocation.town.split(',')[1].trim() + '/' + core.currentLocation.lat + '_' + core.currentLocation.lng;
+  var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + core.currentLocation.state + '/' + core.currentLocation.lat + '_' + core.currentLocation.lng;
   if(vm.isPicture) {
     vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
     vm.moment.media = "picture";
@@ -132,4 +134,4 @@ function updateMomentObject() {
   }
 };
 };
-})();
+})(); 

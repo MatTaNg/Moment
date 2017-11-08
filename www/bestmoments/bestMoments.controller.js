@@ -8,8 +8,8 @@
 
 		vm.moments = localStorageManager.get('bestMoments');
 		vm.imageExpanded = false;
-		vm.sort = "Likes";
-		vm.sortLabel = "Likes";
+		vm.sort = "likes";
+		vm.sortLabel = "likes";
 		vm.loadMore = loadMore;
 		vm.createVideogularObj = createVideogularObj;
 		vm.stopLoadingData = false;
@@ -19,10 +19,12 @@
 		}
 
 		$scope.$watch('vm.sort', function(oldValue, newValue) {
-			vm.sortLabel = newValue;
-			vm.sort = vm.sort.toLowerCase();
-			if(vm.sort === 'likes') {
-				vm.sort = '-likes';
+			vm.sort = vm.sort.toLowerCase();	
+			if(oldValue.toLowerCase() === newValue.toLowerCase()) {
+				vm.sortLabel = newValue;
+				if(oldValue === 'likes') {
+					vm.sort = '-likes';
+				} 
 			}
 		});
 
@@ -31,7 +33,7 @@
 				createVideogularObj(moments);
 				components.hideLoader();
 				vm.moments = moments;
-			});
+			}); 
 		}
 		else {
 			vm.moments = bestMomentsService.convertTime(vm.moments);
@@ -88,9 +90,8 @@
 					vm.moments = moments;
 				});
 			}, function(error) {
-				console.log("ERROR");
 				vm.noMoments = true;
-				console.log(error);
+				$scope.$broadcast('scroll.refreshComplete');
 			});
 		};
 	};

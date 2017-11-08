@@ -19,7 +19,6 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
 
 .run(function($ionicPlatform, $ionicPopup, $state) {
   $ionicPlatform.ready(function() {
-    console.log("IONIC READY");
     oneSignalSetup();
     // initializeApp().then(function() {
       if(navigator.splashscreen)

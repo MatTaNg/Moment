@@ -134,6 +134,7 @@ describe("Geolocation", function() {
 		spyOn(awsServices, "getMoments").and.callFake(function(prefix, startAfter) {
 			expect(constants.MOMENT_PREFIX + 'PA');
 			expect(startAfter).toEqual('');
+			return $q.resolve();
 		});
 		geolocation.getMomentsByState('', ["PA"]).then(function() {
 			done();
@@ -200,6 +201,7 @@ describe("Geolocation", function() {
 			return $q.resolve({
 				data: {
 					results: [{
+						address_components: [ { short_name: "PA" } ],
 						formatted_address: address,
 						geometry: {
 							location: {

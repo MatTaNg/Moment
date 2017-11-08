@@ -10,11 +10,13 @@
         "blob-to-buffer": "^1.2.6",
         "cordova-android": "^6.2.3",
         "cordova-ios": "~4.3.1",
+        "cordova-plugin-add-swift-support": "^1.6.0",
         "cordova-plugin-android-permissions": "^1.0.0",
         "cordova-plugin-camera": "~2.4.1",
         "cordova-plugin-file": "~4.3.3",
         "cordova-plugin-file-transfer": "^1.6.3",
         "cordova-plugin-media-capture": "~1.4.3",
+        "cordova-plugin-photo-library": "^2.1.0",
         "gulp": "^3.5.6",
         "gulp-concat": "^2.2.0",
         "gulp-minify-css": "^0.3.0",
@@ -29,6 +31,7 @@
         "browserify-shim": "^3.8.13",
         "gulp-jshint": "^2.0.4",
         "gulp-util": "^2.2.14",
+        "ionic-minify": "^2.0.10",
         "jasmine-core": "^2.5.2",
         "karma": "^1.4.1",
         "karma-chrome-launcher": "^2.0.0",
@@ -65,7 +68,10 @@
             "cordova-plugin-camera": {},
             "cordova-plugin-file-transfer": {},
             "cordova-plugin-file": {},
-            "cordova-plugin-android-permissions": {}
+            "cordova-plugin-android-permissions": {},
+            "cordova-plugin-photo-library": {
+                "PHOTO_LIBRARY_USAGE_DESCRIPTION": "To choose photos"
+            }
         },
         "platforms": [
             "android",
