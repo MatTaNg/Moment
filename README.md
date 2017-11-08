@@ -6,11 +6,13 @@
 3.	Attempt to take a max-length video – App should prompt for file access
 4.	Play video and add a description
 5.	Submit the moment while the video is playing.
-6.	Wait a little bit and then go over to the myMoments section. 
+<b>Wait at least a minute</b>
+6.	Go over to the myMoments section. 
 7.	Play the video
 8.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
 9.	Change the search radius to 50 miles.
-10.	Edit the location to “Malvern, PA”
+10.	Edit the location to “MMM”. An Error message should appear
+11. Edit the location to "Malvern, PA"
 11.	Go to Moments – Your video should appear (If you are within 50 miles of Malvern, PA).
 12.	Play the video.
 13.	Swipe right on the video.
