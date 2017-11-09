@@ -12,12 +12,13 @@
 8.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
 9.	Change the search radius to 50 miles.
 10.	Edit the location to “MMM”. An Error message should appear
+11. Click the location button - Your current location should appear.
 11. Edit the location to "Malvern, PA"
 11.	Go to Moments – Your video should appear (If you are within 50 miles of Malvern, PA).
 12.	Play the video.
 13.	Swipe right on the video.
 14.	*No Moments should appear
-15.	Look at AWS and make sure likes and view has incremented to 1. (101 Likes & 21 Views)
+15.	Go back to the myMoments tab and make sure likes has incremented by 1, and there is a green +1 at the top. (101 Likes).
 16.	Take a picture
 17.	Attempt to add a description that’s too long and submit it.
 18.	Add a valid description and uncheck the location box
