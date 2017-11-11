@@ -58,9 +58,6 @@ describe('Moment Service', function() {
         spyOn(awsServices, 'upload').and.callFake(function() {
             return $q.resolve('test');
         });
-        spyOn(core, 'getUUID').and.callFake(function() {
-            return Math.random();
-        });
 
         spyOn(geolocation, 'initializeUserLocation').and.callFake(function() {
             return $q.resolve( { town: "Narberth, PA" } );
@@ -68,7 +65,12 @@ describe('Moment Service', function() {
         spyOn(localStorageManager, 'addandDownload').and.callFake(function() {
             return $q.resolve();
         });
-
+        spyOn(core, 'getUUID').and.callFake(function() {
+            return "2";
+        });
+        spyOn(core, 'listMoments').and.callFake(function(data) {
+            return $q.resolve([{ uuids: "2" }, {uuids: "2"}, {uuids: "2"}]);
+        });
         geolocation.max_north.lat = 99999;
         geolocation.max_west.lng = -99999;
         geolocation.max_east.lng = 99999;
@@ -83,7 +85,7 @@ describe('Moment Service', function() {
             likes: 1000,
             location: "MOCK_LOCATION",
             time: new Date().getTime(),
-            uuids: "123",
+            uuids: "1",
             views: 1000
         };
         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
@@ -120,7 +122,7 @@ describe('Moment Service', function() {
             likes: 1000,
             location: "MOCK_LOCATION",
             time: 15,
-            uuids: "123",
+            uuids: "1",
             views: 1000
         };
         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
@@ -158,7 +160,7 @@ it('Should correctly initialize the view and upload to best moments', function(d
             likes: 900,
             location: "MOCK_LOCATION",
             time: new Date().getTime(),
-            uuids: "123",
+            uuids: "1",
             views: 20
         };
         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
@@ -199,7 +201,7 @@ it('Should correctly initialize the view and remove moment from best moments', f
             likes: 400,
             location: "MOCK_LOCATION",
             time: new Date().getTime(),
-            uuids: "123",
+            uuids: "1",
             views: 1000
         };
         spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {

@@ -1,17 +1,17 @@
 (function() {
 	angular.module('app.BestMomentsController', [])
 
-	.controller('BestMomentsController', ['$sce', 'core', 'constants', '$stateParams', '$scope', 'components','bestMomentsService', 'localStorageManager', BestMomentsController]);
-	function BestMomentsController ($sce, core, constants, $stateParams, $scope, components, bestMomentsService, localStorageManager) {
+	.controller('BestMomentsController', ['$scope', 'components','bestMomentsService', 'localStorageManager', BestMomentsController]);
+	function BestMomentsController ($scope, components, bestMomentsService, localStorageManager) {
 		var vm = this;
 		vm.initialize = initialize;
-
 		vm.moments = localStorageManager.get('bestMoments');
-		vm.imageExpanded = false;
-		vm.sort = "likes";
-		vm.sortLabel = "likes";
 		vm.loadMore = loadMore;
 		vm.createVideogularObj = createVideogularObj;
+
+		vm.imageExpanded = false;
+		vm.sort = "Likes";
+		vm.sortLabel = "likes";
 		vm.stopLoadingData = false;
 
 		if(!vm.moments) {

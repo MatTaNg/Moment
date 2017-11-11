@@ -117,21 +117,21 @@
         }
   };
 
-function updateMomentObject() {
-  if(vm.location) {
-    vm.moment.location = core.currentLocation.town;
-  }
-  vm.moment.time = new Date().getTime().toString();
-  vm.moment.description = vm.moment.description;
-  var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + core.currentLocation.state + '/' + core.currentLocation.lat + '_' + core.currentLocation.lng;
-  if(vm.isPicture) {
-    vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
-    vm.moment.media = "picture";
-  }
-  else {
-   vm.moment.key = key + '_' + new Date().getTime() + '.mp4'; 
-   vm.moment.media = "video";
-  }
-};
+  function updateMomentObject() {
+    if(vm.location) {
+      vm.moment.location = core.currentLocation.town;
+    }
+    vm.moment.time = new Date().getTime().toString();
+    vm.moment.description = vm.moment.description;
+    var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + core.currentLocation.state + '/' + core.currentLocation.lat + '_' + core.currentLocation.lng;
+    if(vm.isPicture) {
+      vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
+      vm.moment.media = "picture";
+    }
+    else {
+     vm.moment.key = key + '_' + new Date().getTime() + '.mp4'; 
+     vm.moment.media = "video";
+    }
+  };
 };
 })(); 

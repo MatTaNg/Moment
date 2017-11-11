@@ -1,5 +1,5 @@
 describe('myMoment Service', function() {
-    var localStorageManager, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
+    var downloadManager, localStorageManager, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
     beforeEach(module('app'));
     var mockLat = 40.008446;
     var mockLng = -75.260460;
@@ -35,6 +35,7 @@ describe('myMoment Service', function() {
         awsServices = $injector.get('awsServices');
         core = $injector.get('core');
         localStorageManager = $injector.get('localStorageManager');
+        downloadManager = $injector.get('downloadManager');
 
         constants.DEV_MODE = false;
     }));
@@ -42,7 +43,7 @@ describe('myMoment Service', function() {
     beforeEach(inject(function() {
         var deferred = $q.defer();
 
-        spyOn(core, 'downloadFiles').and.callFake(function() {
+        spyOn(downloadManager, 'downloadFiles').and.callFake(function() {
             return $q.resolve();
         });
 

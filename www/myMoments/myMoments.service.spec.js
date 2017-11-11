@@ -1,5 +1,5 @@
 describe("Test myMoments Service", function() {
-	var service, core_Mock, $q, constants, logger, geolocation, $scope, $templateCache;
+	var downloadManager, service, core_Mock, $q, constants, logger, geolocation, $scope, $templateCache;
 
 	beforeEach(module('app'));
 
@@ -20,7 +20,7 @@ describe("Test myMoments Service", function() {
         	return $q.resolve("Narberth, PA");
         });
         core_Mock = $injector.get('core');
-
+        downloadManager = $injector.get('downloadManager');
         constants = $injector.get('constants');
         logger = $injector.get('logger');
         $scope = $injector.get('$rootScope').$new();
@@ -38,7 +38,7 @@ describe("Test myMoments Service", function() {
 			uuids: "123",
 			views: 1
 		};
-    	spyOn(core_Mock, "downloadFiles").and.callFake(function() {
+    	spyOn(downloadManager, "downloadFiles").and.callFake(function() {
     		return $q.resolve(mocked_Moment);
     	});
 		spyOn(localStorage, 'getItem').and.callFake(function() {

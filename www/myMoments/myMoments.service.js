@@ -1,9 +1,9 @@
 (function() {
 	angular.module('myMomentsService', [])
 
-	.service('myMomentsService', ['core', '$q', 'logger', 'localStorageManager', 'multipartUpload', myMomentsService]);
+	.service('myMomentsService', ['downloadManager','core', '$q', 'logger', 'localStorageManager', myMomentsService]);
 
-	function myMomentsService(core, $q, logger, localStorageManager, multipartUpload) {
+	function myMomentsService(downloadManager, core, $q, logger, localStorageManager) {
 		this.removeFromLocalStorage = removeFromLocalStorage;
 		this.uploadFeedback = uploadFeedback;
 		this.initialize = initialize;
@@ -11,9 +11,8 @@
 		this.getExtraLikes = getExtraLikes;
 
 		this.momentArray = localStorageManager.get('myMoments');
-		this.userLocation;
 		
-		totalLikes = 0;
+		totalLikes = localStorageManager.get('totalLikes');
 		this.oldLikes = 0;
 		extraLikes = 0;
 		if(!this.momentArray) {
@@ -82,7 +81,7 @@
 							} 
 						}
 					}
-					core.downloadFiles(this.momentArray).then(function(moments) {
+					downloadManager.downloadFiles(this.momentArray).then(function(moments) {
 						localStorageManager.set('myMoments', moments).then(function() {
 							this.momentArray =	updateExtraLikesAndTotalLikes(this.momentArray);
 							this.momentArray = addShortDescriptionAndTime(this.momentArray);
@@ -144,6 +143,7 @@
 				totalLikes = totalLikes + parseInt(moments[x].likes);
 				extraLikes = totalLikes - this.oldLikes;
 				moments[x].gainedLikes = moments[x].likes - currentLikes;
+				localStorageManager.set('totalLikes', totalLikes);
 			}
 			return moments;
 		}

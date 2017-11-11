@@ -11,15 +11,14 @@
 		this.updateMoment = updateMoment;
 		this.incrementCounter = incrementCounter;
 		this.uploadReport = uploadReport;
-
 		this.checkAndDeleteExpiredMoments = checkAndDeleteExpiredMoments;
 		this.getNearbyMoments = getNearbyMoments;
 		this.deleteOrUploadToBestMoments = deleteOrUploadToBestMoments;
-
 		this.addExtraClassesandSetTime = addExtraClassesandSetTime;
 		this.updateMomentMetaData = updateMomentMetaData;
 		this.setMomentArray = setMomentArray;
 		this.getStartAfterKey = getStartAfterKey;
+		this.didUserDoTutorial = didUserDoTutorial;
 
 		var startAfterKey = "";
 
@@ -57,7 +56,7 @@
 				return deferred.promise;
 			};
 			var getMomentsWithinRadius = geolocation.getMomentsWithinRadius;
-			if(core.currentLocation === "Could not find location") {
+			if(!geolocation.customLocation) {
 				return core.getLocation()
 				.then(calculateNearbyStates)
 				.then(getMomentsByState.bind(null, startAfterKey))
@@ -78,38 +77,66 @@
 			var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
 			var checkAndDeleteExpiredMoments = this.checkAndDeleteExpiredMoments;
 			// var getNearbyMoments = this.getNearbyMoments;
-			getNearbyMoments(this.momentArray)
-			.then(checkAndDeleteExpiredMoments)
-			.then(deleteOrUploadToBestMoments)
-			.then(function(moments) {
-				if(moments.length > 0) {
-					var uniqueKey = moments[moments.length - 1].key.split("/");
-					startAfterKey = 'moment/' + uniqueKey[uniqueKey.length - 2] + "/" + uniqueKey[uniqueKey.length - 1];
-				} else {
-					startAfterKey = ""; //This tells the controller to stop calling initialize
-				}
-				for(var i = 0; i < moments.length; i) {
-					if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
-						moments.splice(i, 1);
-					} else {
-						i++;
-					}
-				}
-				var temp = createTempVariable(moments);
-				core.didUserChangeRadius = false;
-				// temp = addExtraClassesandSetTime(temp);
-				if(moments.length > 0) {
-					localStorageManager.addandDownload('moments', temp).then(function() {
-						deferred.resolve(temp);			
+
+			didUserDoTutorial().then(function(data) {
+				console.log(data);
+				if(!data) {
+					getNearbyMoments(this.momentArray)
+					.then(checkAndDeleteExpiredMoments)
+					.then(deleteOrUploadToBestMoments)
+					.then(function(moments) {
+						if(moments.length > 0) {
+							var uniqueKey = moments[moments.length - 1].key.split("/");
+							startAfterKey = 'moment/' + uniqueKey[uniqueKey.length - 2] + "/" + uniqueKey[uniqueKey.length - 1];
+						} else {
+							startAfterKey = ""; //This tells the controller to stop calling initialize
+						}
+						for(var i = 0; i < moments.length; i) {
+							if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
+								moments.splice(i, 1);
+							} else {
+								i++;
+							}
+						}
+						var temp = createTempVariable(moments);
+						core.didUserChangeRadius = false;
+						// temp = addExtraClassesandSetTime(temp);
+						if(moments.length > 0) {
+							localStorageManager.addandDownload('moments', temp).then(function() {
+								deferred.resolve(temp);			
+							});
+						}
+						else {
+							deferred.resolve(moments);
+						}
+					}, function(error) {
+						deferred.reject(error);
 					});
 				}
 				else {
-					deferred.resolve(moments);
+					deferred.resolve(data);
 				}
-			}, function(error) {
-				deferred.reject(error);
 			});
 			return deferred.promise;
+		};
+
+		function didUserDoTutorial() {
+			console.log("DFDSFSD");
+			var prefix = constants.MOMENT_PREFIX + 'tutorial';
+			return core.listMoments(prefix).then(function(data) {
+				console.log("DATA");
+				console.log(data);
+				var counter = 0;
+				var temp = data;
+				for(var i = 0; i < data.length; i++ ){
+					var uuids = data[i].uuids.split(" ");
+					console.log(uuids);
+					if(uuids.indexOf(core.getUUID()) === -1) {
+						counter++;
+					}
+				}
+				return counter === 3 ? data : false;
+			});
 		};
 
 		function uploadReport(report, moment) {

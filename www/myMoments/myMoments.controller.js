@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'momentsService', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
-	function MyMomentsController($ionicLoading, $sce, core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
+	.controller('MyMomentsController', ['$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
+	function MyMomentsController($ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.moments = localStorageManager.get('myMoments');
@@ -12,18 +12,18 @@
 		vm.refreshing = refreshing;
 		vm.edit = edit;
 		vm.getCurrentLocation = getCurrentLocation;
-		this.editLocation = editLocation;
+		vm.editLocation = editLocation;
+		vm.watchForLocationChange = watchForLocationChange;
+		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
+		vm.createVideogularObj = createVideogularObj;
+
 		vm.userLocation = core.currentLocation.town || "Could not find location";
-		vm.totalLikes = 0;
+		vm.totalLikes = localStorageManager.get('totalLikes');
 		vm.showShortDescription = true;
-		// vm.customUserLocation = "";
 		vm.locationErrorMsg = false;
 		vm.distance = localStorageManager.get('momentRadiusInMiles');
 		vm.watchingForLocationChange = true;
 		vm.loading = false;
-		vm.watchForLocationChange = watchForLocationChange;
-		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
-		vm.createVideogularObj = createVideogularObj;
 		vm.watchID;
 		vm.initRunning = false;
 
@@ -117,6 +117,9 @@
 		};
 
 		function initialize() {
+			if(!geolocation.customUserLocation) {
+				core.getLocation();
+			}
 			if(vm.moments.length === 0){
 				vm.loading = true;
 			}
@@ -145,6 +148,7 @@
 					}
 					deferred.resolve();
 				}, function(error) {
+					vm.initRunning = false;
 					$ionicContentBanner.show({
 						text: ["There was a problem getting the moments"],
 						type: "error",
@@ -178,7 +182,11 @@
 								if(vm.moments.length === 0) {
 									vm.errorMessage = true;
 								}	
+							}, function(error) {
+								$ionicLoading.hide();
 							});
+						}, function(error) {
+							$ionicLoading.hide();
 						});
 
 					});
@@ -234,7 +242,7 @@
 							else {
 								e.preventDefault();
 								vm.editLocation(vm.customUserLocation).then(function() {
-									popUp.close()
+									popUp.close();
 								}, function(error) {
 									e.preventDefault();
 								});
@@ -265,8 +273,10 @@
 							deferred.resolve();
 						});
 					}, function(error) {
-						components.hideLoader();
-						deferred.reject();
+						components.hideLoader().then(function() {
+							vm.locationErrorMsg = true;
+							deferred.reject();
+						});
 					});	
 				})
 

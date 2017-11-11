@@ -4,7 +4,6 @@
  	.service('permissions', ['$q', permissions]);
 
  	function permissions($q){
-			
  		var vm = this;
  		vm.checkPermission = checkPermission;
  		vm.requestPermissions = requestPermissions;

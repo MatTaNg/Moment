@@ -29,7 +29,7 @@
         <!--<video data-ng-if="image.media === 'video'" width="100%" height="300px" controls>
           <source src="{{image.nativeURL}}" type="video/mp4"></source>
         </video>-->
-      <div data-ng-if="image.media === 'video' && vm.config.sources" style="width: 100%; height: 300px">
+      <div data-ng-if="image.media === 'video' && vm.config.sources" style="width: 100%; height: 300px; padding-bottom: 5px">
         <videogular vg-theme="vm.config.theme">
           <vg-media vg-src="vm.config.sources" 
               vg-tracks="vm.config.tracks"

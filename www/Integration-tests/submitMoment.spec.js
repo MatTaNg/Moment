@@ -1,5 +1,5 @@
 describe('Submit Moment', function() {
-	var core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
+	var downloadManager, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
 	beforeEach(module('app'));
 	var mockLat = 40.008446;
 	var mockLng = -75.260460;
@@ -33,6 +33,7 @@ describe('Submit Moment', function() {
         $http = $injector.get('$http');
         awsServices = $injector.get('awsServices');
         core = $injector.get('core');
+        downloadManager = $injector.get('downloadManager');
 
         constants.DEV_MODE = false;
     }));
