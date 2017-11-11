@@ -4,7 +4,6 @@
  	.service('awsServices', ['$q', 'constants', 'logger', 'multipartUpload', awsServices]);
 
  	function awsServices($q, constants, logger, multipartUpload){
-
  		var vm = this;
  		vm.initiateBucket = initiateBucket;
  		vm.upload = upload;
@@ -164,16 +163,16 @@
  			return deferred.promise;
  		};
 
- 		function getMoments(prefix, startAfter) {
+ 		function getMoments(prefix, startAfter, maxKeys) {
  			var deferred = $q.defer();
  			var startAfter = startAfter;
  			var s3 = vm.initiateBucket();
  			var params = {
- 				MaxKeys: constants.MAX_MOMENTS_PER_GET,
  				Bucket: constants.BUCKET_NAME,
  				Prefix: prefix,
  				StartAfter: prefix //Prevent AWS from returning the directory
  			};
+ 			if(maxKeys) { params.MaxKeys = maxKeys }
  			if(startAfter !== '' || undefined) {
  				params.StartAfter = startAfter;
  			}
@@ -188,6 +187,12 @@
 					deferred.reject(error);	
  				}
  				else {
+ 					for(var i = 0; i < data.Contents.length; i++) {
+ 						//Remove the folder
+ 						if(data.Contents[i].Key[data.Contents[i].Key.length - 1] === '/') {
+ 							data.Contents.splice(i, 1);
+ 						}
+ 					}
  					deferred.resolve(data.Contents);
  				}
  			});

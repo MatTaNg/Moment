@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['$sce', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', MomentsController]);
+	.controller('MomentsController', ['downloadManager', '$sce', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', MomentsController]);
 
-	function MomentsController ($sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager) {
+	function MomentsController (downloadManager, $sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager) {
 		var vm = this;
 		vm.moments = localStorageManager.get('moments');
 		vm.liked = liked;		
@@ -12,17 +12,19 @@
 		vm.release = release;
 		vm.flagged = flagged;
 		vm.setCoords = setCoords;
+		vm.currentLocation = core.currentLocation;
+		vm.keepFindingLocation = keepFindingLocation;
+		vm.createVideogularObj = createVideogularObj;
+		vm.downloadMoment = downloadMoment;
+
 		vm.flagClass = "ion-ios-flag-outline";
 		vm.cardCSSClass = "layer-hide";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
 		vm.loadingMoments = false;
-		vm.currentLocation = core.currentLocation;
 		vm.touchXposition = 0;
-		vm.keepFindingLocation = keepFindingLocation;
-		vm.createVideogularObj = createVideogularObj;
-		vm.downloadMoment = downloadMoment;
 		vm.initRunning = false;
+		
 		if(!vm.moments) {
 			vm.moments = [];
 		}
@@ -50,7 +52,7 @@
 		// }
 
 		function downloadMoment(moment) {
-			core.downloadToDevice(moment.key).then(function() {
+			downloadManager.downloadToDevice(moment.key).then(function() {
 			});
 		};
 

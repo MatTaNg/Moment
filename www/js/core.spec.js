@@ -24,9 +24,6 @@ describe('Core', function() {
         core = $injector.get('core');
     }));
 
-    beforeEach(function() {
-    });
-
     it("DEV_MODE should be off", function() {
     	expect(constants.DEV_MODE).toBe(false);
     	expect(constants.HOURS_BETWEEN_MOMENTS).not.toBe(0);

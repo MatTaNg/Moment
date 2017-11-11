@@ -168,7 +168,7 @@ function getMomentsByState(startAfter, states) {
 	var promises = [];
 	for(var i = 0; i < states.length; i++){
 		if(startAfter !== '') { 
-			promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i], startAfter).then(function(moments) {
+			promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i], startAfter, constants.MAX_MOMENTS_PER_GET).then(function(moments) {
 				//getMoments returns the the startAfter moment for some reason.  Remove it
 				var startAfterKey = startAfter.split("/");
 				startAfterKey = startAfterKey[startAfterKey.length - 1];
@@ -183,7 +183,7 @@ function getMomentsByState(startAfter, states) {
 			}));
 		}
 		else {
-			promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i], '').then(function(moments) {
+			promises.push(awsServices.getMoments(constants.MOMENT_PREFIX + states[i], '', constants.MAX_MOMENTS_PER_GET).then(function(moments) {
 				return moments;
 			}));
 		}

@@ -1,19 +1,22 @@
  (function() {
  	angular.module('localStorageManager', [])
 
- 	.service('localStorageManager', ['core', '$q', localStorageManager]);
+ 	.service('localStorageManager', ['downloadManager', '$q', localStorageManager]);
 
- 	function localStorageManager(core, $q){
+ 	function localStorageManager(downloadManager, $q){
 		this.get = get;
 		this.downloadFile = downloadFile;
 		this.remove = remove;
 		this.set = set;
 		this.addandDownload = addandDownload;
 		localStorage.setItem('momentRadiusInMiles', JSON.stringify(25));
+		localStorage.setItem('totalLikes', "0");
 
 		function get(storage) {
 			if(storage !== 'timeSinceLastMoment') {
+				//console logs here
 			}
+
 			if(localStorage.getItem(storage) !== null && localStorage.getItem(storage) !== "undefined") {
 				return JSON.parse(localStorage.getItem(storage));
 			}
@@ -24,7 +27,7 @@
 		};
 
 		function set(storage, items) {
-			if(storage === "timeSinceLastMoment") {
+			if(storage === "timeSinceLastMoment" || storage === "totalLikes") {
 				localStorage.setItem(storage, items);
 				return;
 			}
@@ -51,7 +54,7 @@
 		}
 
 		function remove(storage, item) {
-			var currentLocalStorage = get(storage);
+			var currentLocalStorage = this.get(storage);
 			if(currentLocalStorage.indexOf(item) !== -1) {
 				currentLocalStorage.splice(currentLocalStorage.indexOf(item), 1);
 				localStorage.setItem(storage, JSON.stringify(currentLocalStorage));
@@ -63,7 +66,7 @@
 			if(storage === 'moments' ||
 				storage === 'bestMoments' ||
 				storage === 'myMoments') {
-				core.downloadFiles(items).then(function(moments) {
+				downloadManager.downloadFiles(items).then(function(moments) {
 					deferred.resolve(moments);
 				});
 			}
