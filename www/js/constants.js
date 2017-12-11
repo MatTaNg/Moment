@@ -4,6 +4,7 @@
 	.constant("constants", {
 
 		"MILISECONDS_IN_AN_HOUR": 3600000,
+		"MILISECONDS_IN_A_DAY": 86400000,
 		//IDs, Keys and constants
 		"BUCKET_NAME": 'mng-moment',
 		"BUCKET_REGION": 'us-east-1',
@@ -23,7 +24,7 @@
 
 		//Configurations
 		"MAX_DESCRIPTION_LENGTH": 180,
-		"HOURS_BETWEEN_MOMENTS": 0,
+		"HOURS_BETWEEN_MOMENTS": 0.1,
 		"HOURS_UNTIL_MOMENT_EXPIRES": 168,
 		"BEST_MOMENTS_RATIO": 0.5,
 		"DEFAULT_MOMENT_RADIUS_IN_MILES": 25,

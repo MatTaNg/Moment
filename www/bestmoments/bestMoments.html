@@ -6,17 +6,6 @@
 <ion-refresher on-refresh="vm.initialize()">
 </ion-refresher>
 
-<label class = "item item-input item-select item-stable">
-  <div class = "input-label">
-    {{vm.sortLabel}}
-  </div>
-
-  <select ng-model="vm.sort">
-    <option selected>Likes</option>
-    <option>Time</option>
-    <option>Location</option>
-  </select>
-</label>
 <br>
   <ion-grid ng-repeat="image in vm.moments | orderBy:vm.sort">
     <ion-row>

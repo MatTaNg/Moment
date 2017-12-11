@@ -1,32 +1,21 @@
 (function() {
 	angular.module('app.BestMomentsController', [])
 
-	.controller('BestMomentsController', ['$scope', 'components','bestMomentsService', 'localStorageManager', BestMomentsController]);
-	function BestMomentsController ($scope, components, bestMomentsService, localStorageManager) {
+	.controller('BestMomentsController', ['$scope', 'core', 'components','bestMomentsService', 'localStorageManager', 'constants', BestMomentsController]);
+	function BestMomentsController ($scope, core, components, bestMomentsService, localStorageManager, constants) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.moments = localStorageManager.get('bestMoments');
 		vm.loadMore = loadMore;
 		vm.createVideogularObj = createVideogularObj;
+		vm.sortMoments = sortMoments;
 
 		vm.imageExpanded = false;
-		vm.sort = "Likes";
-		vm.sortLabel = "likes";
 		vm.stopLoadingData = false;
 
 		if(!vm.moments) {
 			vm.moments = [];
 		}
-
-		$scope.$watch('vm.sort', function(oldValue, newValue) {
-			vm.sort = vm.sort.toLowerCase();	
-			if(oldValue.toLowerCase() === newValue.toLowerCase()) {
-				vm.sortLabel = newValue;
-				if(oldValue === 'likes') {
-					vm.sort = '-likes';
-				} 
-			}
-		});
 
 		if(vm.moments.length === 0) {
 			bestMomentsService.initializeView().then(function(moments) {
@@ -84,6 +73,7 @@
 		function initialize() {
 			bestMomentsService.initializeView()
 			.then(function(moments){
+				vm.sortMoments(moments);
 				vm.stopLoadingData = false;
 				$scope.$broadcast('scroll.refreshComplete');
 				components.hideLoader().then(function() {
@@ -93,6 +83,17 @@
 				vm.noMoments = true;
 				$scope.$broadcast('scroll.refreshComplete');
 			});
+		};
+
+		function sortMoments(moments) {
+			for(var i = 0; i < moments.length; i++) {
+				moments[i].rank = new Date().getTime() - moments[i].time;
+				moments[i].rank = moments[i].rank / constants.MILISECONDS_IN_A_DAY;
+				moments[i].rank = moments[i].likes - moments[i].rank;
+				if(moments[i].rank < 0) {
+					core.remove(moments[i]);
+				}
+			}
 		};
 	};
 })();
