@@ -4,6 +4,8 @@
 	.service('momentsService', ['core', '$q', 'constants', 'logger', 'geolocation', 'awsServices', 'localStorageManager', momentsService]);
 
 	function momentsService(core, $q, constants, logger, geolocation, awsService, localStorageManager){
+		var that = this;
+
 		this.momentArray = localStorageManager.get('moments');
 
 		this.initializeView = initializeView;
@@ -19,6 +21,7 @@
 		this.setMomentArray = setMomentArray;
 		this.getStartAfterKey = getStartAfterKey;
 		this.didUserDoTutorial = didUserDoTutorial;
+		this.removeMomentFromLocalStorage = removeMomentFromLocalStorage;
 
 		var startAfterKey = "";
 
@@ -79,7 +82,6 @@
 			// var getNearbyMoments = this.getNearbyMoments;
 
 			didUserDoTutorial().then(function(data) {
-				console.log(data);
 				if(!data) {
 					getNearbyMoments(this.momentArray)
 					.then(checkAndDeleteExpiredMoments)
@@ -121,16 +123,12 @@
 		};
 
 		function didUserDoTutorial() {
-			console.log("DFDSFSD");
 			var prefix = constants.MOMENT_PREFIX + 'tutorial';
 			return core.listMoments(prefix).then(function(data) {
-				console.log("DATA");
-				console.log(data);
 				var counter = 0;
 				var temp = data;
 				for(var i = 0; i < data.length; i++ ){
 					var uuids = data[i].uuids.split(" ");
-					console.log(uuids);
 					if(uuids.indexOf(core.getUUID()) === -1) {
 						counter++;
 					}
@@ -152,14 +150,13 @@
 		function updateMoment(liked) {
 			var temp = createTempVariable(this.momentArray);
 			var updatedMoment = temp[0];
-			updatedMoment = updateMomentMetaData(updatedMoment, liked);
+			updatedMoment = that.updateMomentMetaData(updatedMoment, liked);
 			updatedMoment.time = new Date().getTime() - parseInt(core.timeElapsed(updatedMoment.time));
 			updatedMoment.time = updatedMoment.time.toString();
 			localStorageManager.set('moments', this.momentArray);
 			return core.edit(updatedMoment);
 		};
 
-		//Not tested
 		function incrementCounter(){
 			var deferred = $q.defer();
 			var temp = createTempVariable(this.momentArray);
@@ -167,8 +164,8 @@
 				deferred.resolve(temp); 
 			}
 			else {
-				// this.initializeView().then(function(moments) {
-				initializeView().then(function(moments) {
+				that.initializeView().then(function(moments) {
+				// initializeView().then(function(moments) {
 					deferred.resolve(moments);
 				}, function(error) {
 					deferred.reject();
@@ -199,6 +196,7 @@ function deleteOrUploadToBestMoments(moments) {
 	}
 	var tempMoments = createTempVariable(moments);
 	async.each(tempMoments, function(moment, callback) {
+		console.log("1");
 		if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
 				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
 					core.uploadToBestMoments(createTempVariable(moment));

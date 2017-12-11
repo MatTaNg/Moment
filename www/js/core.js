@@ -103,6 +103,8 @@
  		};
 
  		function remove(moment) {
+ 			console.log("REMOVING");
+ 			console.log(moment);
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
  				var path = splitUrlOff(moment.key);
@@ -210,8 +212,6 @@
  		function listMoments(prefix, startAfter, maxKeys) {
  			var promises = [];
  			return awsServices.getMoments(prefix, startAfter, maxKeys).then(function(moments) {
- 				console.log("GET MOMENTS");
- 				console.log(moments);
  				for(var i = 0; i < moments.length; i++) {
  					moments[i].key = moments[i].Key;
  					// moments[i].Key = constants.IMAGE_URL + moments[i].Key;

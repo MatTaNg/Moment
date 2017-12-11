@@ -1,5 +1,5 @@
 describe('Moment Service', function() {
-	var $rootScope, service, core_Mock, $q, constants, logger, geolocation, $scope, $templateCache,
+	var $rootScope, service, core_Mock, $q, constants, logger, geolocation, $scope, $templateCache, localStorageManager,
 	momentArray_Mock = [1, 2, 3, 4, 5];
 
 	beforeEach(module('app'));
@@ -82,6 +82,7 @@ describe('Moment Service', function() {
         $scope = $injector.get('$rootScope').$new();
         service = $injector.get('momentsService');
         $rootScope = $injector.get('$rootScope');
+        localStorageManager = $injector.get('localStorageManager');
     }));
 
     beforeEach(function() {
@@ -117,35 +118,40 @@ describe('Moment Service', function() {
 	});
 
 	//Does not work without this.initializeView
-	// it('Should call incrementCounter momentArray is NOT populated', function(done) {
-	// 	service.momentArray = [];
-	// 	spyOn(service, 'initializeView').and.callFake(function() {
-	// 		console.log("MOCKED OUT");
-	// 		return $q.resolve("MOCK");
-	// 	});
- //        service.initializeView = jasmine.createSpy("initializeView() spy").and.callFake(function() {
- //        	return $q.resolve("MOCK");
- //        });
+	it('Should call incrementCounter momentArray is NOT populated', function(done) {
+		service.momentArray = [];
+		spyOn(service, 'initializeView').and.callFake(function() {
+			return $q.resolve("MOCK");
+		});
+        service.initializeView = jasmine.createSpy("initializeView() spy").and.callFake(function() {
+        	return $q.resolve("MOCK");
+        });
 		
-	// 	service.incrementCounter().then(function(result) {
-	// 		expect(service.initializeView).toHaveBeenCalled();
-	// 		done();
-	// 	});
-	// 	$scope.$apply();
-	// });
+		service.incrementCounter().then(function(result) {
+			expect(service.initializeView).toHaveBeenCalled();
+			done();
+		});
+		$scope.$apply();
+	});
 
 //---Does not work without this.getNearbyMoments added to moments.service
 // it('Should call initializeView', function(done) {
 // 	constants.DEV_MODE = true;
 // 	spyOn(service, 'getNearbyMoments').and.callFake(function() {
+// 		console.log("MOCK");
 // 		return $q.resolve(mockOutMoments());
 // 	});
 // 	spyOn(service, 'deleteOrUploadToBestMoments').and.callFake(function() {
+// 		console.log("MOCK");
 // 		return $q.resolve(mockOutMoments());
 // 	});
 // 	spyOn(service, 'checkAndDeleteExpiredMoments').and.callFake(function() {
-// 		console.log("CHECK AND DELETE EXPIRED MOMENTS MOCK");
+// 		console.log("MOCK");
 // 		return $q.resolve(mockOutMoments());
+// 	});
+// 	spyOn(service, 'didUserDoTutorial').and.callFake(function() {
+// 		console.log("TUTOAIL MOCK+_+_+_+_+_+_+")
+// 		return $q.resolve(true);
 // 	});
 // 	core_Mock.didUserChangeRadius = true;
 // 	service.initializeView().then(function(moments) {
@@ -180,8 +186,7 @@ describe('Moment Service', function() {
 // 			views: 100
 // 		};
 // 	service.deleteOrUploadToBestMoments([mocked_moments]).then(function() {
-// 		console.log("RETURNED");
-
+// 		console.log("===========================RETURNED");
 // 		expect(core_Mock.removeFromBestMoments).toHaveBeenCalled();
 // 		mocked_moments = 		
 // 		{
@@ -239,17 +244,20 @@ it('Should NOT update moment on DISlike', function() {
 });
 
 //=========Does not work without using this.updateMomentMetaData in moments Service
-// it('updateMoment should call appropriate functions', function(done) {
-//     spyOn(core_Mock, 'edit').and.callFake(function() {
-//     	console.log("======CORE MOCKED");
-//     	expect(service.updateMomentMetaData).toHaveBeenCalled();
-// 		done();
-// 		return $q.resolve();
-// 	});
-// 	spyOn(service, 'updateMomentMetaData');
-// 	service.momentArray = mockOutMoments();
-// 	service.updateMoment(true);
-// });
+it('updateMoment should call appropriate functions', function(done) {
+    spyOn(core_Mock, 'edit').and.callFake(function() {
+    	expect(service.updateMomentMetaData).toHaveBeenCalled();
+    	expect(localStorageManager.set).toHaveBeenCalledWith('moments', mockOutMoments());
+		done();
+		return $q.resolve();
+	});
+	spyOn(service, 'updateMomentMetaData').and.callFake(function() {
+		return { time: "123" };
+	});
+	spyOn(localStorageManager, 'set');
+	service.momentArray = mockOutMoments();
+	service.updateMoment(true);
+});
 
 it('Should upload a report', function(done) {
 	var mockText = "TEST";

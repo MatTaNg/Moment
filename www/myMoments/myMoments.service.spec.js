@@ -50,7 +50,6 @@ describe("Test myMoments Service", function() {
     		return $q.resolve(mocked_Moment);
     	});
     	service.initialize().then(function() {
-    		//initialize does not return
     		expect(service.getTotalLikes()).toEqual(parseInt(mocked_Moment.likes));
     		expect(service.getExtraLikes()).toEqual(0);
     		expect(service.momentArray[0].key).toEqual(mocked_Moment.key);
