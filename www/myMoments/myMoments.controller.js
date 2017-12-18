@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
-	function MyMomentsController($ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
+	.controller('MyMomentsController', ['$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', 'notificationManager', MyMomentsController]);
+	function MyMomentsController($ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager, notificationManager) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.moments = localStorageManager.get('myMoments');
@@ -16,8 +16,10 @@
 		vm.watchForLocationChange = watchForLocationChange;
 		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
 		vm.createVideogularObj = createVideogularObj;
+		vm.editNotifications = editNotifications;
+		vm.toggleNotifications = toggleNotifications;
 
-		vm.userLocation = core.currentLocation.town || "Could not find location";
+		vm.userLocation = geolocation.currentLocation.town || "Could not find location";
 		vm.totalLikes = localStorageManager.get('totalLikes');
 		vm.showShortDescription = true;
 		vm.locationErrorMsg = false;
@@ -26,6 +28,8 @@
 		vm.loading = false;
 		vm.watchID;
 		vm.initRunning = false;
+		vm.notificationText = "Notifications on";
+		vm.notifications = notificationManager.getNotificationStatus();
 
 		if(!(vm.moments)) {
 			vm.moments = [];
@@ -36,7 +40,6 @@
 			watchForLocationChange();	
 		}
 		
-
 		function stopWatchingForLocationChange() {
 			if(vm.watchID) {
 				navigator.geolocation.clearWatch(vm.watchID);
@@ -66,10 +69,52 @@
 
 		$scope.$watch('vm.distance', function() {
 			if(JSON.stringify(vm.distance) !== JSON.stringify(localStorageManager.get('momentRadiusInMiles'))) {
-				core.didUserChangeRadius = true;
+				geolocaction.didUserChangeRadius = true;
 			}
 		});
 
+		function toggleNotifications(item) {
+			if(item.id === "ALL") {
+				for(var i = 0; i < vm.notifications.length; i++) {
+					vm.notifications[i].notification = item.notification;
+				}
+			}
+
+		}
+
+		function editNotifications() {
+			var popUp = $ionicPopup.show({
+				template: '<ion-checkbox ng-repeat="item in vm.notifications" ng-click="vm.toggleNotifications(item)" ng-model="item.notification" ng-checked="item.notification"><span style="font-size: 12px">{{item.settingsText}}</span></ion-checkbox>',
+				title: 'Notification Settings',
+				scope: $scope,
+				buttons: [ 
+				{
+					text: 'Cancel',
+					onTap: function(e) {
+						vm.notifications = localStorageManager.get('notificationStatus');
+					}
+				},
+				{
+					text: '<b>Ok</b>',
+					type: 'button-positive',
+					onTap: function(e) {
+						localStorageManager.set('notificationStatus', vm.notifications);
+						vm.notificationText = "Notifications off";
+						for(var i = 0; i < vm.notifications.length; i++) {
+							if(vm.notifications[i].notification === false) {
+								notificationManager.toggleNotification(vm.notifications[i].id, false);
+								// notificationManager.setNotifications(false);
+							}
+							else {
+								notificationManager.toggleNotification(vm.notifications[i].id, true);
+								vm.notificationText = "Notifications on";
+							}
+						}
+					}
+						
+				}]
+				});
+		};
 
 		function createVideogularObj(moments) {
 			var sources_array = [];
@@ -118,7 +163,7 @@
 
 		function initialize() {
 			if(!geolocation.customUserLocation) {
-				core.getLocation();
+				geolocation.getLocation();
 			}
 			if(vm.moments.length === 0){
 				vm.loading = true;
@@ -207,7 +252,7 @@
 
 		function getCurrentLocation() {
 			components.showLoader().then(function() {
-				core.getLocation().then(function(location) {
+				geolocation.getLocation().then(function(location) {
 					vm.watchingForLocationChange = location.town;
 					vm.customUserLocation = location.town;
 					components.hideLoader();
@@ -265,7 +310,7 @@
 					else {
 						stopWatchingForLocationChange();
 					}
-					core.getLocation(vm.customUserLocation).then(function(response) {
+					geolocation.getLocation(vm.customUserLocation).then(function(response) {
 						components.hideLoader().then(function() {
 							vm.userLocation = response.town;
 							vm.customUserLocation = "";
@@ -295,7 +340,8 @@
 
 			$ionicPopup.show({
 				template: '<textarea ng-model="vm.moment.feedback" style="height: 100px; margin-bottom: 10px"> </textarea>' + 
-				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox>',
+				'<ion-checkbox ng-model="vm.moment.isBug">Is this a bug?</ion-checkbox>' +
+				'<label class="item item-input"> Email: <input style="margin-left: 2px;" ng-model = "vm.email" type = "text" placeholder = "Optional"> </input> </label>',
 				title: 'Feedback',
 				scope: $scope,
 				subTitle: 'How can we improve?',
@@ -311,6 +357,9 @@
 							}
 							else {
 								components.showLoader().then(function() {
+									if(vm.email) {
+										vm.moment.feedback = vm.moment.feedback + '\r\n\r\n' + vm.email;
+									}
 									myMomentsService.uploadFeedback(vm.moment.feedback, vm.moment.isBug).then(function() {
 										components.hideLoader();
 										$ionicPopup.alert({

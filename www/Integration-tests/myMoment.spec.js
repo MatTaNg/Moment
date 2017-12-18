@@ -14,6 +14,29 @@ describe('myMoment Service', function() {
             results: ['', '', {formatted_address: "Narberth, PA"}]
         }
     };
+    var mock_moment;
+
+    function createSpy() {
+        spyOn(downloadManager, 'downloadFiles').and.callFake(function() {
+            return $q.resolve();
+        });
+
+        spyOn($http, 'get').and.callFake(function(url) {
+            return $q.resolve(mock_http_response);
+        });
+
+        spyOn(awsServices, 'multiPartUpload').and.callFake(function() {
+            return $q.resolve();
+        });
+
+        spyOn(awsServices, 'upload').and.callFake(function() {
+            return $q.resolve('test');
+        });
+
+        spyOn(core, 'getUUID').and.callFake(function() {
+            return Math.random();
+        });
+    };
 
     beforeEach(inject(function($templateCache) {
         $templateCache.put('layout/tabsController.html', 'layout/tabsController.html');
@@ -41,36 +64,8 @@ describe('myMoment Service', function() {
     }));
 
     beforeEach(inject(function() {
-        var deferred = $q.defer();
-
-        spyOn(downloadManager, 'downloadFiles').and.callFake(function() {
-            return $q.resolve();
-        });
-
-        spyOn($http, 'get').and.callFake(function(url) {
-            return $q.resolve(mock_http_response);
-        });
-
-        spyOn(awsServices, 'multiPartUpload').and.callFake(function() {
-            return $q.resolve();
-        });
-
-        spyOn(awsServices, 'upload').and.callFake(function() {
-            return $q.resolve('test');
-        });
-
-        spyOn(core, 'getUUID').and.callFake(function() {
-            return Math.random();
-        });
-
-        geolocation.max_north.lat = 99999;
-        geolocation.max_west.lng = -99999;
-        geolocation.max_east.lng = 99999;
-        geolocation.max_south.lat = -99999;
-    }));
-
-    it('Should initialize the moments', function(done) {
-         var mock_moment = {
+        createSpy();
+        mock_moment = {
             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
             key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
             description: "MOCK_DESCRIPTION",
@@ -81,6 +76,13 @@ describe('myMoment Service', function() {
             views: 1000,
             gainedLikes: 0
         };
+        geolocation.max_north.lat = 99999;
+        geolocation.max_west.lng = -99999;
+        geolocation.max_east.lng = 99999;
+        geolocation.max_south.lat = -99999;
+    }));
+
+    it('Should initialize the moments', function(done) {
         service.momentArray = mock_moment;
         spyOn(localStorage, 'getItem').and.callFake(function() {
             return JSON.stringify([mock_moment]);
@@ -92,6 +94,7 @@ describe('myMoment Service', function() {
         service.initialize().then(function(moment) {
         	mock_moment.time = core.timeElapsed(mock_moment.time);
         	mock_moment.shortDescription = "MOCK_DESCRIPTION";
+            moment[0].time = '0m';
         	expect(moment[0]).toEqual(mock_moment);
             expect(service.getTotalLikes()).toEqual(parseInt(mock_moment.likes));
             expect(service.getExtraLikes()).toEqual(0);

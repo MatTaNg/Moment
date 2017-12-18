@@ -9,11 +9,6 @@
 			vm.logReport = logReport;
 			vm.logOutMessage = logOutMessage;
 			vm.upload = upload;
-			vm.createStackTraceStr = createStackTraceStr;
-
-			function createStackTraceStr(str) {
-				
-			};
 
 			function upload(file, key) {
 				var deferred = $q.defer();

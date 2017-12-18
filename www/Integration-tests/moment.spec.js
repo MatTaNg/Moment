@@ -1,6 +1,6 @@
 //Write a test for the startAfter variable
 describe('Moment Service', function() {
-	var localStorageManager, logger, $rootScope, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices;
+	var localStorageManager, logger, $rootScope, core, geolocation, service, $q, $httpBackend, constants, $scope, $templateCache, cordovaGeolocation, awsServices, notificationManager, permissions;
 	beforeEach(module('app'));
 	var mockLat = 40.008446;
 	var mockLng = -75.260460;
@@ -15,6 +15,51 @@ describe('Moment Service', function() {
 			results: [{ address_components: [{short_name: "PA"}] }, '', {formatted_address: "Narberth, PA"}]
 		}
 	};
+    var mock_moment;
+
+    function createSpy() {
+        spyOn($http, 'get').and.callFake(function(url) {
+            return $q.resolve(mock_http_response);
+        });
+        spyOn(localStorage, 'getItem').and.callFake(function() {
+            return JSON.stringify(["TEST"]);
+        });
+        spyOn(awsServices, 'getObject').and.callFake(function() {
+            return $q.resolve('test');
+        });
+        spyOn(awsServices, 'upload').and.callFake(function() {
+            return $q.resolve('test');
+        });
+        spyOn(geolocation, 'initializeUserLocation').and.callFake(function() {
+            return $q.resolve( { town: "Narberth, PA" } );
+        });
+        spyOn(localStorageManager, 'addandDownload').and.callFake(function() {
+            return $q.resolve();
+        });
+        spyOn(core, 'getUUID').and.callFake(function() {
+            return "2";
+        });
+        spyOn(core, 'listMoments').and.callFake(function(data) {
+            return $q.resolve([{ uuids: "2" }, {uuids: "2"}, {uuids: "2"}]);
+        });
+        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
+            return $q.resolve(mock_moment);
+        });
+        spyOn(awsServices, 'copyObject').and.callFake(function() {
+            return $q.resolve([mock_moment]);
+        });
+        spyOn(logger, 'logFile').and.callFake(function() {
+            return $q.resolve();
+        });
+        spyOn(awsServices, 'remove').and.callFake(function() {
+            return $q.resolve();
+        });
+        spyOn(notificationManager, 'notifyUploadToBestMoments').and.callFake(function(id, msg) {
+            expect(id).toEqual("test");
+            expect(msg).toEqual(constants.MOMENT_BECOMES_BEST_MOMENT);
+        });
+    };
+
 	beforeEach(inject(function($templateCache) {
     	$templateCache.put('layout/tabsController.html', 'layout/tabsController.html');
     	$templateCache.put('myMoments/myMoments.html', 'layout/tabsController.html');
@@ -36,49 +81,17 @@ describe('Moment Service', function() {
         core = $injector.get('core');
         $rootScope = $injector.get('$rootScope');
         localStorageManager = $injector.get('localStorageManager');
+        notificationManager = $injector.get('notificationManager');
         logger = $injector.get('logger');
+        permissions = $injector.get('permissions')
 
         constants.DEV_MODE = false;
     }));
 
     beforeEach(inject(function() {
-    	var deferred = $q.defer();
+        createSpy();
 
-    	spyOn($http, 'get').and.callFake(function(url) {
-    		return $q.resolve(mock_http_response);
-    	});
-
-        spyOn(localStorage, 'getItem').and.callFake(function() {
-            return JSON.stringify(["TEST"]);
-        });
-        spyOn(awsServices, 'getObject').and.callFake(function() {
-            return $q.resolve('test');
-        });
-
-        spyOn(awsServices, 'upload').and.callFake(function() {
-            return $q.resolve('test');
-        });
-
-        spyOn(geolocation, 'initializeUserLocation').and.callFake(function() {
-            return $q.resolve( { town: "Narberth, PA" } );
-        });
-        spyOn(localStorageManager, 'addandDownload').and.callFake(function() {
-            return $q.resolve();
-        });
-        spyOn(core, 'getUUID').and.callFake(function() {
-            return "2";
-        });
-        spyOn(core, 'listMoments').and.callFake(function(data) {
-            return $q.resolve([{ uuids: "2" }, {uuids: "2"}, {uuids: "2"}]);
-        });
-        geolocation.max_north.lat = 99999;
-        geolocation.max_west.lng = -99999;
-        geolocation.max_east.lng = 99999;
-        geolocation.max_south.lat = -99999;
-    }));
-
-    it('Should correctly initialize the view', function(done) {
-        var mock_moment = {
+        mock_moment = {
             Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
             key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
             description: "MOCK_DESCRIPTION",
@@ -86,28 +99,28 @@ describe('Moment Service', function() {
             location: "MOCK_LOCATION",
             time: new Date().getTime(),
             uuids: "1",
-            views: 1000
+            views: 1000,
+            onesignalid: "test"
         };
-        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-            return $q.resolve(mock_moment);
-        });
 
-        spyOn(awsServices, 'copyObject').and.callFake(function() {
-            return $q.resolve([mock_moment]);
-        });
+        geolocation.max_north.lat = 99999;
+        geolocation.max_west.lng = -99999;
+        geolocation.max_east.lng = 99999;
+        geolocation.max_south.lat = -99999;
+    }));
 
-        var deferred = $q.defer();
+    function mockOutGetMoments(returnValue) {
+        spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
+            expect(key).toEqual(constants.MOMENT_PREFIX + 'PA');
+            return $q.resolve([mock_moment, mock_moment, mock_moment]);
+        });
+    };
+
+    it('Should correctly initialize the view', function(done) {
         service.momentArray.push(mock_moment);
-        spyOn(logger, 'logFile').and.callFake(function() {
-            return $q.resolve();
-        })
-    	spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-    		expect(key).toEqual(constants.MOMENT_PREFIX + 'PA');
-    		// expect(startAfter).toEqual('moment/PA/40.008446_-75.26046_1499829188066.jpg');
-            var deferred = $q.defer();
-            deferred.resolve([mock_moment, mock_moment, mock_moment]);
-            return deferred.promise;
-    	});
+
+        mockOutGetMoments([mock_moment, mock_moment, mock_moment]);
+
     	service.initializeView().then(function(moments) {
     		done();
     	});
@@ -115,36 +128,10 @@ describe('Moment Service', function() {
     });
 
     it('Should correctly initialize the view and delete expired moments', function(done) {
-        var mock_moment = {
-            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            description: "MOCK_DESCRIPTION",
-            likes: 1000,
-            location: "MOCK_LOCATION",
-            time: 15,
-            uuids: "1",
-            views: 1000
-        };
-        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-            return $q.resolve(mock_moment);
-        });
+        mock_moment.time = 15;
 
-        spyOn(awsServices, 'copyObject').and.callFake(function() {
-            return $q.resolve([mock_moment]);
-        });
-
-        spyOn(awsServices, 'remove').and.callFake(function() {
-            return $q.resolve();
-        })
-
-        var deferred = $q.defer();
         service.momentArray.push(mock_moment);
-        spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-            expect(key).toEqual(constants.MOMENT_PREFIX + 'PA');
-            var deferred = $q.defer();
-            deferred.resolve([mock_moment]);
-            return deferred.promise;
-        });
+        mockOutGetMoments([mock_moment]);
         service.initializeView().then(function(moments) {
             expect(moments.length).toBe(0);
             done();
@@ -153,38 +140,13 @@ describe('Moment Service', function() {
     });
 
 it('Should correctly initialize the view and upload to best moments', function(done) {
-        var mock_moment = {
-            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            description: "MOCK_DESCRIPTION",
-            likes: 900,
-            location: "MOCK_LOCATION",
-            time: new Date().getTime(),
-            uuids: "1",
-            views: 20
-        };
-        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-            return $q.resolve(mock_moment);
-        });
-
-        spyOn(awsServices, 'copyObject').and.callFake(function() {
-            return $q.resolve([mock_moment]);
-        });
-
-        spyOn(awsServices, 'remove').and.callFake(function() {
-            return $q.resolve(); 
-        });
+        mock_moment.likes = 900;
+        mock_moment.views = 20;
 
         spyOn(core, 'uploadToBestMoments');
 
-        var deferred = $q.defer();
-        spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-            expect(key).toEqual(constants.MOMENT_PREFIX + 'PA');
-            expect(startAfter).toEqual('');
-            var deferred = $q.defer();
-            deferred.resolve([mock_moment]);
-            return deferred.promise;
-        });
+        mockOutGetMoments([mock_moment]);
+
         service.initializeView().then(function(moments) {
             expect(moments[0].key).toEqual(mock_moment.key);
             expect(core.uploadToBestMoments).toHaveBeenCalled();
@@ -194,33 +156,13 @@ it('Should correctly initialize the view and upload to best moments', function(d
     });
 
 it('Should correctly initialize the view and remove moment from best moments', function(done) {
-        var mock_moment = {
-            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            description: "MOCK_DESCRIPTION",
-            likes: 400,
-            location: "MOCK_LOCATION",
-            time: new Date().getTime(),
-            uuids: "1",
-            views: 1000
-        };
-        spyOn(awsServices, 'getMomentMetaData').and.callFake(function() {
-            return $q.resolve(mock_moment);
-        });
-
-        spyOn(awsServices, 'remove').and.callFake(function() {
-            return $q.resolve();
-        });
+        mock_moment.likes = 400;
+        mock_moment.views = 1000;
 
         spyOn(core, 'removeFromBestMoments');
 
-        var deferred = $q.defer();
-        spyOn(awsServices, 'getMoments').and.callFake(function(key, startAfter) {
-            expect(key).toEqual(constants.MOMENT_PREFIX + 'PA');
-            var deferred = $q.defer();
-            deferred.resolve([mock_moment]);
-            return deferred.promise;
-        });
+        mockOutGetMoments([mock_moment]);
+
         service.initializeView().then(function(moments) {
             expect(moments[0].key).toEqual(mock_moment.key);
             expect(core.removeFromBestMoments).toHaveBeenCalled();
@@ -228,19 +170,5 @@ it('Should correctly initialize the view and remove moment from best moments', f
         });
         $rootScope.$apply();
     });
-
-//     it('Should successfully upload Report', function() {
-//     });
-
-    function areMomentsCorrectlyInitialized(moments) {
-        for(var i = 0; i  < moments.length; i++) {
-        if(i === 0)
-            expect(moments[i].class).toEqual('layer-top');    
-        if(i === 1)
-            expect(moments[i].class).toEqual('layer-next');    
-        if(i > 1)
-            expect(moments[i].class).toEqual('layer-hide');    
-        }
-    }
 
 });

@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['downloadManager', '$sce', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', MomentsController]);
+	.controller('MomentsController', ['downloadManager', '$sce', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', 'notificationManager', '$timeout', MomentsController]);
 
-	function MomentsController (downloadManager, $sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager) {
+	function MomentsController (downloadManager, $sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager, notificationManager, $timeout) {
 		var vm = this;
 		vm.moments = localStorageManager.get('moments');
 		vm.liked = liked;		
@@ -24,6 +24,7 @@
 		vm.loadingMoments = false;
 		vm.touchXposition = 0;
 		vm.initRunning = false;
+		vm.appStatus = "resume";
 		
 		if(!vm.moments) {
 			vm.moments = [];
@@ -46,10 +47,6 @@
 				autoClose: 3000
 			});
 		}
-
-		// if(core.currentLocation === "Could not find location") {
-		// 	core.getLocation();
-		// }
 
 		function downloadMoment(moment) {
 			downloadManager.downloadToDevice(moment.key).then(function() {
@@ -141,7 +138,7 @@
 					localStorageManager.set('moments', vm.moments);
 					if(momentsService.getStartAfterKey() !== "" && vm.moments.length < constants.MAX_NUM_OF_MOMENTS) {
 						vm.loadingMoments = true;
-						initialize();
+						return initialize();
 					}
 					else {
 						vm.initRunning = false;
@@ -240,6 +237,37 @@
 					autoClose: 3000
 				});
 			}
+		};
+
+		document.addEventListener("pause", onPause, false) //Fires when user minimizes the app
+
+		document.addEventListener("resume", onResume, false) //Fires when the user maximizes the app
+
+		function onResume() {
+			vm.appStatus = "resume";
+		}
+
+		function onPause() {
+			vm.appStatus = "pause";
+			initialize().then(function() {
+				if(vm.moments.length > 0 && vm.initRunning === false) {
+		            notificationManager.notifyMoreMomentsFound();
+		            $timeout(function() {
+		              onPause();
+		            }, constants.MILISECONDS_IN_A_DAY); //Only notify once a day
+				}
+				else {
+					$timeout(function() {
+						if(vm.appStatus === "pause") {
+							onPause();
+						}
+					}, constants.MILISECONDS_IN_AN_HOUR); //Re-check every hour.
+				}
+			}, function(error) {
+				$timeout(function() {
+					onPause();
+				}, constants.MILISECONDS_IN_AN_HOUR); //Re-check every hour.
+			});
 		};
 	}
 })();

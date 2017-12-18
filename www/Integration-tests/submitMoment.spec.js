@@ -14,6 +14,28 @@ describe('Submit Moment', function() {
 			results: ['', '', {formatted_address: "Narberth, PA"}]
 		}
 	};
+    var mock_moment;
+
+    function createSpy() {
+        spyOn($http, 'get').and.callFake(function(url) {
+            return $q.resolve(mock_http_response);
+        });
+
+        spyOn(localStorage, 'getItem').and.callFake(function() {
+            return JSON.stringify(["TEST"]);
+        });
+        spyOn(awsServices, 'getObject').and.callFake(function() {
+            return $q.resolve('test');
+        });
+
+        spyOn(awsServices, 'upload').and.callFake(function() {
+            return $q.resolve('test');
+        });
+        spyOn(core, 'getUUID').and.callFake(function() {
+            return Math.random();
+        });
+    };
+
 	beforeEach(inject(function($templateCache) {
     	$templateCache.put('layout/tabsController.html', 'layout/tabsController.html');
     	$templateCache.put('myMoments/myMoments.html', 'layout/tabsController.html');
@@ -39,26 +61,8 @@ describe('Submit Moment', function() {
     }));
 
     beforeEach(inject(function() {
-    	var deferred = $q.defer();
-
-    	spyOn($http, 'get').and.callFake(function(url) {
-    		return $q.resolve(mock_http_response);
-    	});
-
-        spyOn(localStorage, 'getItem').and.callFake(function() {
-            return JSON.stringify(["TEST"]);
-        });
-        spyOn(awsServices, 'getObject').and.callFake(function() {
-            return $q.resolve('test');
-        });
-
-        spyOn(awsServices, 'upload').and.callFake(function() {
-            return $q.resolve('test');
-        });
-        spyOn(core, 'getUUID').and.callFake(function() {
-            return Math.random();
-        });
-
+        createSpy();
+        
         geolocation.max_north.lat = 99999;
         geolocation.max_west.lng = -99999;
         geolocation.max_east.lng = 99999;
