@@ -24,7 +24,7 @@
 
 		//Configurations
 		"MAX_DESCRIPTION_LENGTH": 180,
-		"HOURS_BETWEEN_MOMENTS": 0.1,
+		"HOURS_BETWEEN_MOMENTS": 0,
 		"HOURS_UNTIL_MOMENT_EXPIRES": 168,
 		"BEST_MOMENTS_RATIO": 0.5,
 		"DEFAULT_MOMENT_RADIUS_IN_MILES": 25,
@@ -39,7 +39,13 @@
 		"MOMENT_EXTENSION": ".jpg",
 		"LOCATION_NOT_FOUND_TXT": "We could not find your location",
 
+		//Notification Messages
+		"TIME_BETWEEN_NOTIFICATIONS": 3600000, //1 hour
+		"MOMENT_BECOMES_BEST_MOMENT": "Congratulations! Your Moment has been voted to appear as a Best Moment!",
+		"MORE_MOMENTS_FOUND": "Check out your new Moments before they disappear!",
+
 		"MOCKED_COORDS": {lat: 40.0084, lng: 75.2605, town: "Narberth, PA", state: 'PA'},
 		"DEV_MODE": false //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
+		
 	})
 })();

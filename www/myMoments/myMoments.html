@@ -31,14 +31,25 @@ on-refresh="vm.refreshing()">
 			</div>
 		</div>
 	</div>  
-	<hr> 
+	<hr style="margin-bottom: 25px"> 
+	<div class="row">
+		<div class="col-75">
+			<div class="location">{{vm.notificationText}}</div>
+		</div>
+		<div class="col">
+			<button class="editButton col button button-energized " ng-click="vm.editNotifications()"  ng-hide="vm.editing">Edit</button>
+		</div>
+	</div>
+	<hr>
 <br>
 
 <ion-list ng-if="vm.loading === false">
 <div ng-repeat="image in vm.moments">
 	<div data-ng-if="vm.config.sources">
 		<div class="ion-android-close" style="margin-right: 5px" data-ng-click="vm.remove(image)"></div>
-		<div class="momentLocation" style="margin-left: 5px">{{image.location}}</div>
+		<div class="momentLocation" style="margin-left: 5px">{{image.location}}
+			<span ng-if="image.bestmoment" class="ion-ios-star"> </span>
+		</div>
 	<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
 
 		<!--Video Begin-->

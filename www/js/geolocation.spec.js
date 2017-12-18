@@ -33,6 +33,43 @@ describe("Geolocation", function() {
     	spyOn(logger, 'logFile');
     });
 
+    it('Should call getLocation and initializeUserLocation', function(done) {
+    	spyOn(geolocation, 'initializeUserLocation').and.callFake(function() {
+    		return $q.resolve("TEST");
+    	});
+    	geolocation.getLocation().then(function(location) {
+    		expect(location).toEqual("TEST");
+    		done();
+    	});
+    	$scope.$apply();
+    });
+
+    it('Should call getLocation and getCoordinatesFromTown', function(done) {
+    	spyOn(geolocation, 'getCoordinatesFromTown').and.callFake(function() {
+    		return $q.resolve({ lat: 1, lng: 1});
+    	});
+    	geolocation.getLocation("Wynnewood, PA").then(function(location) {
+    		expect(location).toEqual({ lat: 1, lng: 1});
+    		done();
+    	});
+    	$scope.$apply();
+    });
+
+    it('Should call getLocation and getCoordsFromZipCode', function(done) {
+    	spyOn(geolocation, 'getCoordsFromZipCode').and.callFake(function() {
+    		return $q.resolve({ lat: 1, lng: 1});
+    	});
+    	geolocation.getLocation("07670").then(function(location) {
+    		expect(location).toEqual({ lat: 1, lng: 1});
+    		done();
+    	});
+    	spyOn(geolocation, "setMaxNESW").and.callFake(function(lat, lng) {
+    		expect(lat).toEqual(1);
+    		expect(lng).toEqual(1);
+    	});
+    	$scope.$apply();
+    });
+
 	it("Get current Lat Long", function(done) {
 		spyOn($cordovaGeolocation, 'getCurrentPosition').and.callFake(function() {
     		return $q.resolve({

@@ -150,7 +150,8 @@
 
 		function addShortDescriptionAndTime(moments) {
 			for(var i = 0; i < moments.length; i++) {
-				moments[i].time = core.timeElapsed(moments[i].time);
+				// moments[i].time = new Date().getTime() - moments[i].time;
+				moments[i].time = core.timeElapsed(moments[i].time, true);
 				if(moments[i].description.length > 0) {
 					moments[i].shortDescription = moments[i].description.substring(0,50);
 				}

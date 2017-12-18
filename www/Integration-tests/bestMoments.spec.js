@@ -14,6 +14,34 @@ describe('Moment Service', function() {
 			results: ['', '', {formatted_address: "Narberth, PA"}]
 		}
 	};
+    var mock_moment;
+
+    function createSpy() {
+        spyOn($http, 'get').and.callFake(function(url) {
+            return $q.resolve(mock_http_response);
+        });
+
+        spyOn(localStorage, 'getItem').and.callFake(function() {
+            return JSON.stringify(["TEST"]);
+        });
+        spyOn(awsServices, 'getObject').and.callFake(function() {
+            return $q.resolve('test');
+        });
+
+        spyOn(awsServices, 'upload').and.callFake(function() {
+            return $q.resolve('test');
+        });
+        spyOn(core, 'getUUID').and.callFake(function() {
+            return Math.random();
+        });
+        spyOn(localStorageManager, 'set').and.callFake(function() {
+            return $q.resolve();
+        });
+        spyOn(awsServices, 'getMoments').and.callFake(function() {
+            return $q.resolve(mock_moment);
+        });
+    };
+
 	beforeEach(inject(function($templateCache) {
     	$templateCache.put('layout/tabsController.html', 'layout/tabsController.html');
     	$templateCache.put('myMoments/myMoments.html', 'layout/tabsController.html');
@@ -39,29 +67,17 @@ describe('Moment Service', function() {
     }));
 
     beforeEach(inject(function() {
-    	var deferred = $q.defer();
-
-    	spyOn($http, 'get').and.callFake(function(url) {
-    		return $q.resolve(mock_http_response);
-    	});
-
-        spyOn(localStorage, 'getItem').and.callFake(function() {
-            return JSON.stringify(["TEST"]);
-        });
-        spyOn(awsServices, 'getObject').and.callFake(function() {
-            return $q.resolve('test');
-        });
-
-        spyOn(awsServices, 'upload').and.callFake(function() {
-            return $q.resolve('test');
-        });
-        spyOn(core, 'getUUID').and.callFake(function() {
-            return Math.random();
-        });
-        spyOn(localStorageManager, 'set').and.callFake(function() {
-        	return $q.resolve();
-        });
-
+        createSpy();
+        mock_moment = {
+            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
+            description: "MOCK_DESCRIPTION",
+            likes: 900,
+            location: "MOCK_LOCATION",
+            time: 15,
+            uuids: "123",
+            views: 1000
+        };
         geolocation.max_north.lat = 99999;
         geolocation.max_west.lng = -99999;
         geolocation.max_east.lng = 99999;
@@ -69,19 +85,6 @@ describe('Moment Service', function() {
     }));
 
     it('Should correctly initialize the view', function(done) {
-        var mock_moment = {
-            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            description: "MOCK_DESCRIPTION",
-            likes: 900,
-            location: "MOCK_LOCATION",
-            time: 15,
-            uuids: "123",
-            views: 1000
-        };
-        spyOn(awsServices, 'getMoments').and.callFake(function() {
-            return $q.resolve(mock_moment);
-        });
         service.initializeView().then(function() {
             done();
         })
@@ -89,20 +92,7 @@ describe('Moment Service', function() {
     });
 
     it('Should load more moments', function(done) {
-        var mock_moment = {
-            Key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            key: "https://s3.amazonaws.com/mng-moment/moment/PA/40.008446_-75.26046_1499829188066.jpg",
-            description: "MOCK_DESCRIPTION",
-            likes: 900,
-            location: "MOCK_LOCATION",
-            time: 15,
-            uuids: "123",
-            views: 1000
-        };
         service.momentArray = [mock_moment];
-        spyOn(awsServices, 'getMoments').and.callFake(function() {
-            return $q.resolve(mock_moment);
-        });
         spyOn(core, 'listMoments').and.callFake(function() {
         	return $q.resolve([mock_moment]);
         });

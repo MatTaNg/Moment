@@ -1,5 +1,7 @@
 describe('Core', function() {
-	var core, $q, constants, logger, geolocation, $scope, $templateCache, awsServices;
+	var core, $q, constants, logger, geolocation, $scope, $templateCache, awsServices, notificationManager;
+
+	var mock_moment;
 
 	beforeEach(module('app'));
 
@@ -11,8 +13,20 @@ describe('Core', function() {
 	}));
 
     beforeEach(inject(function($injector) {
+        mock_moment = {
+			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
+			description: "MOCK_DESCRIPTION1",
+			likes: 1,
+			location: "MOCK_LOCATION1",
+			time: 1500609179810,
+			uuids: "123",
+			views: 1,
+			media: ".mp4"
+		};
+
         $q = $injector.get('$q');
         geolocation = $injector.get('geolocation');
+
         spyOn(geolocation, 'initializeUserLocation').and.callFake(function() {
         	return $q.resolve("Narberth, PA");
         });
@@ -21,7 +35,14 @@ describe('Core', function() {
         logger = $injector.get('logger');
         awsServices = $injector.get('awsServices');
         $scope = $injector.get('$rootScope').$new();
+        notificationManager = $injector.get('notificationManager');
         core = $injector.get('core');
+
+		spyOn(core, "splitUrlOff").and.returnValue(mock_moment.key);
+        spyOn(notificationManager, 'notifyUploadToBestMoments');
+		spyOn(logger, 'logFile').and.callFake(function(done) {
+			return $q.resolve();
+		});
     }));
 
     it("DEV_MODE should be off", function() {
@@ -37,17 +58,6 @@ describe('Core', function() {
     });
 
     it('Should edit a moment', function(done) {
-		var mock_moment = {
-			key: "MOCK_KEY1",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
-		spyOn(core, 'splitUrlOff').and.returnValue(mock_moment.key);
 		spyOn(awsServices, 'copyObject').and.callFake(function() {
 			return $q.resolve();
 		});
@@ -59,17 +69,6 @@ describe('Core', function() {
     });
 
     it('Should upload moments', function() {
-    	var mock_moment = {
-			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
-		spyOn(core, "splitUrlOff").and.returnValue(mock_moment.key);
 		spyOn(awsServices, 'upload').and.callFake(function() {
 			return $q.resolve();
 		});
@@ -80,19 +79,8 @@ describe('Core', function() {
     });
 
     it('Should do multipartUpload moments', function() {
-    	var mock_moment = {
-			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
 		var arrayBuffer = new ArrayBuffer(1024 * 1024 * 5 * 2);
 
-		spyOn(core, "splitUrlOff").and.returnValue(mock_moment.key);
 		spyOn(awsServices, 'multiPartUpload').and.callFake(function() {
 			return $q.resolve();
 		});
@@ -102,30 +90,27 @@ describe('Core', function() {
     	$scope.$apply();
     });
 
-    it('Should upload to best moments', function() {
-    	var mock_moment = {
-			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
-		spyOn(logger, 'logFile').and.callFake(function(done) {
-			return $q.resolve();
-		});
+    it('Should upload to best moments', function(done) {
 		spyOn(awsServices, 'getObject').and.callFake(function(key) {
 			expect(key).toEqual("bestMoments/40.008446_-75.26046_1499829188066.jpg");
 			return $q.resolve();
 		});
-		spyOn(core, 'splitUrlOff').and.returnValue(mock_moment.key);
-		spyOn(awsServices, 'copyObject').and.callFake(function(key, copySource, moment, replace) {
-			expect(key).toEqual("bestMoments/40.008446_-75.26046_1499829188066.jpg");
-			expect(copySource).toEqual(mock_moment.key);
-			expect(moment).toEqual(mock_moment);
-			expect(replace).toEqual("REPLACE");
+		var copyObjSpy = spyOn(awsServices, 'copyObject').and.callFake(function(key, copySource, moment, replace) {
+			if(key === "bestMoments/40.008446_-75.26046_1499829188066.jpg") {
+				expect(key).toEqual("bestMoments/40.008446_-75.26046_1499829188066.jpg");
+				expect(copySource).toEqual(mock_moment.key);
+				expect(moment).toEqual(mock_moment);
+				expect(replace).toEqual("REPLACE");
+
+				done();
+			}
+			else if(key === copySource) {
+				expect(key).toEqual("moment/PA/40.008446_-75.26046_1499829188066.jpg");
+				expect(copySource).toEqual("moment/PA/40.008446_-75.26046_1499829188066.jpg");
+				expect(moment).toEqual(mock_moment);
+				expect(replace).toEqual("REPLACE");	
+			}
+			return $q.resolve();
 		});
 
 	   	core.uploadToBestMoments(mock_moment);
@@ -133,16 +118,6 @@ describe('Core', function() {
     });
 
     it('Should remove from best moments', function(done) {
-    	var mock_moment = {
-			key: "bestMoment/40.008446_-75.26046_1499829188066.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
 		var mock_best_moments = [{
 			Key: "bestMoment/40.008446_-75.26046_1499829188066.jpg",
 			description: "MOCK_DESCRIPTION1",
@@ -185,16 +160,6 @@ describe('Core', function() {
 	});
 
 	it('Should get a Moment', function(done) {
-    	var mock_moment = {
-			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
 		spyOn(awsServices, 'getObject').and.callFake(function(key) {
 			var temp = {Metadata: mock_moment };
 			expect(key).toBe(mock_moment.key);
@@ -208,16 +173,6 @@ describe('Core', function() {
 	});
 
 	it('Should return the moment if its not found', function(done) {
-		var mock_moment = {
-			key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
 		spyOn(awsServices, 'getObject').and.callFake(function(key) {
 			expect(key).toBe(mock_moment.key);
 			return $q.resolve("Not Found");
@@ -230,18 +185,8 @@ describe('Core', function() {
 	});
 
 	it('Should get moment meta data', function(done) {
-		var mock_moment = {
-			Key: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: 1500609179810,
-			uuids: "123",
-			views: 1,
-			media: ".mp4"
-		};
 		spyOn(awsServices, 'getMomentMetaData').and.callFake(function(key) {
-			expect(key).toEqual(mock_moment.Key);
+			expect(key).toEqual(mock_moment.key);
 			done();
 		});
 		core.getMomentMetaData(mock_moment);
@@ -256,6 +201,14 @@ describe('Core', function() {
 		expect(core.timeElapsed(oneHour)).toEqual("1h");
 		expect(core.timeElapsed(oneMin)).toEqual("1m");
 		expect(core.timeElapsed(currentTime)).toEqual("0m");
+	});
+
+	it('Should return the timeLeft', function() {
+		var currentTime = new Date().getTime();
+		var oneDay = currentTime + 86400000 + 3600000;
+		var expiresInMiliseconds = constants.HOURS_UNTIL_MOMENT_EXPIRES * constants.MILISECONDS_IN_AN_HOUR;
+		var expectedResult = core.timeElapsed(oneDay - expiresInMiliseconds);
+		expect(core.timeElapsed(oneDay, true)).toEqual(expectedResult);
 	});
 
 });

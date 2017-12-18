@@ -1,30 +1,34 @@
  (function() {
  	angular.module('geolocation', [])
 
- 	.service('geolocation', ['logger', '$q', 'constants', '$http', '$cordovaGeolocation', 'awsServices', 'permissions', geolocation]);
+ 	.service('geolocation', ['logger', '$q', 'constants', '$http', '$cordovaGeolocation', 'awsServices', 'permissions', 'core', geolocation]);
 
- 	function geolocation(logger, $q, constants, $http, $cordovaGeolocation, awsServices, permissions){
+ 	function geolocation(logger, $q, constants, $http, $cordovaGeolocation, awsServices, permissions, core){
  		var vm = this;
  		vm.calculateNearbyStates = calculateNearbyStates;
- 		vm.getStates = getStates;
+ 		vm.getStates = getStates; //calculatenearbystates
  		vm.getMomentsByState = getMomentsByState;
  		vm.getMomentsWithinRadius = getMomentsWithinRadius;
  		vm.getLocationFromCoords = getLocationFromCoords;
  		vm.initializeUserLocation = initializeUserLocation;
  		vm.getLatMileRadius = getLatMileRadius;
  		vm.getLngMileRadius = getLngMileRadius;
- 		vm.getCurrentLatLong = getCurrentLatLong;
+ 		vm.getCurrentLatLong = getCurrentLatLong; //initializeUserLocation
  		vm.readZipCodeFile = readZipCodeFile;
  		vm.getCoordinatesFromTown = getCoordinatesFromTown;
  		vm.getCoordsFromZipCode = getCoordsFromZipCode;
  		vm.setMomentInRadius = setMomentInRadius;
  		vm.setMaxNESW = setMaxNESW;
+		vm.getLocation = getLocation;
 
  		vm.max_east = {};
  		vm.max_north = {};
  		vm.max_west = {};
  		vm.max_south = {};
  		vm.userLocation = undefined;
+ 		vm.currentLocation = "Could not find location";
+ 		vm.locationNotFound = false;
+ 		vm.didUserChangeRadius = false;
 
  		var moment_radius_in_miles = localStorage.getItem('momentRadiusInMiles');
  		if(moment_radius_in_miles === null) {
@@ -38,6 +42,54 @@
 
 		function getLngMileRadius() {
 			return lng_mile_radius;
+		};
+
+		function getLocation(location) {
+			var deferred = $q.defer();
+			if(!constants.DEV_MODE) {
+				if(!location) {
+					vm.initializeUserLocation().then(function(location) {
+						vm.currentLocation = location;
+						vm.locationNotFound = false;
+						deferred.resolve(vm.currentLocation);
+					}, function(error) {
+						vm.currentLocation.town = "Could not find location";
+						vm.locationNotFound = true;
+						deferred.reject();
+					});
+				}
+				else if(!(/^\d+$/.test(location))) { //Does not contain digits
+					vm.getCoordinatesFromTown(location).then(function(location) {
+						vm.currentLocation = location;
+						vm.didUserChangeRadius = true;
+						vm.customLocation = location;
+						vm.setMaxNESW(location.lat, location.lng);
+						deferred.resolve(location);
+					}, function(error) {
+						vm.currentLocation.town = "Could not find location";
+						deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
+					});
+				}
+				else { //It is a zip code
+					vm.getCoordsFromZipCode(location).then(function(location) {
+						vm.currentLocation = location;
+						vm.didUserChangeRadius = true;
+						vm.customLocation = location;
+						vm.setMaxNESW(location.lat, location.lng);
+						deferred.resolve(location);
+					}, function(error) {
+						vm.currentLocation.town = "Could not find location";
+						deferred.reject(constants.LOCATION_NOT_FOUND_TXT);
+
+					});
+				}
+			}
+			else {
+				core.currentLocation = constants.MOCKED_COORDS;
+				setMaxNESW(vm.currentLocation.lat, vm.currentLocation.lng);
+				deferred.resolve( constants.MOCKED_COORDS );
+			}
+			return deferred.promise;
 		};
 
 		function setMomentInRadius(radius) { //Do I use this?
@@ -104,16 +156,19 @@
 		};
 
 		function initializeUserLocation(mockTown) {
+			console.log("===============$");
 			var deferred = $q.defer();
 			var town = "";
 			permissions.checkPermission("location").then(function() {
-
+				console.log("1");
 				if(!mockTown) {
 					vm.getCurrentLatLong().then(function(response) {
+						console.log("2");
 						var lat = response.lat;
 						var lng = response.lng;
 						setMaxNESW(lat, lng);
 						vm.getLocationFromCoords(lat, lng).then(function(response) {
+							console.log("3");
 							town = response.town;
 							town = town.trim();
 							vm.userLocation = {lat: lat, lng: lng, town: town, state: response.state};
@@ -202,16 +257,7 @@ function getMomentsWithinRadius(momentsInStates) {
 		if(momentsInStates_lat < vm.max_north.lat && momentsInStates_lat > vm.max_south.lat &&
 			momentsInStates_lng > vm.max_west.lng && momentsInStates_lng < vm.max_east.lng) {
 			promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
-				return {
-					key: metaData.key,
-					description: metaData.description,
-					likes: metaData.likes,
-					location: metaData.location,
-					time: metaData.time,
-					uuids: metaData.uuids,
-					views: metaData.views,
-					media: metaData.media
-				};
+				return core.populateMomentObj(metaData);
 			}))
 		}
 	}
@@ -296,7 +342,6 @@ function getCoordsFromZipCode(zipCode) {
 		}
 	}
 	xhr.send(null);
-// var zipCodes = readZipCodeFile();
 return deferred.promise;
 };
 
@@ -347,11 +392,6 @@ function getLocationFromCoords(latitude, longitude) {
 				var town = extractAddressFrom_FormattedAddress(response[2].formatted_address);
 				town = town.trim();
 				var state = findStateFromResponse(response);
-				// if(town.indexOf(',') !== -1) {
-				// 	var state = town.split(',')[1].trim();
-				// } else {
-				// 	var state = town
-				// }
 				deferred.resolve({lat: latitude, lng: longitude, town: town, state: state});
 			}
 		}, function(error) {

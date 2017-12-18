@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'awsServices', 'logger', 'components', 'geolocation', 'localStorageManager', 'multipartUpload', 'permissions', 'downloadManager',
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'awsServices', 'logger', 'components', 'geolocation', 'localStorageManager', 'multipartUpload', 'permissions', 'downloadManager', 'notificationManager', 'app.MomentsController',
   'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards',
   "ngSanitize",
   "com.2fdevs.videogular",
@@ -17,9 +17,10 @@ angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 
   $sceDelegateProvider.resourceUrlWhitelist([ 'self','*://www.youtube.com/**', '*://player.vimeo.com/video/**', '*://s3.amazonaws.com/mng-moment/**']);
 })
 
-.run(function($ionicPlatform, $ionicPopup, $state) {
+.run(function($ionicPlatform, $ionicPopup, $state, $timeout, constants, notificationManager) {
   $ionicPlatform.ready(function() {
-    oneSignalSetup();
+    // document.addEventListener("pause", onPause, false) //Fires when user minimizes app
+    oneSignalSetup(); //Comment out for automated testing
     // initializeApp().then(function() {
       if(navigator.splashscreen)
         navigator.splashscreen.hide();
@@ -52,21 +53,28 @@ if (window.StatusBar) {
     } //window.connection
 
     function oneSignalSetup() {
-          // Enable to debug issues.
-  // window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
+      // Enable to debug issues.
+      // window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
   
-  var notificationOpenedCallback = function(jsonData) {
-  };
-
-//   window.plugins.OneSignal
-//   .startInit(constants.ONE_PUSH_APP_ID)
-//   .handleNotificationOpened(notificationOpenedCallback)
-//   .endInit();
-
-//   // Call syncHashedEmail anywhere in your app if you have the user's email.
-//   // This improves the effectiveness of OneSignal's "best-time" notification scheduling feature.
-//   // window.plugins.OneSignal.syncHashedEmail(userEmail);
-};
+      var notificationOpenedCallback = function(jsonData) {
+        // console.log('didReceiveRemoteNotificationCallBack: ' + JSON.stringify(jsonData));
+      };
+      //https://documentation.onesignal.com/v3.0/docs/cordova-sdk#section--handlenotificationopened-
+      window.plugins.OneSignal
+      .startInit(constants.ONE_PUSH_APP_ID)
+      .handleNotificationOpened(notificationOpenedCallback) //User opens notification
+      .handleNotificationReceived(notificationOpenedCallback) //App is in focus
+      .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification) //How notifications are displays in App (Notification | InAppAlert | None)
+      .endInit();
+      window.plugins.OneSignal.getIds(function(ids) {
+          //document.getElementById("OneSignalUserID").innerHTML = "UserID: " + ids.userId;
+          //document.getElementById("OneSignalPushToken").innerHTML = "PushToken: " + ids.pushToken;
+          localStorage.setItem("OneSignal_PlayerID", JSON.stringify(ids['userId']));
+      });
+      // Call syncHashedEmail anywhere in your app if you have the user's email.
+      // This improves the effectiveness of OneSignal's "best-time" notification scheduling feature.
+      // window.plugins.OneSignal.syncHashedEmail(userEmail);
+    };
 
 });
 })

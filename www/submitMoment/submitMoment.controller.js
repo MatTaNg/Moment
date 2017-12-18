@@ -27,7 +27,8 @@
         views: "0",
         uuids: core.getUUID(),
         creator: core.getUUID(),
-        media: ""
+        media: "",
+        oneSignalid: localStorageManager.get("OneSignal_PlayerID")
     };
 
     vm.media = $stateParams.media;

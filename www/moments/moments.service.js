@@ -38,7 +38,7 @@
 		};
 
 		function getNearbyMoments(currentMoments) {
-			var getLocation = core.getLocation;
+			var getLocation = geolocation.getLocation;
 			var calculateNearbyStates = geolocation.calculateNearbyStates;
 			var getMomentsByState = geolocation.getMomentsByState;
 			var concatMoments = function(moments) {
@@ -60,7 +60,7 @@
 			};
 			var getMomentsWithinRadius = geolocation.getMomentsWithinRadius;
 			if(!geolocation.customLocation) {
-				return core.getLocation()
+				return geolocation.getLocation()
 				.then(calculateNearbyStates)
 				.then(getMomentsByState.bind(null, startAfterKey))
 				.then(concatMoments)
@@ -74,7 +74,6 @@
 			}
 		};
 
-		//Not tested
 		function initializeView() {
 			var deferred = $q.defer();
 			var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
@@ -151,8 +150,6 @@
 			var temp = createTempVariable(this.momentArray);
 			var updatedMoment = temp[0];
 			updatedMoment = that.updateMomentMetaData(updatedMoment, liked);
-			updatedMoment.time = new Date().getTime() - parseInt(core.timeElapsed(updatedMoment.time));
-			updatedMoment.time = updatedMoment.time.toString();
 			localStorageManager.set('moments', this.momentArray);
 			return core.edit(updatedMoment);
 		};
@@ -185,6 +182,8 @@ function updateMomentMetaData(moment, liked) {
 		moment.likes = likes.toString();
 	}
 	moment.uuids = moment.uuids + " " + core.getUUID();
+	moment.time = new Date().getTime() - parseInt(core.timeElapsed(moment.time));
+	moment.time = moment.time.toString();
 	return moment;
 };
 
@@ -196,7 +195,6 @@ function deleteOrUploadToBestMoments(moments) {
 	}
 	var tempMoments = createTempVariable(moments);
 	async.each(tempMoments, function(moment, callback) {
-		console.log("1");
 		if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
 				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
 					core.uploadToBestMoments(createTempVariable(moment));
@@ -310,17 +308,7 @@ function isMomentWithRadius(key) {
 function createTempVariable(moments) {
 	var temp = [];
 	for(var i = 0; i < moments.length; i++) {
-		temp.push({
-			key: moments[i].key,
-			description: moments[i].description,
-			likes: moments[i].likes,
-			location: moments[i].location,
-			time: moments[i].time,
-			uuids: moments[i].uuids,
-			views: moments[i].views,
-			media: moments[i].media,
-			nativeURL: moments[i].nativeURL
-		});
+		temp.push(core.populateMomentObj(moments[i]));
 	}
 	if(temp.length === 0) {
 		return moments;

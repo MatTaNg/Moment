@@ -30,6 +30,7 @@
 			loadMore();
 		}
 
+		vm.initialize();
 
 		function createVideogularObj(moments) {
 			var sources_array = [];

@@ -1,4 +1,4 @@
- (function() {
+   (function() {
  	angular.module('localStorageManager', [])
 
  	.service('localStorageManager', ['downloadManager', '$q', localStorageManager]);
@@ -18,7 +18,11 @@
 			}
 
 			if(localStorage.getItem(storage) !== null && localStorage.getItem(storage) !== "undefined") {
-				return JSON.parse(localStorage.getItem(storage));
+				try {
+					return JSON.parse(localStorage.getItem(storage));
+				} catch(e) {
+					return localStorage.getItem(storage);
+				}
 			}
 			else {
 				localStorage.setItem(storage, JSON.stringify([]));
@@ -27,17 +31,27 @@
 		};
 
 		function set(storage, items) {
-			if(storage === "timeSinceLastMoment" || storage === "totalLikes") {
-				localStorage.setItem(storage, items);
-				return;
+			var deferred = $q.defer();
+			if(items && typeof items === 'object' && items.constructor === Array) {
+				if(items.length > 0 && items[0].key) { //Is an array of Moments
+					downloadFile(storage, items).then(function(moment) {
+						localStorage.setItem(storage, JSON.stringify(moment));
+						deferred.resolve(moment);
+					}, function(error) {
+						localStorage.setItem(storage, JSON.stringify(moment));
+						deferred.reject(error);
+					}); 
+				}
+				else { //Is an Array but not an array of Moments
+					localStorage.setItem(storage, JSON.stringify(items));
+					deferred.resolve(items);
+				}
 			}
 			else {
-				return downloadFile(storage, items).then(function(moment) {
-					localStorage.setItem(storage, JSON.stringify(moment));
-				}, function(error) {
-					localStorage.setItem(storage, JSON.stringify(moment));
-				}); 
+				localStorage.setItem(storage, items);
+				deferred.resolve(items);
 			}
+			return deferred.promise;
 		};
 
 		function addandDownload(storage, items) {
