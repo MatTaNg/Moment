@@ -1,0 +1,26 @@
+{
+    "foldersToProcess": [
+      "js",
+      "bestMoments",
+      "moments",
+      "bestMoments",
+      "submitMoment",
+      "layout",
+      "lib",
+      "css",
+      "img"
+    ],
+    "jpgOptions":{
+      "quality": 50
+    },
+    "jsOptions": {
+      "compress": {
+        "drop_console": true
+      }
+    },
+    "cssOptions": {
+      "keepSpecialComments": 0
+    },
+    "alwaysRun": false,
+    "showErrStack": false
+}

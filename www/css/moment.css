@@ -1,0 +1,351 @@
+.platform-ios .manual-ios-statusbar-padding{
+  padding-top:20px;
+}
+.manual-remove-top-padding{
+  padding-top:0px; 
+}
+.manual-remove-top-padding .scroll{
+  padding-top:0px !important;
+}
+.button.button-positive{
+  background-color: #2695c0;
+}
+ion-list.manual-list-fullwidth div.list, .list.card.manual-card-fullwidth {
+  margin-left:-10px;
+  margin-right:-10px;
+}
+ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidth > .item {
+  border-radius:0px;
+  border-left:0px;
+  border-right: 0px;
+}
+.show-list-numbers-and-dots ul{
+  list-style-type: disc;
+  padding-left:40px;
+}
+.show-list-numbers-and-dots ol{
+  list-style-type: decimal;
+  padding-left:40px;
+}
+.ion-ios-person {
+  font-size: 35px;
+  color: #2695c0;
+}
+.ion-ios-person-outline {
+  font-size: 35px;
+}
+.ion-ios-upload {
+  font-size: 35px;
+}
+.ion-ios-camera {
+  font-size: 35px;
+}
+.ion-happy {
+  font-size: 50px;
+}
+.ion-close {
+  font-size: 50px;
+}
+.ion-happy-outline {
+  font-size:20px;
+}
+.ion-ios-clock-outline {
+  font-size:20px;
+}
+.ion-ios-location-outline {
+  font-size:20px;
+}
+
+.openDialog .popup {
+  width: 80%;
+}
+
+/**Video Player **/
+.videoBox {
+  width: 100%; 
+  height: 300px;
+}
+
+/**General **/
+.likesIcon {
+  float: left
+}
+
+/**Moment**/
+.descriptionBox {
+  height: 20%
+}
+.ion-android-favorite {
+  color: #32CD32;
+}
+.noDescription {
+  font-size: 14pt;
+  font-style: oblique;
+}
+.momentLocation {
+  text-align: left; 
+  margin-top: 15px; 
+  margin-bottom: 3px;
+  font-size: 14pt;
+  margin-left: 5px;
+}
+.momentTime {
+  text-align: right; 
+  font-size: 18pt
+}
+.momentLikes {
+  margin-top: 5px; 
+  font-size: 18pt
+}
+.on-drag-next.invisible {
+  opacity: 100;
+  -webkit-transition: opacity 2s;
+  position: absolute;
+  left: 60%;
+  top: 15%;
+  z-index: 10;
+}
+.on-drag-next {
+  opacity: 100;
+  position: absolute;
+  left: 60%;
+  top: 15%;
+  z-index: 10;
+}
+.on-drag-liked.invisible {
+  opacity: 100;
+  -webkit-transition: opacity 2s;
+  position: absolute;
+  left: 60%;
+  top: 15%;
+  z-index: 10;
+}
+.on-drag-liked {
+  opacity: 100;
+  position: absolute;
+  left: 15%;
+  top: 15%;
+  z-index: 10;
+}
+.layer-top {
+  position: absolute;
+  z-index: 2;
+  width: 95%;
+  height: 95%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+.layer-next {
+  position: absolute;
+  z-index: 1;
+  width: 95%;
+  height: 95%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+.layer-hide {
+  display: none;
+}
+.ion-ios-flag { 
+  position:fixed;
+  left: 92%;
+  top: 93%;
+  width:75%;
+  font-size: 30px;
+  color: red;
+}
+.ion-ios-flag-outline {
+  position:fixed;
+  left: 92%;
+  top: 93%;
+  width:75%;
+  font-size: 30px;
+}
+.ion-archive {
+  position:fixed;
+  left: 3%;
+  top: 93%;
+  width:75%;
+  font-size: 30px; 
+}
+.loadingMoments {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding-top: 10%;
+  z-index: -1;
+}
+.noMoments {
+  padding-top: 10%;
+  z-index: -1;
+}
+/**My Moment**/
+.myMoments_description{
+  white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  white-space: pre-wrap;       /* css-3 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+  white-space: normal;
+  margin-top: 5px;
+}
+.horizontalRule {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.feedbackButton {
+  margin: 5px
+}
+.toggleLabel {
+  width:100%; padding-bottom: 20px;
+}
+.toggleHandle {
+  float: left; margin-right: 10px;
+}
+.toggleText {
+  margin-top: 5px;
+}
+.momentsTitleText {
+  padding-top: 20px; 
+  padding-bottom: 20px; 
+  text-align: center; 
+  vertical-align: middle; 
+  font-size: 1.5em;
+}
+.myMoments_spinner {
+  margin-left: 45%;
+  margin-right: auto;
+}
+.myMoments_NotFound {
+  text-align: center; 
+  text-font: 18pt;
+}
+.myMoments_metaData {
+  padding: 5px;
+  width:70%; 
+  margin-left: 30%;
+}
+.myMoments_likesImage {
+  float:left;
+}
+.myMoments_likes {
+  float:left; 
+  font-size: 16pt;
+  margin-top: 0px;
+}
+.myMoments_time {
+  margin-top: 0px;
+  text-align: right; 
+  font-size: 16pt;
+}
+.myMoments_toggleDescription {
+  font-style: italic; 
+  font-size: 12px;
+}
+
+/**Best Moments**/
+.trending_Moments {
+  text-align: center; 
+  font-size: 14pt;
+  margin: 10px;
+}
+.locationText {
+  font-size: 18pt;
+}
+.momentImage {
+  margin-top: 10px
+}
+.likesText {
+  margin-left: 5px; font-size: 18pt;
+}
+.timeText {
+  text-align:right; font-size: 18pt;
+}
+.noResultsFound {
+  padding-top: 10%;
+}
+/**My Moments**/
+.margin-right {
+  margin-right: 5px
+}
+.likes {
+  font-size: 18pt;
+  margin-top: 3px;
+  margin-left: 10px;
+}
+.time {
+  font-size: 18pt;
+  margin-top: 3px;
+  margin-left: 10px;
+  float: right;
+}
+.description {
+  margin-top: 5px;
+}
+.centerLikes {
+  margin-left: 40%;
+  margin-top: 25px;
+  margin-bottom: 40px;
+}
+.totalLikesImage {
+  float:left; 
+  margin-right: 15px
+}
+.totalLikesText {
+  margin-top: 15px;
+  vertical-align: middle;
+  font-size:24pt;
+}
+.totalNumberOfExtraLikes {
+  font-size: 12pt;
+  color:green;
+}
+.numberOfExtraMomentLikes {
+  color: green;
+  font-size: 12pt;
+}
+.logoMomentLikes {
+  margin-right: 5px;
+  float:left;
+}
+
+.location {
+  font-size:14pt; 
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.editButton {
+  line-height: 10px; 
+  min-height: 30px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+.searchRadiusText {
+  margin-left: -2px;
+  font-size:14pt; 
+}
+.radiusRange {
+  border: 0px;
+  margin: 10;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.ion-android-close {
+  float: right;
+}
+.toggle input:checked + .track {
+    background-color: #8577b5;
+    border-color: #8577b5;
+}
+
+/* Comments */
+.view-comments-link {
+  position: absolute; 
+  bottom: 10px;
+  left: 10px;  
+}

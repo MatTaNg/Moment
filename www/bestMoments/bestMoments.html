@@ -1,0 +1,84 @@
+<ion-view id="page3" cache-view="false">
+	<ion-nav-title>
+		<img class="title-image" src="img/header.png"/>
+	</ion-nav-title>
+<ion-content padding="true" class="has-header">
+  <ion-refresher on-refresh="vm.initialize()">
+  </ion-refresher>
+<span data-ng-if="vm.showComments === false">
+
+  <br>
+    <ion-grid ng-repeat="image in vm.moments | orderBy:vm.sort">
+      <ion-row>
+        <ion-col style="font-size: 18pt;">{{image.location}}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <img data-ng-if="image.media === 'picture'" src="{{image.key}}" style="margin-top: 10px" width="100%" height="60%"></img>
+
+          <!--<video data-ng-if="image.media === 'video'" width="100%" height="300px" controls>
+            <source src="{{image.nativeURL}}" type="video/mp4"></source>
+          </video>-->
+        <div data-ng-if="image.media === 'video' && vm.config.sources" style="width: 100%; height: 300px; padding-bottom: 5px">
+          <videogular vg-theme="vm.config.theme">
+            <vg-media vg-src="vm.config.sources" 
+                vg-tracks="vm.config.tracks"
+                vg-native-controler="true">
+            </vg-media>
+
+            <vg-controls>
+              <vg-play-pause-button></vg-play-pause-button>
+              <vg-time-display>{{ currentTime | date:'mm:ss' }}</vg-time-display>
+              <vg-scrub-bar>
+                <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+              </vg-scrub-bar>
+              <vg-time-display>{{ timeLeft | date:'mm:ss' }}</vg-time-display>
+              <vg-volume>
+                <vg-mute-button></vg-mute-button>
+                <vg-volume-bar></vg-volume-bar>
+              </vg-volume>
+              <vg-fullscreen-button></vg-fullscreen-button>
+            </vg-controls>
+       
+            <vg-overlay-play></vg-overlay-play>
+            <vg-poster vg-url='config.plugins.poster'></vg-poster>
+          </videogular>
+        </div>
+
+        </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div style="float: left"><img src="img/logo.png" width="30px" height="30px"></img></div>
+            </ion-col>
+            <ion-col col-12>
+              <div style="margin-left: 5px; font-size: 18pt; float:left">{{image.likes}}</div>
+            </ion-col>
+            <ion-col>
+                <div class="ion-ios-clock-outline momentTime" style="text-align:right; font-size: 18pt">{{image.convertedTime}}</div>
+              </ion-col>
+          </ion-row>
+          <div data-ng-show="{{image.description.length > 0}}">
+          <br>
+            <ion-row>
+              <ion-col>
+                {{image.description}}
+              </ion-col>
+            </ion-row>
+          </div>
+            <br>
+            <div data-ng-click="vm.viewComments(image)">Comments</div>
+          
+          <br>
+      <br>
+      <hr>
+    </ion-grid>
+  <img data-ng-if="vm.moments.length === 0" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
+
+    <ion-infinite-scroll on-infinite="vm.loadMore()" data-ng-if="vm.stopLoadingData === false" distance="5%"></ion-infinite-scroll>
+  </span><!--End of showComments-->
+  <div data-ng-if="vm.showComments">
+      <div mng-comments moment="vm.moment" moments-array="vm.moments" show-comments="vm.showComments" local-storage-name="bestMoments"></div>
+  </div>
+</ion-content>
+</ion-view>

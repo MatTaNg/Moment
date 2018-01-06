@@ -1,0 +1,1 @@
+angular.module('submitMoment', ['app.SubmitMomentController', 'app.submitMomentService'])

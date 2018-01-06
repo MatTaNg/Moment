@@ -1,0 +1,1 @@
+angular.module('moments', ['app.MomentsController', 'app.momentsService', 'app.momentsDirective'])
