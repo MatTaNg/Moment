@@ -1,0 +1,1 @@
+angular.module('comments', ['CommentsController', 'commentManager', 'commentsDirective'])
