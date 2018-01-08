@@ -18,6 +18,7 @@
 			}
 
 			if(localStorage.getItem(storage) !== null && localStorage.getItem(storage) !== "undefined") {
+				convertStringToBooleanValue(localStorage.getItem(storage));
 				try {
 					return JSON.parse(localStorage.getItem(storage));
 				} catch(e) {
@@ -30,7 +31,32 @@
 			}
 		};
 
+		function convertStringToBooleanValue(value) {
+			if(value === 'true') {
+				return true;
+			}
+			else if(value === 'false') {
+				return false;
+			}
+			else {
+				return value;
+			}
+		}
+
+		function convertBooleanValueToString(value) {
+			if(typeof value === 'boolean') {
+				if(value === true) {
+					value = 'true';
+				}
+				else if(value === false) {
+					value = 'false';
+				}
+			}
+			return value;
+		}
+
 		function set(storage, items) {
+			items = convertBooleanValueToString(items);
 			var deferred = $q.defer();
 			if(items && typeof items === 'object' && items.constructor === Array) {
 				if(items.length > 0 && verifyMetaData(items[0])) { //Is an array of Moments

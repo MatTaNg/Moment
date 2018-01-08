@@ -72,9 +72,6 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 
 /**Moment**/
-.descriptionBox {
-  height: 20%
-}
 .ion-android-favorite {
   color: #32CD32;
 }
@@ -345,7 +342,8 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 
 /* Comments */
 .view-comments-link {
-  position: absolute; 
+  margin-top: 28%;
+/*  position: absolute; 
   bottom: 10px;
-  left: 10px;  
+  left: 10px;  */
 }

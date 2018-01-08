@@ -1,7 +1,7 @@
-<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
+<img data-ng-if="moment.media === 'picture'" src="{{moment.key}}" height="80%" width="100%"></img>
 
 <!--Video Begin-->
-<div data-ng-if="image.media === 'video'"class="videoBox">
+<div data-ng-if="moment.media === 'video'"class="videoBox">
 	<videogular vg-theme="vm.config.theme">
 		<vg-media vg-src="vm.config.sources"
 				vg-tracks="vm.config.tracks"
@@ -31,25 +31,25 @@
 <div class="row row-no-padding">
 	<div class="col">
 		<img src="img/logo.png" width="25px" height"25px" class="likesIcon"></img>
-		<div ng-show="image.likes" class="momentLikes">{{image.likes}}</div>
+		<div ng-show="moment.likes" class="momentLikes">{{moment.likes}}</div>
 	</div>
 	<div class="col">
-		<div class="ion-ios-clock-outline momentTime">{{image.time}}</div>
+		<div class="ion-ios-clock-outline momentTime">{{moment.time}}</div>
 	</div>
 </div>
 <div class="row row-no-padding">
 	<div class="col">
-		<div class="momentLocation">{{image.location}}</div>
+		<div class="momentLocation">{{moment.location}}</div>
 	</div>
 </div>
-<img src="img/Liked.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked {{image.animate}}"></img>
-<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next {{image.animate}}"></img>
+<img src="img/Liked.png" ng-show="moment.swipedRight" width="100px" height="100px"class="on-drag-liked {{moment.animate}}"></img>
+<img src="img/Next.png" ng-show="moment.swipedLeft" class="on-drag-next {{moment.animate}}"></img>
 <hr>
-<div class="descriptionBox">
-	<span ng-show="image.description">{{ image.description }}  </span>
-	<div ng-hide="image.description" class="noDescription">No Description Found</div>
+<div>
+	<span ng-show="moment.description">{{ moment.description }}  </span>
+	<div ng-hide="moment.description" class="noDescription">No Description Found</div>
 	<!-- <div data-ng-click="vm.navToComments()">Comments</div> -->
-	<div class="view-comments-link" ng-click="vm.viewComments()">View {{image.comments.length}} Comments</div>
-	<div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
+	<div class="view-comments-link" ng-click="vm.viewComments()">View {{moment.comments.length}} Comments</div>
+	<div class="{{flagClass}}" ng-click="flagged()"> </div>
 	<!--<div class="ion-archive" ng-click="vm.downloadMoment(image)"> </div>-->
 </div>

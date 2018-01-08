@@ -16,7 +16,6 @@
 		this.setMomentArray = setMomentArray;
 		this.getStartAfterKey = getStartAfterKey;
 		this.removeMomentFromLocalStorage = removeMomentFromLocalStorage;
-		this.updateComment = updateComment;
 		
 		//Helper Functions
 		this.isMomentWithRadius = isMomentWithRadius;
@@ -38,10 +37,6 @@
 
 		function setMomentArray(moments) {
 			this.momentArray = moments;
-		};
-
-		function updateComment(comment) {
-			commentManager.updateComment(comment, this.momentArray);
 		};
 
 		function getNearbyMoments(currentMoments) {

@@ -4,15 +4,16 @@
 	</ion-nav-title>
 <ion-content padding="true" class="has-header">
 <div ng-show="vm.moments && vm.showComments === false">
-	<span ng-repeat="image in vm.moments">
+	<span ng-repeat="moment in vm.moments">
 
 		<td-cards>
 		<td-card on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)" on-touch="vm.setCoords()"
-		on-partial-swipe="cardPartialSwipe(amt)" class = "{{image.class}}">
+		on-partial-swipe="cardPartialSwipe(amt)" class = "{{moment.class}}">
 
-				<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
+		<mng-moment-view></mng-moment-view>
 
-			<!--Video Begin-->
+				<!--<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
+
 				<div data-ng-if="image.media === 'video'"class="videoBox">
 					<videogular vg-theme="vm.config.theme">
 						<vg-media vg-src="vm.config.sources"
@@ -38,7 +39,6 @@
 						<vg-poster vg-url='config.plugins.poster'></vg-poster>
 					</videogular>
 				</div>
-			<!--End of Video-->
 
 				<div class="row row-no-padding">
 					<div class="col">
@@ -60,12 +60,9 @@
 				<div class="descriptionBox">
 					<span ng-show="image.description">{{ image.description }}  </span>
 					<div ng-hide="image.description" class="noDescription">No Description Found</div>
-					<!-- <div data-ng-click="vm.navToComments()">Comments</div> -->
 					<div class="view-comments-link" ng-click="vm.viewComments()">View {{image.comments.length}} Comments</div>
 					<div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
-					<!--<div class="ion-archive" ng-click="vm.downloadMoment(image)"> </div>-->
-				</div>
-
+				</div>-->
 		</td-card>
 		</td-cards>
 	</span> <!--End of ng-repeat-->
@@ -74,7 +71,8 @@
 	<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" class="loadingMoments"></img>
 </div> <!-- End of ng-show -->
 <div data-ng-if="vm.showComments === true">
-	<div mng-comments moment="vm.moment" moments-array="vm.moments" show-comments="vm.showComments" local-storage-name="moments"></div>
+	<div mng-comments moment="vm.moment" moments-array="vm.moments" show-comments="vm.showComments" local-storage-name="moments">
+</div>
 </div>
 </ion-content>
 </ion-view>

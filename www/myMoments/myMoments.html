@@ -54,7 +54,7 @@
 	<br>
 	
 	<label class="toggle toggleLabel">
-		<input data-ng-click="vm.toggleMomentView()" type = "checkbox"/>
+		<input ng-checked="vm.momentView" data-ng-click="vm.toggleMomentView()" type = "checkbox"/>
 		<div class = "track toggleHandle">
 			<div class = "handle"></div>
 		</div>
@@ -64,31 +64,31 @@
 <!-- 	<button data-ng-if="vm.momentView" data-ng-click="vm.toggleMomentView()">Moments</button>
 	<button data-ng-if="!vm.momentView" data-ng-click="vm.toggleMomentView()">Comments</button> -->
 	<hr>
-	<div data-ng-if="vm.momentView && vm.activeMoments.length > 0">
+	<div data-ng-if="vm.momentView && vm.moments.length > 0">
 		<div class="momentsTitleText">Moments I have commented on
 		</div>
 	</div>
 
-	<div data-ng-if="!vm.momentView && vm.activeMoments.length > 0">
+	<div data-ng-if="!vm.momentView && vm.moments.length > 0">
 		<div class="momentsTitleText">Moments I have uploaded
 		</div>
 	</div>
 
-	<div data-ng-if="vm.activeMoments.length === 0"> 
+	<div data-ng-if="vm.moments.length === 0"> 
 		<div class="momentsTitleText"> No Moments Found </div>
 	</div>
 	<ion-list ng-if="vm.loading === false">
 
-	<div ng-repeat="image in vm.activeMoments">
+	<div ng-repeat="moment in vm.moments">
+		<mng-moment-view></mng-moment-view>
 		<!-- <div data-ng-if="!vm.displayCommentTray"> -->
 			<!-- <div data-ng-if="vm.config.sources"> -->
-				<div class="ion-android-close" class="margin-right" data-ng-click="vm.remove(image)"></div>
+				<!--<div class="ion-android-close" class="margin-right" data-ng-click="vm.remove(image)"></div>
 				<div class="momentLocation">{{image.location}}
 					<span ng-if="image.bestmoment" class="ion-ios-star"> </span>
 				</div>
 			<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
 
-				<!--Video Begin-->
 				  <div data-ng-if="image.media === 'video'" class="videoBox">
 				    <videogular vg-theme="vm.config.theme">
 				      <vg-media vg-src="vm.config.sources" 
@@ -114,7 +114,7 @@
 				      <vg-poster vg-url='config.plugins.poster'></vg-poster>
 				    </videogular>
 				  </div>
-		<!--End of Video-->
+
 				<div class="row row-no-padding">
 					<div class="col">
 						<img src="img/logo.png" width="25px" height"25px" class="myMoments_likesImage"></img>		

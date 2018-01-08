@@ -7,7 +7,7 @@
         return {
             restrict: 'AE',
             scope: { },
-            templateUrl: '/comments/comments.html',
+            templateUrl: './comments/comments.html',
             controller: 'CommentsController',
             controllerAs: 'vm',
             bindToController: {   
