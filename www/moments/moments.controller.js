@@ -1,23 +1,20 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['downloadManager', '$sce', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', 'notificationManager', '$timeout', 'commentManager', '$ionicPopup', '$ionicLoading', MomentsController]);
-	function MomentsController (downloadManager, $sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager, notificationManager, $timeout, commentManager, $ionicPopup, $ionicLoading) {
+	.controller('MomentsController', ['downloadManager', '$sce', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', 'notificationManager', '$timeout', '$ionicPopup', '$ionicLoading', MomentsController]);
+	function MomentsController (downloadManager, $sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager, notificationManager, $timeout, $ionicPopup, $ionicLoading) {
 		var vm = this;
 		vm.moments = localStorageManager.get('moments');
 		vm.liked = liked;		
 		vm.dragRight = dragRight;
 		vm.dragLeft = dragLeft;
 		vm.release = release;
-		vm.flagged = flagged;
 		vm.setCoords = setCoords;
 		vm.currentLocation = core.currentLocation;
 		vm.keepFindingLocation = keepFindingLocation;
 		vm.createVideogularObj = createVideogularObj;
 		vm.downloadMoment = downloadMoment;
-		vm.viewComments = viewComments;
 
-		vm.flagClass = "ion-ios-flag-outline";
 		vm.cardCSSClass = "layer-hide";
 		vm.swipedLeft = false;
 		vm.swipedRight = false;
@@ -50,11 +47,6 @@
 				autoClose: 3000
 			});
 		}
-
-		function viewComments() {
-			vm.moment = vm.moments[0];
-			vm.showComments = !vm.showComments;
-		};
 
 		function downloadMoment(moment) {
 			downloadManager.downloadToDevice(moment.key).then(function() {
@@ -205,49 +197,6 @@
 				deferred.resolve();
 			}
 			return deferred.promise;
-		};
-
-		function flagged() {
-			if(!vm.disableFlag) {
-				vm.disableFlag = true;
-				var popup = $ionicPopup.show({
-					template: '<textarea ng-model="vm.report" placeholder="What\'s bothering you? (optional)" style="height: 100px; margin-bottom: 10px"> </textarea>',
-					title: 'Report',
-					scope: $scope,
-					buttons: [ 
-					{ text: 'Cancel',
-					onTap: function(e) {
-						vm.disableFlag = false;
-					} 
-				},
-				{
-					text: '<b>Submit</b>',
-					type: 'button-positive',
-					onTap: function(e) {
-						if(!vm.report) { 
-								//Does nothing if user has not entered anything
-								e.preventDefault();
-							}
-							else {
-								vm.flagClass = "ion-ios-flag";
-								$ionicContentBanner.show({
-									text: ["You have flagged this Moment"],
-									autoClose: 3000
-								});
-							};
-						}
-						
-					}
-					]
-				});
-			} else if(vm.report) {
-				vm.disableFlag = false;
-				vm.flagClass = "ion-ios-flag-outline";
-				$ionicContentBanner.show({
-					text: ["You have unflagged this Moment"],
-					autoClose: 3000
-				});
-			}
 		};
 
 		document.addEventListener("pause", onPause, false) //Fires when user minimizes the app

@@ -13,7 +13,8 @@
 		vm.toggleReplyBox = toggleReplyBox;
 		vm.toggleReplies = toggleReplies;
 		vm.reply = reply;
-
+console.log("ASDASD");
+console.log(vm);
 		vm.uuid = core.getUUID();
 		vm.comments = vm.moment.comments;
 		vm.showReplyBox = false;

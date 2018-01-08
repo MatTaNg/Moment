@@ -24,7 +24,7 @@
 
 		vm.moments = localStorageManager.get('myMoments');
 		vm.momentsWithComments = localStorageManager.get('myMomentsWithComments') || [];
-		vm.activeMoments = [];
+		vm.myMoments = localStorageManager.get('myMoments');
 		vm.userLocation = geolocation.currentLocation.town || "Could not find location";
 		vm.totalLikes = localStorageManager.get('totalLikes');
 		vm.showShortDescription = true;
@@ -38,7 +38,7 @@
 		vm.notifications = notificationManager.getNotificationStatus();
 		vm.displayCommentTray = false;
 		vm.showCommentSpinner = false;
-		vm.momentView = false;
+		vm.momentView = localStorageManager.get('momentView');
 		vm.userName = myMomentsService.userName;
 
 		vm.showComments = false;
@@ -60,12 +60,15 @@
 		};
 
 		function toggleMomentView() {
-			if(!vm.momentView) {
-				vm.activeMoments = vm.momentsWithComments;
+			if(vm.momentView) {
+				vm.moments = vm.myMoments;
+				localStorageManager.set('momentView', false);
+				vm.momentView = false;
 			} else {
-				vm.activeMoments = vm.moments;
+				vm.moments = vm.momentsWithComments;
+				localStorageManager.set('momentView', true);
+				vm.momentView = true;
 			}
-			vm.momentView = !vm.momentView;
 		};
 
 		function editUserName() {
@@ -221,7 +224,17 @@
 			return moments;
 		};
 
+		function initializeMomentsBasedOnLocalStorage() {
+			if(vm.momentView === true) {
+				vm.moments = vm.momentsWithComments;
+			}
+			else {
+				vm.moments = vm.myMoments;
+			}
+		}
+
 		function initialize() {
+			initializeMomentsBasedOnLocalStorage();
 			if(!geolocation.customUserLocation) {
 				geolocation.getLocation();
 			}
@@ -238,6 +251,7 @@
 			myMomentsService.retrieveCommentedOnMoments().then(function(moments) {
 				localStorageManager.set('myMomentsWithComments', moments);
 				vm.momentsWithComments = moments;
+				initializeMomentsBasedOnLocalStorage();
 			});
 			if(vm.moments !== [] && vm.initRunning === false) {
 				vm.initRunning = true;
@@ -246,13 +260,14 @@
 					moments = removeNullObject(moments); //Band-aid
 					if(moments !== null && moments.length > 0) {
 						vm.refresh = false;
-						vm.moments = moments;
+						vm.myMoments = moments;
 						vm.totalLikes = myMomentsService.getTotalLikes();
 						vm.extraLikes = myMomentsService.getExtraLikes();
 						vm.loading = false;
 						createVideogularObj(moments);
 						vm.errorMessage = false;
 						vm.showCommentSpinner = false;
+						initializeMomentsBasedOnLocalStorage();
 					} else {
 						vm.loading = false;
 						vm.moments = [];
