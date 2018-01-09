@@ -14,8 +14,6 @@
 		};
 
 		function viewComments() {
-			console.log("VIEW COMMENTS");
-			console.log(vm);
 			$scope.vm.moment = $scope.vm.moments[0];
 			$scope.vm.showComments = !$scope.vm.showComments;
 		};

@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'awsServices', 'logger', 'components', 'geolocation', 'localStorageManager', 'multipartUpload', 'permissions', 'downloadManager', 'notificationManager', 'app.MomentsController', 'comments', 'common'
+angular.module('app', ['ionic', 'ngCordova', 'app.routes', 'core', 'constants', 'myMomentsService', 'app.bestMomentsService', 'app.momentsService', 'awsServices', 'logger', 'components', 'geolocation', 'localStorageManager', 'multipartUpload', 'permissions', 'downloadManager', 'notificationManager', 'app.MomentsController', 'comments', 'common', 'momentViewDirective', 'MomentViewController', 
   // ]) //Uncomment to test
   ,'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards',
   "ngSanitize",

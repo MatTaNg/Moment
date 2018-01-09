@@ -22,10 +22,7 @@
         '<div ng-show="moment.likes" class="momentLikes">{{moment.likes}}</div>' +
         '</div>' +
         '</div>' +
-        '</div>',
-        link: function(scope, element, attrs) { 
-
-        }
+        '</div>'
     };
 };
 })();

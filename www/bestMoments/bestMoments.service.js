@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.bestMomentsService', [])
 
-	.service('bestMomentsService', ['core', '$q', 'constants', 'commentManager', 'localStorageManager', bestMomentsService]);
+	.service('bestMomentsService', ['common', 'core', '$q', 'constants', 'commentManager', 'localStorageManager', bestMomentsService]);
 
-	function bestMomentsService(core, $q, constants, commentManager, localStorageManager){
+	function bestMomentsService(common, core, $q, constants, commentManager, localStorageManager){
 		this.momentArray = localStorageManager.get('bestMoments');
 		this.initializeView = initializeView;
 		this.loadMore = loadMore;
@@ -16,7 +16,7 @@
 
 		function convertTime(moments) {
 			for(var i = 0; i < moments.length; i++) {
-				moments[i].convertedTime = core.timeElapsed(moments[i].time);
+				moments[i].convertedTime = common.timeElapsed(moments[i].time);
 			}
 			return moments;
 		};
@@ -44,25 +44,6 @@
 				deferred.resolve([]);
 			}
 			return deferred.promise;	
-		};
-
-		function createPromiseObjects(moments) {
-			var promises = [];
-			for(var i = 0; i < moments.length; i++) {
-				promises.push(core.getMomentMetaData(moments[i]).then(function(metaData){
-					return {
-						key: metaData.key, 
-						description: metaData.description,
-						likes: parseInt(metaData.likes),
-						location: metaData.location,
-						media: metaData.media,
-						time: core.timeElapsed(metaData.time),
-						uuids: metaData.uuids,
-						views: metaData.views
-					};
-				}));
-			}
-			return promises;
 		};
 
 		function loadMore() {

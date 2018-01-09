@@ -117,25 +117,41 @@
 		};
 
 		function verifyMetaData(moment) {
- 			if(moment.key.includes('reports')) {
- 				return true;
- 			}
- 			if(	moment.key &&
- 				moment.location &&
- 				moment.likes &&
- 				moment.description !== undefined &&
- 				moment.time !== undefined &&
- 				moment.views &&
- 				moment.uuids &&
- 				moment.media &&
- 				moment.nativeurl &&
- 				moment.onesignalid &&
- 				moment.commentids)
- 				return true; 
- 			else { 
- 				return false;
- 			}
- 		};
+			if(!moment.key) {
+				return false;
+			}
+			if(moment.key.includes('reports')) {
+				return true;
+			}
+
+			if(	moment.key !== undefined &&
+				moment.location !== undefined &&
+				moment.likes !== undefined &&
+				moment.description !== undefined &&
+				moment.time !== undefined &&
+				moment.views !== undefined &&
+				moment.uuids !== undefined &&
+				moment.media !== undefined &&
+				moment.commentids !== undefined)
+				return true; 
+			else { 
+				// var error = [];
+				// for(var property in moment) {
+				// 	console.log("PROPERTY");
+				// 	console.log(property);
+				// 	console.log(moment);
+				// 	console.log(moment.key);z
+				// 	console.log(moment.property);
+				//   if (moment.hasOwnProperty(property)) {
+				//   	if(!moment.property) {
+				//   		error.push(property);
+				//   	}
+				//   }
+				// }
+				logger.logFile('core.verifyMetaData', {Moment: moment}, '', 'errors.txt');
+				return false;
+			}
+		};  
 
 	}
 })();

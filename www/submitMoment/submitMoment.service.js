@@ -22,8 +22,8 @@
 				var blob = new Blob([this.dataURItoBlob(media)], {type: 'image/jpeg'});
 				core.upload(blob, moment, "image/jpg").then(function() {
 					localStorageManager.addandDownload('myMoments', moment);
-					deferred.resolve(moment);
 					core.aVideoIsUploading = false;
+					deferred.resolve(moment);
 				});
 			} 
 			else {

@@ -290,11 +290,13 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   margin-bottom: 40px;
 }
 .totalLikesImage {
+  position: relative;
+  top: -12px;
   float:left; 
-  margin-right: 15px
+  margin-right: 10px;
 }
 .totalLikesText {
-  margin-top: 15px;
+  margin-top: 10px;
   vertical-align: middle;
   font-size:24pt;
 }
@@ -342,8 +344,8 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 
 /* Comments */
 .view-comments-link {
-  margin-top: 28%;
-/*  position: absolute; 
+  /*margin-top: 28%;*/
+  position: absolute; 
   bottom: 10px;
-  left: 10px;  */
+  left: 10px;  
 }

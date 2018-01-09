@@ -7,7 +7,7 @@
         return {
             restrict: 'AE',
             scope: true,
-            templateUrl: './layout/momentView/momentView.html',
+            templateUrl: './common/momentView/momentView.html',
             controller: 'MomentViewController',
         };
     };

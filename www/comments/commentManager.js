@@ -1,9 +1,9 @@
  (function() {
  	angular.module('commentManager', [])
 
- 	.service('commentManager', ['awsServices', 'core', 'notificationManager', 'logger', 'localStorageManager', '$q', 'constants', commentManager]);
+ 	.service('commentManager', ['common', 'awsServices', 'core', 'notificationManager', 'logger', 'localStorageManager', '$q', 'constants', commentManager]);
 
- 	function commentManager(awsServices, core, notificationManager, logger, localStorageManager, $q, constants){
+ 	function commentManager(common, awsServices, core, notificationManager, logger, localStorageManager, $q, constants){
  		var vm = this;
 
  		vm.uploadComment = uploadComment,
@@ -23,13 +23,14 @@
 			result.key = comment.key;
 			result.id = comment.id;
 			result.likes = comment.likes;
-			result.time = core.convertTimeToMiliSeconds(comment.time);
+			result.time = common.convertTimeToMiliSeconds(comment.time);
 			result.uuid = comment.uuid;
 			result.onesignalid = comment.onesignalid;
 			result.userName = comment.userName;
 			result.comment = comment.comment;
 			result.commentids = comment.commentids;
 			result.parent = comment.parent;
+			result.likesuuids = comment.likesuuids;
 			// result.replies = comment.replies;
 			return result;
  		};
@@ -41,7 +42,7 @@
  		function setUserName(userName) {
  			var deferred = $q.defer();
  			var userNameKey = 'comments/userNames.txt';
-			return core.getComment(userNameKey).then(function (userNames) {
+			return common.getComment(userNameKey).then(function (userNames) {
 				if(userNames !== 'Not Found') {
 					var userNames = JSON.parse(userNames.Body.toString('ascii'));
 					for(var i = 0; i < userNames.length; i++) {
@@ -77,23 +78,6 @@
 						comments.splice(i, 1);
 					}
 				}
-				console.log("DELETE COMMENT");
-				console.log(comments);
-				console.log(parent);
-				// if(vm.comments.indexOf(comment) === -1) { //This means the parent is a comment
-				// 	for(var i = 0; i < vm.comments.length; i++) {
-				// 		console.log("1");
-				// 		console.log(vm.comments[i].replies);
-				// 		if(vm.comments[i].replies.indexOf(comment) !== -1 ) {
-				// 			console.log("2");
-				// 			vm.comments[i].replies.splice(vm.comments[i].replies.indexOf(comment), 1);
-				// 		}
-				// 	}
-
-				// } else {
-				// 	vm.comments.splice(vm.comments.indexOf(comment), 1);
-				// }
-
 				if(comments.length === 0) {
 					return core.remove(comment);
 				}
@@ -116,9 +100,9 @@
  		};
 
  		function uploadComment(comment, parent) {
- 			var uuid = core.getUUID();
+ 			var uuid = common.getUUID();
  			var uploadKey = 'comments/' + uuid + '/' + parent.id + '.txt';
- 			if(core.verifyMetaData(parent)) {
+ 			if(common.verifyMetaData(parent)) {
 				uploadKey = 'comments/' + uuid + '/' + extractKeyFromMoment(parent.key) + '.txt';
 			}
 			return getComments(uploadKey).then(function (comments) {
@@ -127,19 +111,20 @@
 					id: vm.userName + new Date().getTime(),
 					likes: "0",
 					time: JSON.stringify(new Date().getTime()),
-					uuid: core.getUUID(),
+					uuid: common.getUUID(),
 					onesignalid: JSON.stringify(notificationManager.getPlayerId()),
 					userName: vm.userName,
 					comment: comment,
 					commentids: '',
-					parent: core.splitUrlOff(parent.key),
+					parent: common.splitUrlOff(parent.key),
+					likesuuids: '',
 					replies: []
 				};
 				comments.push(commentObj);
 				return createBlobAndUpload(comments, uploadKey).then(function() {
 					updateParentObject(parent);
 					sendNotification(parent);
-					commentObj.time = core.timeElapsed(commentObj.time);
+					commentObj.time = common.timeElapsed(commentObj.time);
 	 				commentObj.likedClass = commentObj.likedClass = "ion-android-favorite-outline";
 					return commentObj;
 				});
@@ -147,7 +132,7 @@
  		};
 
  		function sendNotification(parent) {
- 			if(core.verifyMetaData(parent)) {
+ 			if(common.verifyMetaData(parent)) {
  				notificationManager.notifyUserRepliesToMoment(parent.onesignalid);
  			}
  			else {
@@ -156,7 +141,7 @@
  		};
 
  		function extractKeyFromMoment(key) {
- 			var resultKey = core.splitUrlOff(key).split('/');
+ 			var resultKey = common.splitUrlOff(key).split('/');
  			var state = resultKey[resultKey.length - 2];
  			resultKey = resultKey[resultKey.length - 1];
  			resultKey = resultKey.substring(0, resultKey.length - 4);
@@ -164,14 +149,13 @@
  		};
 
  		function updateParentObject(parent) {
- 			if(!(parent.commentids.includes(core.getUUID()))) {
-				parent.commentids = parent.commentids + " " + core.getUUID();
-				if(core.verifyMetaData(parent)) {
+ 			if(!(parent.commentids.includes(common.getUUID()))) {
+				parent.commentids = parent.commentids + " " + common.getUUID();
+				if(common.verifyMetaData(parent)) {
 					parent.commentids = parent.commentids.trim();
-					delete parent.nativeurl; //Cannot upload Native url as meta data
 					parent.comments = JSON.stringify(parent.comments); 
 					core.edit(parent).then(function() {
-						return core.uploadToBestMoments(parent);
+						return common.uploadToBestMoments(parent);
 					});
 				}
 				else {
@@ -191,7 +175,7 @@
  			var result = [];
  			core.listComments(key).then(function(comments) {
  				async.each(comments, function(commentObj, callback) {
- 					core.getComment(commentObj.Key).then(function(comment) {
+ 					common.getComment(commentObj.Key).then(function(comment) {
  						if(comment !== 'Not Found') {
  							result.push(JSON.parse(comment.Body.toString('ascii'))[0]);
 	 						// if(result.length === 0) {
@@ -227,10 +211,10 @@
  			var deferred = $q.defer();
  			var moments = [];
  			async.each(comments, function(comment, callback) {
- 				core.getComment(comment.parent).then(function(momentORcomment) {
+ 				common.getComment(comment.parent).then(function(momentORcomment) {
  					if(momentORcomment !== "Not Found") {
 	 					momentORcomment = momentORcomment;
-	 					if(core.verifyMetaData(momentORcomment.Metadata) && doesArrayContainObj(moments, momentORcomment) === false) {
+	 					if(common.verifyMetaData(momentORcomment.Metadata) && doesArrayContainObj(moments, momentORcomment) === false) {
 	 						moments.push(momentORcomment.Metadata);	
 	 					}
 	 				}
@@ -260,7 +244,7 @@
  			var result = [];
  			async.each(moments, function (moment, callback) {
 				retrieveComments(moment).then(function(comments) {
-					moment.time = core.timeElapsed(moment.time);
+					moment.time = common.timeElapsed(moment.time);
 					moment.comments = comments;
 					result.push(moment);
 					callback(null);
@@ -271,8 +255,6 @@
  					logger.logFile("commentManager.retrieveCommentsAndAddToMoments", parameters, error, 'error.txt');
  					deferred.reject(error);
  				}
- 				console.log("RESULT");
- 				console.log(result);
  				deferred.resolve(result);
  			});
  			return deferred.promise;
@@ -288,8 +270,6 @@
  			async.each(commentIds, function (commentId, callback) {
  				key =  "comments/" + commentId + '/' + extractKeyFromMoment(moment.key) + '.txt';
 				getComments(key).then(function (comments) {
-					console.log("########");
-					console.log(comments);
 					commentArray = commentArray.concat(comments);
 					callback(null);
 	 			}, function (error) {
@@ -308,14 +288,12 @@
  		};
 
  		function createBlobAndUpload(comments, key) {
- 			console.log("CREATE BLOB AND UPLOAD");
- 			console.log(comments);
 			var blob = new Blob([JSON.stringify(comments)], {type: 'text/plain'});
 			return awsServices.upload(blob, key, {}, 'text/plain');
  		};
 
  		function getComments(commentKey) {
-			return core.getComment(commentKey).then(function (comments) {
+			return common.getComment(commentKey).then(function (comments) {
 				if(comments !== 'Not Found') {
 					comments = JSON.parse(comments.Body.toString('ascii'));
  					comments = addClasses(comments);	
@@ -354,20 +332,14 @@
  			var ids = comment.commentids.split(" ");
  			var key = '';
  			var allReplies = [];
- 			console.log("GET REPLY");
- 			console.log(comment);
  			async.each(ids, function(id, callback) {
  				key = 'comments/' + id + '/' + comment.id + '.txt';
- 				console.log(key);
- 				core.getComment(key).then(function (comments) {
- 					console.log("COMMENTS");
- 					console.log(comments);
+ 				common.getComment(key).then(function (comments) {
  					if(comments !== "Not Found") {
 	 					comments = JSON.parse(comments.Body.toString('ascii'));
 	 					comments = convertTime(comments);
 	 					comments = addClasses(comments);
 	 					allReplies = comments;
-	 					console.log(allReplies);
  					}
 					callback(null);
  				});
@@ -377,8 +349,6 @@
  					logger.logFile("commentManager.getReply", parameters, error, 'error.txt');
  					deferred.reject(error);
  				}
- 				console.log("ALL REPLIES");
- 				console.log(allReplies);
  				deferred.resolve(allReplies);
  			});
  			return deferred.promise;
@@ -387,15 +357,22 @@
  		function convertTime(comments) {
  			// comments = [].concat(comments || []);
 			for(var i = 0; i < comments.length; i++) {
-				comments[i].time = core.timeElapsed(comments[i].time);
+				comments[i].time = common.timeElapsed(comments[i].time);
 			}
 			return comments;
  		};
 
  		function addClasses(comments) {
+ 			var likesUUID;
  			// comments = [].concat(comments || []);
 			for(var i = 0; i < comments.length; i++) {
-				comments[i].likedClass = "ion-android-favorite-outline";
+				likesUUID = comments[i].likesuuids.split(' ');
+				if(likesUUID.includes(common.getUUID())) {
+					comments[i].likedClass = "ion-android-favorite";					
+				}
+				else {
+					comments[i].likedClass = "ion-android-favorite-outline";	
+				}
 			}
 			return comments;
  		}

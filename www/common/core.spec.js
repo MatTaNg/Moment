@@ -154,7 +154,7 @@ describe('Core', function() {
 			expect(bestMoment).toEqual(mock_best_moments[0]);
 			done();
 		});
-    	core.removeFromBestMoments(mock_moment);
+    	common.removeFromBestMoments(mock_moment);
     	$scope.$apply();
     });
 	

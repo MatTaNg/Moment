@@ -66,7 +66,7 @@ describe('Comment Manager', function() {
 	it('Should set a user name that does not exist', function(done) {
 		var mockUserName = 'Mock UserName';
 		var userNameKey = 'comments/userNames.txt';
-		spyOn(core, 'getComment').and.callFake(function(key) {
+		spyOn(common, 'getComment').and.callFake(function(key) {
 			expect(key).toEqual(userNameKey);
 			var result = {  Body: JSON.stringify([]) };
 			return $q.resolve(result);
@@ -86,7 +86,7 @@ describe('Comment Manager', function() {
 	it('Should not set a user name already exists', function(done) {
 		var mockUserName = 'Mock UserName';
 		var userNameKey = 'comments/userNames.txt';
-		spyOn(core, 'getComment').and.callFake(function(key) {
+		spyOn(common, 'getComment').and.callFake(function(key) {
 			expect(key).toEqual(userNameKey);
 			var result = {  Body: JSON.stringify([mockUserName]) };
 			return $q.resolve(result);
@@ -160,7 +160,7 @@ describe('Comment Manager', function() {
 			expect(parent).toEqual(mock_moment);
 			return $q.resolve();
 		});
-		spyOn(core, 'getComment').and.callFake(function(key) {
+		spyOn(common, 'getComment').and.callFake(function(key) {
 			if(key === 'comments/' + mockUUID + '/' + '40.008446_-75.26046_1499829188066.txt' ||
 				key === 'comments/' + mock_comment.uuid + '/' + mock_comment.id + '.txt') {
 				expect(true).toEqual(true)
@@ -170,11 +170,11 @@ describe('Comment Manager', function() {
 			var result = {  Body: JSON.stringify([mock_comment]) };
 			return $q.resolve(result);
 		});
-		spyOn(core, 'uploadToBestMoments').and.callFake(function(parent) {
+		spyOn(common, 'uploadToBestMoments').and.callFake(function(parent) {
 			expect(parent).toEqual(mock_moment);
 			return $q.resolve();
 		});
-		spyOn(core, 'timeElapsed');
+		spyOn(common, 'timeElapsed');
 		commentManager.uploadComment(mock_comment, mock_moment).then(function(comment) {
 			expect(core.timeElapsed).toHaveBeenCalled();
 			expect(comment.likedClass).toEqual('ion-android-favorite-outline');
@@ -209,7 +209,7 @@ describe('Comment Manager', function() {
 			expect(parent).toEqual(mock_comment);
 			return $q.resolve();
 		});
-		spyOn(core, 'getComment').and.callFake(function(key) {
+		spyOn(common, 'getComment').and.callFake(function(key) {
 			if(key === 'comments/' + mockUUID + '/' + '40.008446_-75.26046_1499829188066.txt' ||
 				key === 'comments/' + mock_comment.uuid + '/' + mock_comment.id + '.txt') {
 				expect(true).toEqual(true)
@@ -220,7 +220,7 @@ describe('Comment Manager', function() {
 			var result = {  Body: JSON.stringify([mock_comment]) };
 			return $q.resolve(result);
 		});
-		spyOn(core, 'uploadToBestMoments').and.callFake(function(parent) {
+		spyOn(common, 'uploadToBestMoments').and.callFake(function(parent) {
 			expect(parent).toEqual(mock_comment);
 			return $q.resolve();
 		});
@@ -249,7 +249,7 @@ describe('Comment Manager', function() {
 				expect(true).toEqual(false);
 			}
 		});
-		spyOn(core, 'getComment').and.callFake(function(key) {
+		spyOn(common, 'getComment').and.callFake(function(key) {
 			if(key === 'comments/' + mock_comment.uuid + '/40.0015101_-75.2700792_1513458108158.txt') {
 				expect(key).toEqual('comments/' + mock_comment.uuid + '/40.0015101_-75.2700792_1513458108158.txt');
 				var result = {  Body: JSON.stringify([mock_comment]) };
@@ -304,7 +304,7 @@ describe('Comment Manager', function() {
 		}
 		var mockKey1 = 'comments/' + mock_comment.uuid + '/' + '40.008446_-75.26046_1499829188066.txt';
 		var mockKey2 = 'comments/' + mock_comment.uuid + '/' + mock_comment.id + '.txt';
-		spyOn(core, 'getComment').and.callFake(function(key) {
+		spyOn(common, 'getComment').and.callFake(function(key) {
 			if(key === mockKey1 ||
 				key === mockKey2) {
 				expect(true).toEqual(true);

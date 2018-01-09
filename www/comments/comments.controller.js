@@ -1,8 +1,8 @@
 (function() {
 	angular.module('CommentsController', [])
 
-	.controller('CommentsController', ['$scope', '$ionicPlatform', 'localStorageManager', 'commentManager', '$ionicPopup', '$ionicLoading', 'core', 'notificationManager', 'logger', '$stateParams', '$state', CommentsController]);
-	function CommentsController ($scope, $ionicPlatform, localStorageManager, commentManager, $ionicPopup, $ionicLoading, core, notificationManager, logger, $stateParams, $state) {
+	.controller('CommentsController', ['common', '$scope', '$ionicPlatform', 'localStorageManager', 'commentManager', '$ionicPopup', '$ionicLoading', 'core', 'notificationManager', 'logger', CommentsController]);
+	function CommentsController (common, $scope, $ionicPlatform, localStorageManager, commentManager, $ionicPopup, $ionicLoading, core, notificationManager, logger) {
 		var vm = this;
 		vm.exitView = exitView;
 		vm.editComment = editComment,
@@ -13,9 +13,8 @@
 		vm.toggleReplyBox = toggleReplyBox;
 		vm.toggleReplies = toggleReplies;
 		vm.reply = reply;
-console.log("ASDASD");
-console.log(vm);
-		vm.uuid = core.getUUID();
+
+		vm.uuid = common.getUUID();
 		vm.comments = vm.moment.comments;
 		vm.showReplyBox = false;
 		vm.submitCommentSpinner = false;
@@ -36,7 +35,6 @@ console.log(vm);
         function editComment(comment) {
             $ionicLoading.show({}).then(function() {
                 commentManager.updateComment(comment, vm.moment).then(function() {
-                    // vm.comments[vm.comments.indexOf(comment)] = comment;
                     comment.editMode = false;
                     modifyMomentArrayAndSaveIt();
                     $ionicLoading.hide();
@@ -47,19 +45,12 @@ console.log(vm);
         function modifyMomentArrayAndSaveIt() {
 			vm.moment.comments = vm.comments;
     		vm.momentsArray[index] = vm.moment;
-    		console.log("MODIFY MOMENT ARRAY");
-    		console.log(vm.momentsArray);
 			localStorageManager.set(vm.localStorageName, vm.momentsArray);        
 		};
 
         function reply(comment) {
         	var indexOfComment = vm.comments.indexOf(comment);
-        	// vm.comments[indexOfComment].likedClass = "ion-android-favorite-outline";
         	commentManager.uploadComment(comment.replyComment, comment).then(function(reply) {
-        		// if(!vm.comments[indexOfComment].replies) {
-        		// 	vm.comments.replies = [];
-        		// }
-        		// notificationManager.notifyUserRepliesToComment(comment.onesignalid);
 				vm.comments[indexOfComment].replies.push(reply);
 				vm.toggleReplies(comment);
         		vm.toggleReplyBox(comment);
@@ -70,8 +61,7 @@ console.log(vm);
 
 		function submitComment() {
 			vm.submitCommentSpinner = true;
-			commentManager.uploadComment(vm.comment, core.populateMomentObj(vm.moment)).then(function(comment) {
-				// notificationManager.notifyUserRepliesToMoment(comment.onesignalid);
+			commentManager.uploadComment(vm.comment, common.populateMomentObj(vm.moment)).then(function(comment) {
 				vm.comments.push(comment);
 				modifyMomentArrayAndSaveIt();
 				vm.comment = "";
@@ -128,11 +118,13 @@ console.log(vm);
 			if(comment.likedClass === "ion-android-favorite-outline") {
 				comment.likes++;
 				comment.likedClass = "ion-android-favorite";	
+				comment.likesuuids = comment.likesuuids + " " + vm.uuid;
 				commentManager.updateComment(comment);
 			}
 			else {
 				comment.likes--;
 				comment.likedClass = "ion-android-favorite-outline";
+				comment.likesuuids = comment.likesuuids.replace(common.getUUID(), '');
 				commentManager.updateComment(comment);
 			}
 			vm.comments[vm.comments.indexOf(comment)] = comment;

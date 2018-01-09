@@ -26,7 +26,7 @@
         $cordovaFileTransfer.download(metaData.key,
           cordova.file.externalDataDirectory + 'moments',
           {}, true).then(function(result) {
-            metaData.nativeURL = result.nativeURL;
+            metaData.nativeurl = result.nativeURL;
             
             var currentLocalStorage = [];
             if(JSON.parse(localStorage.getItem('myMoments'))) {

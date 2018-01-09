@@ -1,9 +1,9 @@
 (function() {
  	angular.module('downloadManager', [])
 
- 	.service('downloadManager', ['logger', '$cordovaFile', '$cordovaFileTransfer', '$q', downloadManager]);
+ 	.service('downloadManager', ['$sce', 'logger', '$cordovaFile', '$cordovaFileTransfer', '$q', downloadManager]);
 
- 	function downloadManager(logger, $cordovaFile, $cordovaFileTransfer, $q){
+ 	function downloadManager($sce, logger, $cordovaFile, $cordovaFileTransfer, $q){
  		var vm = this;
 		vm.downloadFiles = downloadFiles;
 		vm.downloadToDevice = downloadToDevice;
@@ -64,21 +64,19 @@
 					uniqueKey = temp[temp.length - 1];
 					var fileURL = cordova.file.externalDataDirectory + 'moments' + new Date().getTime() + '/';
 					$cordovaFileTransfer.download(moment.key, fileURL, {}, true).then(function(result) {
-						moment.nativeurl = result.nativeURL;
+						// {src: $sce.trustAsResourceUrl(src), type: "video/mp4"},
+						moment.nativeurl = $sce.trustAsResourceUrl(result.nativeURL);
+						console.log(moment);
 						downloaded_Moments.push(moment);
 						callback();
 					}, function(error) {
-						var parameters = {
-							moments: moments
-						}
-						logger.logFile("core.downloadFiles", parameters, error, 'errors.txt');
+						callback();
 					});
 				}, function(error) {
 					if(error) {
 						var parameters = {
 							moments: moments,
 						}
-						logger.logFile("core.downloadFiles", parameters, error, 'errors.txt');
 						deferred.reject();
 					}
 					deferred.resolve(downloaded_Moments);
@@ -88,7 +86,7 @@
 					moments: moments,
 					cordovaFile: cordova.file
 				}
-				logger.logFile("core.downloadFiles", parameters, 'Problem with moments or cordova.file', 'errors.txt');
+				logger.logFile("downloadManager.downloadFiles", parameters, 'Problem with moments or cordova.file', 'errors.txt');
 				deferred.reject();
 			}
 			return deferred.promise;

@@ -1,9 +1,9 @@
 (function() {
 	angular.module('app.momentsService', [])
 
-	.service('momentsService', ['core', '$q', 'constants', 'logger', 'geolocation', 'awsServices', 'localStorageManager', 'commentManager', momentsService]);
+	.service('momentsService', ['common', 'core', '$q', 'constants', 'logger', 'geolocation', 'awsServices', 'localStorageManager', 'commentManager', momentsService]);
 
-	function momentsService(core, $q, constants, logger, geolocation, awsService, localStorageManager, commentManager){
+	function momentsService(common, core, $q, constants, logger, geolocation, awsService, localStorageManager, commentManager){
 		var that = this;
 
 		this.momentArray = localStorageManager.get('moments');
@@ -19,10 +19,10 @@
 		
 		//Helper Functions
 		this.isMomentWithRadius = isMomentWithRadius;
-		this.incrementCounter = incrementCounter;
+		// this.incrementCounter = incrementCounter;
 		this.checkAndDeleteExpiredMoments = checkAndDeleteExpiredMoments;
 		this.deleteOrUploadToBestMoments = deleteOrUploadToBestMoments;
-		this.updateMomentMetaData = updateMomentMetaData;
+		this.updateMomentMetaDataForUpload = updateMomentMetaDataForUpload;
 		this.didUserDoTutorial = didUserDoTutorial;
 
 		var startAfterKey = "";
@@ -76,6 +76,16 @@
 			}
 		};
 
+		function removeMomentsWithUsersUUID(moments) {
+			for(var i = 0; i < moments.length; i) {
+				if(moments[i].uuids.split(" ").indexOf(common.getUUID()) !== -1) {
+					moments.splice(i, 1);
+				} else {
+					i++;
+				}
+			}
+		};
+
 		function initializeView() {
 			var deferred = $q.defer();
 			var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
@@ -95,13 +105,7 @@
 						} else {
 							startAfterKey = ""; //This tells the controller to stop calling initialize
 						}
-						for(var i = 0; i < moments.length; i) {
-							if(moments[i].uuids.split(" ").indexOf(core.getUUID()) !== -1) {
-								moments.splice(i, 1);
-							} else {
-								i++;
-							}
-						}
+						removeMomentsWithUsersUUID(moments);
 						var temp = createTempVariable(moments);
 						core.didUserChangeRadius = false;
 						// temp = addExtraClassesandSetTime(temp);
@@ -133,7 +137,7 @@
 				var temp = data;
 				for(var i = 0; i < data.length; i++ ){
 					var uuids = data[i].uuids.split(" ");
-					if(uuids.indexOf(core.getUUID()) === -1) {
+					if(uuids.indexOf(common.getUUID()) === -1) {
 						counter++;
 					}
 				}
@@ -154,31 +158,31 @@
 		function updateMoment(liked) {
 			var temp = createTempVariable(this.momentArray);
 			var updatedMoment = temp[0];
-			updatedMoment = that.updateMomentMetaData(updatedMoment, liked);
+			updatedMoment = that.updateMomentMetaDataForUpload(updatedMoment, liked);
 			localStorageManager.set('moments', this.momentArray);
 			return core.edit(updatedMoment);
 		};
 
-		function incrementCounter(){
-			var deferred = $q.defer();
-			var temp = createTempVariable(this.momentArray);
-			if(this.momentArray.length > 0) {
-				deferred.resolve(temp); 
-			}
-			else {
-				that.initializeView().then(function(moments) {
-				// initializeView().then(function(moments) {
-					deferred.resolve(moments);
-				}, function(error) {
-					deferred.reject();
-				});
-			}
-			return deferred.promise;
-		};
+		// function incrementCounter(){
+		// 	var deferred = $q.defer();
+		// 	var temp = createTempVariable(this.momentArray);
+		// 	if(this.momentArray.length > 0) {
+		// 		deferred.resolve(temp); 
+		// 	}
+		// 	else {
+		// 		that.initializeView().then(function(moments) {
+		// 		// initializeView().then(function(moments) {
+		// 			deferred.resolve(moments);
+		// 		}, function(error) {
+		// 			deferred.reject();
+		// 		});
+		// 	}
+		// 	return deferred.promise;
+		// };
 
 //Helper functions
 
-function updateMomentMetaData(moment, liked) {
+function updateMomentMetaDataForUpload(moment, liked) {
 	var temp = createTempVariable(moment);
 	var views = (parseInt(moment.views) + 1).toString();
 	moment.views = views;
@@ -186,9 +190,10 @@ function updateMomentMetaData(moment, liked) {
 		var likes = parseInt(moment.likes) + 1;
 		moment.likes = likes.toString();
 	}
-	moment.uuids = moment.uuids + " " + core.getUUID();
-	moment.time = new Date().getTime() - parseInt(core.timeElapsed(moment.time));
+	moment.uuids = moment.uuids + " " + common.getUUID();
+	moment.time = new Date().getTime() - parseInt(common.timeElapsed(moment.time));
 	moment.time = moment.time.toString();
+	delete moment.comments;
 	return moment;
 };
 
@@ -202,11 +207,11 @@ function deleteOrUploadToBestMoments(moments) {
 	async.each(tempMoments, function(moment, callback) {
 		if(parseInt(moment.views) > constants.BEST_MOMENTS_MIN_VIEWS) {
 				if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO) {
-					core.uploadToBestMoments(createTempVariable(moment));
+					common.uploadToBestMoments(createTempVariable(moment));
 			} 
 			//Remove Best Moment - We divide by 2; otherwise this will run everytime a moment is above the min views mark and does not belong in bestMoments - Which will be almost every time.
 			else if(parseInt(moment.likes) / parseInt(moment.views) > constants.BEST_MOMENTS_RATIO / 2) {
-				core.removeFromBestMoments(moment);
+				common.removeFromBestMoments(moment);
 			}
 		}
 		callback();
@@ -255,17 +260,17 @@ function addExtraClassesandSetTime(moments) {
 			moments[0].class = "layer-top";
 			moments[0].animate = "invisible";
 			moments[0].showComments = "true";
-			moments[0].time = core.timeElapsed(moments[0].time);
+			moments[0].time = common.timeElapsed(moments[0].time);
 		}
 		else if(i === 1) {
 			moments[1].class = "layer-next";
 			moments[1].animate = "invisible";
-			moments[1].time = core.timeElapsed(moments[1].time);
+			moments[1].time = common.timeElapsed(moments[1].time);
 		}
 		else {
 			moments[i].class = "layer-hide";
 			moments[i].animate = "invisible";
-			moments[i].time = core.timeElapsed(moments[i].time); 
+			moments[i].time = common.timeElapsed(moments[i].time); 
 		}
 	}
 	
@@ -314,7 +319,7 @@ function isMomentWithRadius(key) {
 function createTempVariable(moments) {
 	var temp = [];
 	for(var i = 0; i < moments.length; i++) {
-		temp.push(core.populateMomentObj(moments[i]));
+		temp.push(common.populateMomentObj(moments[i]));
 	}
 	if(temp.length === 0) {
 		return moments;

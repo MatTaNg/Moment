@@ -1,9 +1,9 @@
 (function() {
 	angular.module('myMomentsService', [])
 
-	.service('myMomentsService', ['downloadManager','core', '$q', 'logger', 'localStorageManager', 'commentManager', myMomentsService]);
+	.service('myMomentsService', ['common', 'downloadManager','core', '$q', 'logger', 'localStorageManager', 'commentManager', myMomentsService]);
 
-	function myMomentsService(downloadManager, core, $q, logger, localStorageManager, commentManager) {
+	function myMomentsService(common, downloadManager, core, $q, logger, localStorageManager, commentManager) {
 		this.removeFromLocalStorage = removeFromLocalStorage;
 		this.uploadFeedback = uploadFeedback;
 		this.initialize = initialize;
@@ -39,7 +39,7 @@
 					this.momentArray.splice(i, 1);
 				}
 				else {
-					this.momentArray[i].time = core.timeElapsed(this.momentArray[i].time);
+					this.momentArray[i].time = common.timeElapsed(this.momentArray[i].time);
 					i++;
 				}
 			}
@@ -54,7 +54,39 @@
 		};
 
 		function retrieveCommentedOnMoments() {
-			return commentManager.retrieveCommentedOnMoments(core.getUUID());
+			return commentManager.retrieveCommentedOnMoments(common.getUUID());
+		};
+
+		function updateMyMomentsWithRecentChanges(momentArray, newMoment) {
+			for(var i = 0; i < momentArray.length;i++) {
+				if(momentArray[i].key === newMoment.key) {
+					momentArray[i] = newMoment;
+				}
+			}
+			return momentArray;
+		}
+
+		function createArrayOfUploadedMomentsWhichHaveExpired_UpdateExistingOnes(momentArray) {
+			var deferred = $q.defer();
+			var oldMomentArray = momentArray;
+			async.each(momentArray, function(moment, callback) {
+				core.getMomentMetaData(moment).then(function(returnedMoment) {
+					if(returnedMoment !== "Not Found") {
+						momentArray = updateMyMomentsWithRecentChanges(momentArray, returnedMoment);
+					}
+					callback();
+				}, function(error) {
+					callback();
+				});
+			}, function(error) {
+				if(!error) {
+					deferred.resolve(momentArray);
+				}
+				else {
+					deferred.reject(error);
+				}
+			});
+			return deferred.promise;
 		};
 
 		function initialize() {
@@ -64,51 +96,18 @@
 			var deletedMoments = [];
 			totalLikes = 0;
 			updateOldLikes(this.momentArray);
-			async.each(this.momentArray, function(moment, callback) {
-				//Remove moments which have been deleted
-				this.momentArray = oldMomentArray; //Variable gets overriden somewhere...
-				core.getMomentMetaData(moment).then(function(returnedMoment) {
-					if(returnedMoment !== "Not Found") {
-						for(var i = 0; i < oldMomentArray.length;i++) {
-							if(oldMomentArray[i].key === returnedMoment.key) {
-								oldMomentArray[i] = returnedMoment;
-							}
-						}
-					} else {
-						deletedMoments.push(moment);
-					}
-					callback();
-				}, function(error) {
-					deletedMoments.push(moment);
-					callback();
-				});
-			}, function(error) {
-				this.momentArray = oldMomentArray;
-				if(error) {
-					deferred.reject();
-				}
+			createArrayOfUploadedMomentsWhichHaveExpired_UpdateExistingOnes(this.momentArray).then(function(updatedMoments) {
+				this.momentArray = updatedMoments;
 				if(this.momentArray.length === 0) {
 					deferred.resolve([]);
 				}
 				if(this.momentArray.length > 0) {
-					for(var i = 0; i < deletedMoments.length; i++) {
-						for(var x = 0; x < this.momentArray.length; x) {
-							if(this.momentArray[x].key === deletedMoments[i].key) { 
-								this.momentArray.splice(x, 1);
-							}
-							else {
-								x++;
-							} 
-						}
-					}
-					downloadManager.downloadFiles(this.momentArray).then(function(moments) {
-						localStorageManager.set('myMoments', moments).then(function() {
-							this.momentArray =	updateExtraLikesAndTotalLikes(this.momentArray);
-							this.momentArray = addShortDescriptionAndTime(this.momentArray);
-							getComments(this.momentArray).then(function(moments) {
-								this.momentArray = moments;
-								deferred.resolve(this.momentArray);
-							});
+					localStorageManager.set('myMoments', this.momentArray).then(function() {
+						this.momentArray =	updateExtraLikesTotalLikesAndGainedLikes(this.momentArray);
+						this.momentArray = addShortDescriptionAndTime(this.momentArray);
+						getComments(this.momentArray).then(function(moments) {
+							this.momentArray = moments;
+							deferred.resolve(this.momentArray);
 						});
 					});
 				}
@@ -117,8 +116,6 @@
 		};
 
 		function removeFromLocalStorage(moment) {
-			// var localMoments = localStorageManager.get('myMoments');
-			// localMoments.splice(localMoments.findIndex(findMoment), 1);
 			localStorageManager.remove('myMoments', moment);
 		};
 
@@ -154,15 +151,10 @@
 			}
 		};
 
-		function updateExtraLikesAndTotalLikes(moments) {
+		function updateExtraLikesTotalLikesAndGainedLikes(moments) {
 			for(var x = 0; x < moments.length; x++) {
 				var currentLikes = 0;
-				for(var i = 0; i< this.momentArray.length; i++) {
-					if(this.momentArray[i].key === moments[x].key) {
-						currentLikes = this.momentArray[i].likes;
-						this.momentArray[i].likes = moments[x].likes;
-					}
-				}
+				currentLikes = moments[x].likes;
 				totalLikes = totalLikes + parseInt(moments[x].likes);
 				extraLikes = totalLikes - this.oldLikes;
 				moments[x].gainedLikes = moments[x].likes - currentLikes;
@@ -173,8 +165,7 @@
 
 		function addShortDescriptionAndTime(moments) {
 			for(var i = 0; i < moments.length; i++) {
-				// moments[i].time = new Date().getTime() - moments[i].time;
-				moments[i].time = core.timeElapsed(moments[i].time, true);
+				moments[i].time = common.timeElapsed(moments[i].time, true);
 				if(moments[i].description.length > 0) {
 					moments[i].shortDescription = moments[i].description.substring(0,50);
 				}

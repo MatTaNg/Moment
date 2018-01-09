@@ -1,0 +1,13 @@
+angular.module('common', 
+	['permissions', 
+	'notificationManager', 
+	'multipartUpload', 
+	'logger', 
+	'localStorageManager', 
+	'geolocation', 
+	'downloadManager',
+	'awsServices',
+	'constants',
+	'core',
+	'momentViewDirective',
+	'MomentViewController'])
