@@ -141,7 +141,7 @@
  					};
  					logger.logOutMessage("aws_services.getMomentMetaData", parameters, error);
 					// logger.logFile("aws_services.getMomentMetaData", parameters, error, 'errors.txt');
-					deferred.reject(error);	
+					deferred.reject('Not Found');	
  				}
  				else {
  					deferred.resolve(data.Metadata);
@@ -174,10 +174,14 @@
 					deferred.reject(error);	
  				}
  				else {
- 					for(var i = 0; i < data.Contents.length; i++) {
+ 					for(var i = 0; i < data.Contents.length; i) {
+ 						data.Contents[i].key = data.Contents[i].Key;
  						//Remove the folder
  						if(data.Contents[i].Key[data.Contents[i].Key.length - 1] === '/') {
  							data.Contents.splice(i, 1);
+ 						}
+ 						else {
+ 							i++;
  						}
  					}
  					deferred.resolve(data.Contents);

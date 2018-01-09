@@ -1,8 +1,8 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['downloadManager', '$sce', 'momentsService', '$stateParams', '$scope', '$ionicContentBanner', 'core', 'components', '$q', '$ionicPopup', '$window', 'constants', '$interval', 'localStorageManager', 'notificationManager', '$timeout', '$ionicPopup', '$ionicLoading', MomentsController]);
-	function MomentsController (downloadManager, $sce, momentsService, $stateParams, $scope, $ionicContentBanner, core, components, $q, $ionicPopup, $window, constants, $interval, localStorageManager, notificationManager, $timeout, $ionicPopup, $ionicLoading) {
+	.controller('MomentsController', ['geolocation', 'downloadManager', '$sce', 'momentsService', '$stateParams', '$ionicContentBanner', 'core', 'components', '$q', '$window', 'constants', '$interval', 'localStorageManager', 'notificationManager', '$timeout', MomentsController]);
+	function MomentsController (geolocation, downloadManager, $sce, momentsService, $stateParams, $ionicContentBanner, core, components, $q, $window, constants, $interval, localStorageManager, notificationManager, $timeout) {
 		var vm = this;
 		vm.moments = localStorageManager.get('moments');
 		vm.liked = liked;		
@@ -36,7 +36,7 @@
 				vm.loadingMoments = true;
 				vm.moments = [];
 				momentsService.setMomentArray([]);
-				vm.currentLocation = core.currentLocation;
+				vm.currentLocation = geolocation.currentLocation;
 				core.appInitialized = true;
 				initialize();
 		}

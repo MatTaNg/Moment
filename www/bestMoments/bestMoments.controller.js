@@ -1,8 +1,8 @@
 (function() {
 	angular.module('app.BestMomentsController', [])
 
-	.controller('BestMomentsController', ['$scope', 'core', 'components','bestMomentsService', 'localStorageManager', 'constants', '$state', BestMomentsController]);
-	function BestMomentsController ($scope, core, components, bestMomentsService, localStorageManager, constants, $state) {
+	.controller('BestMomentsController', ['$scope', 'core', 'components','bestMomentsService', 'localStorageManager', 'constants', BestMomentsController]);
+	function BestMomentsController ($scope, core, components, bestMomentsService, localStorageManager, constants) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.moments = localStorageManager.get('bestMoments');
@@ -83,12 +83,12 @@
 
 		function initialize() {
 			bestMomentsService.initializeView().then(function(moments){
-					vm.showCommentSpinner = false;
-					vm.moments = moments;
-					sortMomentsAndAddShowComments(moments);
-					vm.stopLoadingData = false;
-					$scope.$broadcast('scroll.refreshComplete');
-					components.hideLoader();
+				vm.showCommentSpinner = false;
+				vm.moments = moments;
+				sortMomentsAndAddShowComments(moments);
+				vm.stopLoadingData = false;
+				$scope.$broadcast('scroll.refreshComplete');
+				components.hideLoader();
 			}, function(error) {
 				vm.noMoments = true;
 				$scope.$broadcast('scroll.refreshComplete');

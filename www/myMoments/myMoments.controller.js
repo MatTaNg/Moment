@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', 'notificationManager', '$state', MyMomentsController]);
-	function MyMomentsController($ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager, notificationManager, $state) {
+	.controller('MyMomentsController', ['common', '$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', 'notificationManager', MyMomentsController]);
+	function MyMomentsController(common, $ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager, notificationManager) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.remove = remove;
@@ -163,21 +163,25 @@
 					onTap: function(e) {
 						localStorageManager.set('notificationStatus', vm.notifications);
 						vm.notificationText = "Notifications off";
-						for(var i = 0; i < vm.notifications.length; i++) {
-							if(vm.notifications[i].notification === false) {
-								notificationManager.toggleNotification(vm.notifications[i].id, false);
-								// notificationManager.setNotifications(false);
-							}
-							else {
-								notificationManager.toggleNotification(vm.notifications[i].id, true);
-								vm.notificationText = "Notifications on";
-							}
-						}
+						setNotificationValuesBasedOnUserInput(vm.notifications);
 					}
 						
 				}]
 				});
 		};
+
+		function setNotificationValuesBasedOnUserInput(notifications) {
+			for(var i = 0; i < notifications.length; i++) {
+				if(notifications[i].notification === false) {
+					notificationManager.toggleNotification(notifications[i].id, false);
+					// notificationManager.setNotifications(false);
+				}
+				else {
+					notificationManager.toggleNotification(notifications[i].id, true);
+					vm.notificationText = "Notifications on";
+				}
+			}
+		}
 
 		function createVideogularObj(moments) {
 			var sources_array = [];
@@ -233,20 +237,36 @@
 			}
 		}
 
-		function initialize() {
-			initializeMomentsBasedOnLocalStorage();
+		function findAndSetTheUsersLocation() {
 			if(!geolocation.customUserLocation) {
 				geolocation.getLocation();
 			}
+		};
+
+		function initializeCurrentMomentValuesAndSetLoadingIcon() {
 			if(vm.moments.length === 0){
 				vm.loading = true;
 			}
 			else {
 				for(var i = 0; i < vm.moments.length; i++ ){
-					vm.moments[i].time = core.timeElapsed(vm.moments[i].time);
+					vm.moments[i].time = common.timeElapsed(vm.moments[i].time);
 				}
 				createVideogularObj(vm.moments);
 			}
+		};
+
+		function turnOffAllLoadingIndicators() {
+			vm.refresh = false;
+			vm.loading = false;
+			vm.errorMessage = false;
+			vm.showCommentSpinner = false;
+		};
+
+		function initialize() {
+			initializeMomentsBasedOnLocalStorage();
+			findAndSetTheUsersLocation();
+			initializeCurrentMomentValuesAndSetLoadingIcon();
+			
 			var deferred = $q.defer();
 			myMomentsService.retrieveCommentedOnMoments().then(function(moments) {
 				localStorageManager.set('myMomentsWithComments', moments);
@@ -259,14 +279,11 @@
 					vm.initRunning = false;
 					moments = removeNullObject(moments); //Band-aid
 					if(moments !== null && moments.length > 0) {
-						vm.refresh = false;
 						vm.myMoments = moments;
 						vm.totalLikes = myMomentsService.getTotalLikes();
 						vm.extraLikes = myMomentsService.getExtraLikes();
-						vm.loading = false;
 						createVideogularObj(moments);
-						vm.errorMessage = false;
-						vm.showCommentSpinner = false;
+						turnOffAllLoadingIndicators();
 						initializeMomentsBasedOnLocalStorage();
 					} else {
 						vm.loading = false;
@@ -290,6 +307,13 @@
 			return deferred.promise;
 		};
 
+		function removeFromBestMoments(moment) {
+			var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
+			var bestMomentKey = moment.key.replace(/\/moment\/../, "/bestMoments");
+			moment.key = bestMomentKey
+			return core.remove(moment);
+		};
+
 		function remove(moment) {
 			$ionicPopup.confirm({
 				title: 'Are you sure you want to delete this moment?'
@@ -297,17 +321,14 @@
 			.then(function(confirm) {
 				if(confirm) {
 					$ionicLoading.show({}).then(function() {
-						var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
-						var bestMomentKey = moment.key.replace(/\/moment\/../, "/bestMoments");
 						core.remove(moment).then(function() {
-							moment.key = bestMomentKey
-							core.remove(moment).then(function() {
-								myMomentsService.removeFromLocalStorage(moment);
-								vm.moments.splice(vm.moments.indexOf(moment), 1);
-								$ionicLoading.hide();
-								if(vm.moments.length === 0) {
-									vm.errorMessage = true;
-								}	
+							removeFromBestMoments(moment);
+							myMomentsService.removeFromLocalStorage(moment);
+							vm.moments.splice(vm.moments.indexOf(moment), 1);
+							$ionicLoading.hide();
+							if(vm.moments.length === 0) {
+								vm.errorMessage = true;
+							}	
 							}, function(error) {
 								$ionicLoading.hide();
 							});
@@ -315,11 +336,9 @@
 							$ionicLoading.hide();
 						});
 
-					});
-				}
-				else{
+				} else{
 					console.log("!CONFIRM");
-				}
+					}
 			});
 		};
 

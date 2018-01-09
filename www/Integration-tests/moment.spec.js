@@ -168,13 +168,13 @@ it('Should correctly initialize the view and upload to best moments', function(d
         mock_moment.likes = 900;
         mock_moment.views = 20;
 
-        spyOn(core, 'uploadToBestMoments');
+        spyOn(common, 'uploadToBestMoments');
 
         mockOutGetMoments([mock_moment]);
 
         service.initializeView().then(function(moments) {
             expect(moments[0].key).toEqual(mock_moment.key);
-            expect(core.uploadToBestMoments).toHaveBeenCalled();
+            expect(common.uploadToBestMoments).toHaveBeenCalled();
             done();
         });
         $scope.$apply();
@@ -184,7 +184,7 @@ it('Should correctly initialize the view and remove moment from best moments', f
         mock_moment.likes = 400;
         mock_moment.views = 1000;
 
-        spyOn(core, 'removeFromBestMoments');
+        spyOn(common, 'removeFromBestMoments');
 
         mockOutGetMoments([mock_moment]);
 
@@ -192,7 +192,7 @@ it('Should correctly initialize the view and remove moment from best moments', f
 
         service.initializeView().then(function(moments) {
             expect(moments[0].key).toEqual(mock_moment.key);
-            expect(core.removeFromBestMoments).toHaveBeenCalled();
+            expect(common.removeFromBestMoments).toHaveBeenCalled();
             done();
         });
         $rootScope.$apply();

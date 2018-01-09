@@ -165,7 +165,7 @@
           var currentTime = new Date().getTime();
           var timeUntilNextMoment = parseInt(localStorageManager.get('timeSinceLastMoment')) + constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_BETWEEN_MOMENTS;
           var timeLeft = timeUntilNextMoment - currentTime;
-          $scope.momentTimer = core.timeElapsed(currentTime + timeLeft);
+          $scope.momentTimer = common.timeElapsed(currentTime + timeLeft);
           if(currentTime > timeUntilNextMoment) {
             $scope.momentTimer = "0m";
           }

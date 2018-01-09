@@ -1,9 +1,9 @@
  (function() {
  	angular.module('geolocation', [])
 
- 	.service('geolocation', ['logger', '$q', 'constants', '$http', '$cordovaGeolocation', 'awsServices', 'permissions', 'core', geolocation]);
+ 	.service('geolocation', ['common', 'logger', '$q', 'constants', '$http', '$cordovaGeolocation', 'awsServices', 'permissions', 'core', geolocation]);
 
- 	function geolocation(logger, $q, constants, $http, $cordovaGeolocation, awsServices, permissions, core){
+ 	function geolocation(common, logger, $q, constants, $http, $cordovaGeolocation, awsServices, permissions, core){
  		var vm = this;
  		vm.getMomentsByState = getMomentsByState;
  		vm.getMomentsWithinRadius = getMomentsWithinRadius;
@@ -217,7 +217,7 @@ function getMomentsWithinRadius(momentsInStates) {
 		if(momentsInStates_lat < vm.max_north.lat && momentsInStates_lat > vm.max_south.lat &&
 			momentsInStates_lng > vm.max_west.lng && momentsInStates_lng < vm.max_east.lng) {
 			promises.push(awsServices.getMomentMetaData(momentsInStates[i].Key).then(function(metaData) {
-				return core.populateMomentObj(metaData);
+				return common.populateMomentObj(metaData);
 			}))
 		}
 	}

@@ -2,8 +2,8 @@
 
   angular.module('app.SubmitMomentController', [])
 
-  .controller('SubmitMomentController', ['$stateParams', '$state', 'core', 'geolocation', 'submitMomentService', 'constants', '$ionicContentBanner', '$ionicPopup', 'components', '$sce', 'localStorageManager', SubmitMomentController]);
-  function SubmitMomentController($stateParams, $state, core, geolocation, submitMomentService, constants, $ionicContentBanner, $ionicPopup, components, $sce, localStorageManager) {
+  .controller('SubmitMomentController', ['common', '$stateParams', '$state', 'core', 'geolocation', 'submitMomentService', 'constants', '$ionicContentBanner', '$ionicPopup', 'components', '$sce', 'localStorageManager', SubmitMomentController]);
+  function SubmitMomentController(common, $stateParams, $state, core, geolocation, submitMomentService, constants, $ionicContentBanner, $ionicPopup, components, $sce, localStorageManager) {
     var vm = this;
     vm.changeLocation = changeLocation;
     vm.cancel = cancel;
@@ -25,10 +25,9 @@
         time: "",
         description: "",
         views: "0",
-        uuids: core.getUUID(),
-        creator: core.getUUID(),
+        uuids: common.getUUID(),
+        creator: common.getUUID(),
         media: "",
-        nativeurl: "TEST",
         onesignalid: localStorageManager.get("OneSignal_PlayerID"),
         commentids: ''
     };
@@ -132,8 +131,8 @@
       vm.moment.media = "picture";
     }
     else {
-     vm.moment.key = key + '_' + new Date().getTime() + '.mp4'; 
-     vm.moment.media = "video";
+       vm.moment.key = key + '_' + new Date().getTime() + '.mp4'; 
+       vm.moment.media = "video";
     }
   };
 };
