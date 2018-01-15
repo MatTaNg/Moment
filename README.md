@@ -13,23 +13,26 @@
 9.	Change the search radius to 50 miles.
 10.	Edit the location to “MMM”. An Error message should appear
 11. Click the location button - Your current location should appear.
-11. Edit the location to "Malvern, PA"
-11.	Go to Moments – Your video should appear (If you are within 50 miles of Malvern, PA).
-12.	Play the video.
-13.	Swipe right on the video.
-14.	*No Moments should appear
-15.	Go back to the myMoments tab and make sure likes has incremented by 1, and there is a green +1 at the top. (101 Likes).
-16.	Take a picture
-17.	Attempt to add a description that’s too long and submit it.
-18.	Add a valid description and uncheck the location box
-19.	Go to myMoments and make sure the picture shows up.
-20.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
-21.	Go back to Moments and be sure your picuture appears with an “Unknown” location
-22.	Swipe right on the picture.
-23.	Go to best moments – Your picture and video should appear.
-24.	Go to AWS database and set your picture time meta data to 10 and remove your UUID once again.
-25.	Go to Moments and swipe on your picture.
-26.	It should be removed from the Moments database but NOT from BestMoments.
+12. Edit the location to "Malvern, PA"
+13.	Go to Moments – Your video should appear (If you are within 50 miles of Malvern, PA).
+14.	Play the video.
+15.	Swipe right on the video.
+16.	*No Moments should appear
+17.	Go back to the myMoments tab and make sure likes has incremented by 1, and there is a green +1 at the top. (101 Likes).
+18.	Take a picture
+19.	Attempt to add a description that’s too long and submit it.
+20.	Add a valid description and uncheck the location box
+21.	Go to myMoments and make sure the picture shows up.
+22.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
+23. Comment, edit like, and reply on the picture and/or the video
+24. Going back should show 2 comments - Or however many comments & replies there are for the specific moment.
+25.	Go back to Moments and be sure your picuture appears with an “Unknown” location and it should update the comments too
+26. Click on the comments and be sure it matches with the comments from step 22.
+27.	Swipe right on the picture.
+28.	Go to best moments – Your picture and video should appear with the correct comments.
+29.	Go to AWS database and set your picture time meta data to 10 and remove your UUID once again.
+30.	Go to Moments and swipe on your picture.
+31.	It should be removed from the Moments database but NOT from BestMoments.
 
 
 1.  Turn DEV mode on in constants.js
