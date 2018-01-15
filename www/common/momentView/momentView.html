@@ -1,7 +1,7 @@
 <img data-ng-if="moment.media === 'picture'" src="{{moment.key}}" height="80%" width="100%"></img>
 
 <!--Video Begin-->
-<div data-ng-if="moment.media === 'video'"class="videoBox">
+<div data-ng-if="moment.media === 'video'" class="videoBox">
 	<videogular vg-theme="vm.config.theme">
 		<vg-media vg-src="vm.config.sources"
 				vg-tracks="vm.config.tracks"
@@ -46,10 +46,12 @@
 <img src="img/Next.png" ng-show="moment.swipedLeft" class="on-drag-next {{moment.animate}}"></img>
 <hr>
 <div>
-	<span ng-show="moment.description">{{ moment.description }}  </span>
-	<div ng-hide="moment.description" class="noDescription">No Description Found</div>
+	<div style="height: 100px;">
+		<div ng-show="moment.description">{{ moment.description }}  </div>
+		<div ng-hide="moment.description" class="noDescription">No Description Found</div>
+	</div>
 	<!-- <div data-ng-click="vm.navToComments()">Comments</div> -->
-	<div class="view-comments-link" ng-click="vm.viewComments()">View {{moment.comments.length}} Comments</div>
-	<div class="{{flagClass}}" ng-click="flagged()"> </div>
+	<div class="view-comments-link" ng-click="vm.viewComments()"> {{vm.commentsAndRepliesQuantity}} Comments</div>
+	<div data-ng-if="vm.flag" class="{{flagClass}}" ng-click="flagged()"> </div>
 	<!--<div class="ion-archive" ng-click="vm.downloadMoment(image)"> </div>-->
 </div>

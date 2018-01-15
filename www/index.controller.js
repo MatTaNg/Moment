@@ -2,9 +2,9 @@
 
   angular.module('app.IndexController', [])
 
-  .controller('IndexController', ['$cordovaFile','$cordovaFileTransfer','$timeout', 'core', '$rootScope', '$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', 'localStorageManager', IndexController]);
+  .controller('IndexController', ['common', '$cordovaFile','$cordovaFileTransfer','$timeout', 'core', '$rootScope', '$scope', '$stateParams', '$state', '$q', 'core', '$location', '$ionicContentBanner', 'constants', '$rootScope', '$interval', 'logger', '$sce', '$ionicPopup', 'localStorageManager', IndexController]);
   
-  function IndexController($cordovaFile, $cordovaFileTransfer, $timeout, core, $rootScope, $scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup, localStorageManager) {
+  function IndexController(common, $cordovaFile, $cordovaFileTransfer, $timeout, core, $rootScope, $scope, $stateParams, $state, $q, core, $location, $ionicContentBanner, constants, $rootScope, $interval, logger, $sce, $ionicPopup, localStorageManager) {
     var indexController = this,
     enoughTimePassedBetweenMoments = enoughTimePassedBetweenMoments;
     indexController.camera = camera;

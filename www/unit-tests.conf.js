@@ -18,7 +18,7 @@ module.exports = function(config) {
       'lib/async/dist/async.js',
       'lib/ionic/js/ionic.bundle.js',
       'lib/angular-mocks/angular-mocks.js',
-      'js/*',
+      'common/*',
       'bestMoments/*',
       'moments/*',
       'submitMoment/*',
@@ -26,7 +26,7 @@ module.exports = function(config) {
       'comments/*',
       'Integration-tests/*',
       'index.controller.js',
-      'layout/mainView.directive.js',
+      'common/mainView.directive.js',
     ],
 
 

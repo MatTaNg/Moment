@@ -1,1 +1,1 @@
-angular.module('comments', ['CommentsController', 'commentManager', 'commentsDirective'])
+angular.module('commentsModule', ['CommentsController', 'commentManager', 'commentsDirective'])

@@ -5,9 +5,22 @@
 	function BestMomentsController ($scope, core, components, bestMomentsService, localStorageManager, constants) {
 		var vm = this;
 		vm.initialize = initialize;
+		vm.loadingMoments = true;
 		vm.moments = localStorageManager.get('bestMoments');
+		// localStorageManager.getAndDownload('bestMoments').then(function(moments) {
+		// 	vm.moments = moments;
+		// 	if(vm.moments.length === 0) {
+		// 		bestMomentsService.initializeView().then(function(moments) {
+		// 			components.hideLoader();
+		// 			vm.moments = moments;
+		// 		}); 
+		// 	}
+		// 	else {
+		// 		vm.moments = bestMomentsService.convertTime(vm.moments);
+		// 		loadMore();
+		// 	}
+		// });
 		vm.loadMore = loadMore;
-		vm.createVideogularObj = createVideogularObj;
 		vm.viewComments = viewComments;
 
 		vm.imageExpanded = false;
@@ -18,22 +31,9 @@
 		vm.comments = {};
 		vm.showComments = false;
 
-		if(!vm.moments) {
-			vm.moments = [];
-		}
-
-		if(vm.moments.length === 0) {
-			bestMomentsService.initializeView().then(function(moments) {
-				createVideogularObj(moments);
-				components.hideLoader();
-				vm.moments = moments;
-			}); 
-		}
-		else {
-			vm.moments = bestMomentsService.convertTime(vm.moments);
-			createVideogularObj(vm.moments);
-			loadMore();
-		}
+		// if(!vm.moments) {
+		// 	vm.moments = [];
+		// }
 
 		vm.initialize();
 
@@ -42,37 +42,11 @@
 			vm.showComments = !vm.showComments;
 		};
 
-		function createVideogularObj(moments) {
-			var sources_array = [];
-			for(var i = 0; i < moments.length; i++) {
-				if(moments[i].media === "video") {
-					sources_array.push( {src: moments[i].nativeurl, type: "video/mp4"} );
-				}
-			}
-			vm.config = {
-		        sources: sources_array,
-		        tracks: [
-		          {
-		            src: "http://www.videogular.com/assets/subs/pale-blue-dot.vtt",
-		            kind: "subtitles",
-		            srclang: "en",
-		            label: "English",
-		            default: ""
-		          }
-		        ],
-		        theme: "lib/videogular-themes-default/videogular.css",
-		        plugins: {
-		          poster: "http://www.videogular.com/assets/images/videogular.png"
-		        }
-		      };
-		};
-
 		function loadMore() {
 			bestMomentsService.loadMore().then(function(moments) {
 				if(moments.length === 0) {
 					vm.stopLoadingData = true;
 				}
-				createVideogularObj(moments);
 				bestMomentsService.momentArray = bestMomentsService.momentArray.concat(moments);
 				vm.moments = vm.moments.concat(moments);
 				$scope.$broadcast('scroll.infiniteScrollComplete');

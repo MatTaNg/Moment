@@ -60,7 +60,7 @@
 					});
 				} 
 				else {
-					return [];
+					return $q.resolve([]);
 				}
 			}, function(error) {
 				var parameters = { userName: userName };

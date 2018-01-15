@@ -55,6 +55,10 @@
  		}
 
  		function upload(file, moment, mimeType) {
+ 			console.log("CORE UPLOAD");
+ 			console.log(file);
+ 			console.log(moment);
+ 			console.log(mimeType);
  			var deferred = $q.defer();
  			if(isValidMimeType(mimeType)) {
 	 			showVideoBanner();
@@ -92,11 +96,9 @@
 	 			}
 	 			else {
 	 				//Its a comment
-					// var blob = new Blob([JSON.stringify(moment)], {type: 'text/plain'});
 					awsServices.upload(file, key, {}, 'text/plain').then(function() {
 						deferred.resolve();
 					});
-	 				// deferred.reject("invalid MetaData");
 	 			}
 	 		}
 	 		else {
@@ -109,8 +111,6 @@
  			var promises = [];
  			return awsServices.getMoments(prefix, startAfter, maxKeys).then(function(moments) {
  				for(var i = 0; i < moments.length; i++) {
- 					// moments[i].key = moments[i].Key;
- 					// moments[i].Key = constants.IMAGE_URL + moments[i].Key;
  					promises.push(getMomentMetaData(moments[i]));
  				}
  				return $q.all(promises);
@@ -134,10 +134,7 @@
  		};
 
  		function getMomentMetaData(moment) {
- 			// if(moment.Key)
- 				return awsServices.getMomentMetaData(common.splitUrlOff(moment.key));
- 			// if(moment.key)
- 				// return awsServices.getMomentMetaData(common.splitUrlOff(moment.key));
+			return awsServices.getMomentMetaData(common.splitUrlOff(moment.key));
  		};
 
 }

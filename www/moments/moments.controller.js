@@ -12,8 +12,6 @@
 		vm.setCoords = setCoords;
 		vm.currentLocation = core.currentLocation;
 		vm.keepFindingLocation = keepFindingLocation;
-		vm.createVideogularObj = createVideogularObj;
-		vm.downloadMoment = downloadMoment;
 
 		vm.cardCSSClass = "layer-hide";
 		vm.swipedLeft = false;
@@ -26,9 +24,9 @@
 		vm.comments = [];
 		vm.moment = {};
 		
-		if(!vm.moments) {
-			vm.moments = [];
-		}
+		console.log("MOMENTS CTRL");
+		console.log(JSON.stringify(vm.moments));
+
 		if((vm.moments.length === 0 ||
 			core.appInitialized === false ||
 			core.didUserChangeRadius) &&
@@ -40,6 +38,10 @@
 				core.appInitialized = true;
 				initialize();
 		}
+
+		// if(!vm.moments) {
+		// 	vm.moments = [];
+		// }
 		if($stateParams.showErrorBanner === true) {
 			$ionicContentBanner.show({
 				text: ["An error has occured"],
@@ -47,32 +49,6 @@
 				autoClose: 3000
 			});
 		}
-
-		function downloadMoment(moment) {
-			downloadManager.downloadToDevice(moment.key).then(function() {
-			});
-		};
-
-		function createVideogularObj(src) {
-			vm.config = {
-		        sources: [
-		          {src: $sce.trustAsResourceUrl(src), type: "video/mp4"},
-		        ],
-		        tracks: [
-		          {
-		            src: "http://www.videogular.com/assets/subs/pale-blue-dot.vtt",
-		            kind: "subtitles",
-		            srclang: "en",
-		            label: "English",
-		            default: ""
-		          }
-		        ],
-		        theme: "lib/videogular-themes-default/videogular.css",
-		        plugins: {
-		          poster: "http://www.videogular.com/assets/images/videogular.png"
-		        }
-		      };
-		};
 
 		function keepFindingLocation() {
 			var keepFindingLocation = $interval(function() {
@@ -132,10 +108,6 @@
 					for(var i = 0; i < moments.length; i++ ) {
 						vm.moments.push(moments[i]);
 					}
-					// vm.moments = vm.moments.concat(moments);
-					if(moments.length > 0 && moments[0].media === 'video') {
-						createVideogularObj(vm.moments[0].nativeurl);
-					}
 					momentsService.setMomentArray(vm.moments);
 					components.hideLoader();
 					vm.moments = momentsService.addExtraClassesandSetTime(vm.moments);
@@ -172,9 +144,6 @@
 				}
 				vm.moments.splice(0, 1);
 				vm.moments = momentsService.addExtraClassesandSetTime(vm.moments);
-				if(vm.moments.length > 0 && vm.moments[0].media === 'video') {
-					createVideogularObj(vm.moments[0].nativeurl);
-				}
 				components.hideLoader();
 				vm.flagClass = "ion-ios-flag-outline";
 

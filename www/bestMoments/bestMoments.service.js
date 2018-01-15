@@ -4,7 +4,9 @@
 	.service('bestMomentsService', ['common', 'core', '$q', 'constants', 'commentManager', 'localStorageManager', bestMomentsService]);
 
 	function bestMomentsService(common, core, $q, constants, commentManager, localStorageManager){
-		this.momentArray = localStorageManager.get('bestMoments');
+		localStorageManager.getAndDownload('bestMoments').then(function(moments) {
+			this.momentArray = moments;
+		});
 		this.initializeView = initializeView;
 		this.loadMore = loadMore;
 		this.convertTime = convertTime;
@@ -33,8 +35,10 @@
 					this.momentArray.push(moments);
 					moments = convertTime(moments);
 					getComments(moments).then(function (momentsWithComments) {
-						localStorageManager.set('bestMoments', moments);
-						deferred.resolve(convertTime(moments));
+						localStorageManager.set('bestMoments', moments).then(function() {
+							console.log("BEST MOMENT INIT FINISHED");	
+							deferred.resolve(convertTime(moments));
+						});
 					});
 				}, function(error) {
 					deferred.reject(error);

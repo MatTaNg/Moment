@@ -9,7 +9,6 @@
     if(notifications.length === 0) {
       notifications = 
       [
-          { id: "ALL", settingsText: "Notifications", notification: true },
           { id: constants.MORE_MOMENTS_FOUND, settingsText: "More Moments are found", notification: true},
           { id: constants.MOMENT_BECOMES_BEST_MOMENT, settingsText: "My Moment is promoted", notification: true},
           { id: constants.USER_REPLIES_TO_MOMENT, settingsText: "My moment is commented", notification: true},
@@ -59,9 +58,6 @@
             notifications[i].notification = toggle;
           }
       }
-      if(id === "ALL") {
-        setNotifications(toggle);
-      }
     };
 
     function setNotifications(bool) {
@@ -72,7 +68,7 @@
         var currentTime = new Date().getTime();
 
         if(currentTime - timeOfLastNotification > constants.TIME_BETWEEN_NOTIFICATIONS) {
-          var id = "42454774-4fe5-4fa7-8d25-d15d09211c2d"; //For Testing
+          if(constants.DEV_MODE) {var id = "42454774-4fe5-4fa7-8d25-d15d09211c2d"; }
           var notificationObj = { contents: {en: msg},
                                   include_player_ids: [id] };
           window.plugins.OneSignal.postNotification(notificationObj,

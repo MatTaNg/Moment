@@ -9,13 +9,9 @@
 		this.initialize = initialize;
 		this.getTotalLikes = getTotalLikes;
 		this.getExtraLikes = getExtraLikes;
-		this.editUserName = editUserName;
 		this.retrieveCommentedOnMoments = retrieveCommentedOnMoments;
 		
-		// this.getComments = getComments;
-
 		this.momentArray = localStorageManager.get('myMoments');
-		this.userName = commentManager.getUserName();
 
 		totalLikes = localStorageManager.get('totalLikes');
 		this.oldLikes = 0;
@@ -49,10 +45,6 @@
 			return commentManager.retrieveCommentsAndAddToMoments(moments);
 		};
 
-		function editUserName(userName) {
-			return commentManager.setUserName(userName);
-		};
-
 		function retrieveCommentedOnMoments() {
 			return commentManager.retrieveCommentedOnMoments(common.getUUID());
 		};
@@ -73,8 +65,8 @@
 				core.getMomentMetaData(moment).then(function(returnedMoment) {
 					if(returnedMoment !== "Not Found") {
 						momentArray = updateMyMomentsWithRecentChanges(momentArray, returnedMoment);
+							callback();
 					}
-					callback();
 				}, function(error) {
 					callback();
 				});
@@ -107,6 +99,7 @@
 						this.momentArray = addShortDescriptionAndTime(this.momentArray);
 						getComments(this.momentArray).then(function(moments) {
 							this.momentArray = moments;
+							console.log("MY MOMENT INIT FINISHED");
 							deferred.resolve(this.momentArray);
 						});
 					});

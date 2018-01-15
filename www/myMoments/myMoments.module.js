@@ -1,1 +1,1 @@
-angular.module('myMoments', ['MyMomentsController', 'myMomentsService'])
+angular.module('myMomentsModule', ['MyMomentsController', 'myMomentsService'])

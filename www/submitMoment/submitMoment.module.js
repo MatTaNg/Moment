@@ -1,1 +1,1 @@
-angular.module('submitMoment', ['app.SubmitMomentController', 'app.submitMomentService'])
+angular.module('submitMomentModule', ['app.SubmitMomentController', 'app.submitMomentService'])

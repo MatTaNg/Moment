@@ -1,13 +1,16 @@
-angular.module('common', 
+angular.module('commonModule', 
 	['permissions', 
 	'notificationManager', 
 	'multipartUpload', 
 	'logger', 
 	'localStorageManager', 
 	'geolocation', 
+	'geolocationService',
 	'downloadManager',
 	'awsServices',
 	'constants',
 	'core',
-	'momentViewDirective',
-	'MomentViewController'])
+	'common',
+	'autoFocus'])
+	// 'momentViewDirective',
+	// 'MomentViewController'])

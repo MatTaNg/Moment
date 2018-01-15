@@ -1,45 +1,28 @@
 (function() {
 	angular.module('MyMomentsController', [])
 
-	.controller('MyMomentsController', ['common', '$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', 'notificationManager', MyMomentsController]);
-	function MyMomentsController(common, $ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager, notificationManager) {
+	.controller('MyMomentsController', ['common', '$ionicLoading', '$sce','core', '$rootScope', 'constants', '$q', 'myMomentsService', '$ionicPopup', 'components', '$scope', 'geolocation', '$ionicContentBanner', 'localStorageManager', MyMomentsController]);
+	function MyMomentsController(common, $ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.remove = remove;
 		vm.feedback = feedback;
 		vm.toggleDescription = toggleDescription;
 		vm.refreshing = refreshing;
-		vm.edit = edit;
-		vm.getCurrentLocation = getCurrentLocation;
-		vm.editLocation = editLocation;
-		vm.watchForLocationChange = watchForLocationChange;
-		vm.stopWatchingForLocationChange = stopWatchingForLocationChange;
-		vm.createVideogularObj = createVideogularObj;
-		vm.editNotifications = editNotifications;
-		vm.toggleNotifications = toggleNotifications;
 		vm.toggleCommentTray = toggleCommentTray;
-		vm.editUserName = editUserName;
 		vm.toggleMomentView = toggleMomentView;
 		vm.viewComments = viewComments;
 
-		vm.moments = localStorageManager.get('myMoments');
+		vm.moments = localStorageManager.get('myMoments') || [];
+		vm.myMoments = localStorageManager.get('myMoments') || [];
 		vm.momentsWithComments = localStorageManager.get('myMomentsWithComments') || [];
-		vm.myMoments = localStorageManager.get('myMoments');
-		vm.userLocation = geolocation.currentLocation.town || "Could not find location";
 		vm.totalLikes = localStorageManager.get('totalLikes');
 		vm.showShortDescription = true;
-		vm.locationErrorMsg = false;
-		vm.distance = localStorageManager.get('momentRadiusInMiles');
-		vm.watchingForLocationChange = true;
 		vm.loading = false;
-		vm.watchID;
 		vm.initRunning = false;
-		vm.notificationText = "Notifications on";
-		vm.notifications = notificationManager.getNotificationStatus();
 		vm.displayCommentTray = false;
 		vm.showCommentSpinner = false;
 		vm.momentView = localStorageManager.get('momentView');
-		vm.userName = myMomentsService.userName;
 
 		vm.showComments = false;
 		vm.moment = {};
@@ -50,6 +33,7 @@
 		}
 
 		initialize();
+
 		if(vm.customUserLocation) {
 			watchForLocationChange();	
 		}
@@ -71,142 +55,8 @@
 			}
 		};
 
-		function editUserName() {
-			var popUp = $ionicPopup.show({
-				template: '<input ng-model="vm.userName" style="width:90%;"> </input>' +
-				'<span style="color: red; font-size:12px" ng-if="vm.userNameTaken">This user name has been taken</span>',
-				title: 'User Name',
-				scope: $scope,
-				buttons: [ 
-				{ text: 'Cancel' },
-				{
-					text: '<b>Submit</b>',
-					type: 'button-positive',
-					onTap: function(e) {
-						e.preventDefault();
-						myMomentsService.editUserName(vm.userName).then(function() {
-							popUp.close();
-						}, function(error) {
-							if(error === "user name taken") {
-								vm.userNameTaken = true;
-							}
-							e.preventDefault();
-						});
-					}
-						
-				}
-				]
-			});
-		};
-		
 		function toggleCommentTray() {
 			vm.displayCommentTray = !vm.displayCommentTray;
-		};
-
-		function stopWatchingForLocationChange() {
-			if(vm.watchID) {
-				navigator.geolocation.clearWatch(vm.watchID);
-			}
-		};
-
-		function watchForLocationChange() {
-			vm.watchID = navigator.geolocation.watchPosition(function(position) {
-				var lat = position.coords.latitude;
-				var lng = position.coords.longitude;
-				geolocation.getLocationFromCoords(lat, lng).then(function(location) {
-					vm.userLocation = location.town;
-				});
-			}, function(error) {
-
-			});
-		};
-
-		$rootScope.$on("$locationChangeStart", function(event, next, current) {
-			if(current.indexOf('myMoments') !== -1) {
-				if(vm.distance !== localStorage.getItem('momentRadiusInMiles')) {
-					localStorage.setItem('momentRadiusInMiles', vm.distance);
-					geolocation.setMomentInRadius(vm.distance);
-				}
-			}
-		});
-
-		$scope.$watch('vm.distance', function() {
-			if(JSON.stringify(vm.distance) !== JSON.stringify(localStorageManager.get('momentRadiusInMiles'))) {
-				geolocation.didUserChangeRadius = true;
-			}
-		});
-
-		function toggleNotifications(item) {
-			if(item.id === "ALL") {
-				for(var i = 0; i < vm.notifications.length; i++) {
-					vm.notifications[i].notification = item.notification;
-				}
-			}
-
-		}
-
-		function editNotifications() {
-			var popUp = $ionicPopup.show({
-				template: '<ion-checkbox ng-repeat="item in vm.notifications" ng-click="vm.toggleNotifications(item)" ng-model="item.notification" ng-checked="item.notification"><span style="font-size: 12px">{{item.settingsText}}</span></ion-checkbox>',
-				title: 'Notification Settings',
-				scope: $scope,
-				buttons: [ 
-				{
-					text: 'Cancel',
-					onTap: function(e) {
-						vm.notifications = localStorageManager.get('notificationStatus');
-					}
-				},
-				{
-					text: '<b>Ok</b>',
-					type: 'button-positive',
-					onTap: function(e) {
-						localStorageManager.set('notificationStatus', vm.notifications);
-						vm.notificationText = "Notifications off";
-						setNotificationValuesBasedOnUserInput(vm.notifications);
-					}
-						
-				}]
-				});
-		};
-
-		function setNotificationValuesBasedOnUserInput(notifications) {
-			for(var i = 0; i < notifications.length; i++) {
-				if(notifications[i].notification === false) {
-					notificationManager.toggleNotification(notifications[i].id, false);
-					// notificationManager.setNotifications(false);
-				}
-				else {
-					notificationManager.toggleNotification(notifications[i].id, true);
-					vm.notificationText = "Notifications on";
-				}
-			}
-		}
-
-		function createVideogularObj(moments) {
-			var sources_array = [];
-			for(var i = 0; i < moments.length; i++) {
-				if(moments[i].media === "video") {
-					sources_array.push( {src: $sce.trustAsResourceUrl(moments[i].nativeurl), type: "video/mp4"} );
-				}
-			}
-			vm.config = {
-		        sources: sources_array,
-		        preload: "preload",
-		        tracks: [
-		          {
-		            src: "http://www.videogular.com/assets/subs/pale-blue-dot.vtt",
-		            kind: "subtitles",
-		            srclang: "en",
-		            label: "English",
-		            default: ""
-		          }
-		        ],
-		        theme: "lib/videogular-themes-default/videogular.css",
-		        plugins: {
-		          poster: "http://www.videogular.com/assets/images/videogular.png"
-		        }
-		      };
 		};
 
 		function refreshing() {
@@ -239,7 +89,7 @@
 
 		function findAndSetTheUsersLocation() {
 			if(!geolocation.customUserLocation) {
-				geolocation.getLocation();
+				geolocation.setLocation();
 			}
 		};
 
@@ -251,7 +101,6 @@
 				for(var i = 0; i < vm.moments.length; i++ ){
 					vm.moments[i].time = common.timeElapsed(vm.moments[i].time);
 				}
-				createVideogularObj(vm.moments);
 			}
 		};
 
@@ -282,7 +131,6 @@
 						vm.myMoments = moments;
 						vm.totalLikes = myMomentsService.getTotalLikes();
 						vm.extraLikes = myMomentsService.getExtraLikes();
-						createVideogularObj(moments);
 						turnOffAllLoadingIndicators();
 						initializeMomentsBasedOnLocalStorage();
 					} else {
@@ -348,91 +196,6 @@
 			} else {
 				image.showShortDescription = true;
 			}
-		};
-
-		function getCurrentLocation() {
-			components.showLoader().then(function() {
-				geolocation.getLocation().then(function(location) {
-					vm.watchingForLocationChange = location.town;
-					vm.customUserLocation = location.town;
-					components.hideLoader();
-				}, function(error) {
-					components.hideLoader();
-					$ionicContentBanner.show({
-						text: [constants.LOCATION_NOT_FOUND_TXT],
-						type: "error",
-						autoClose: 3000
-					})
-				});
-			})
-		};
-
-		function edit(editing) {
-			var popUp = $ionicPopup.show({
-				template: '<input ng-model="vm.customUserLocation" placeholder="City, State OR Zip" value="vm.userLocation" style="width:90%;"> </input>' +
-				'<span ng-click="vm.getCurrentLocation()" class="ion-location" style="margin-left: 5px; font-size: 25px"></span>' +
-				'<span style="color: red; font-size:12px" ng-if="vm.locationErrorMsg">We could not find this location</span>',
-				title: 'Location',
-				scope: $scope,
-				buttons: [ 
-				{ text: 'Cancel' },
-				{
-					text: '<b>Submit</b>',
-					type: 'button-positive',
-					onTap: function(e) {
-						if(!vm.customUserLocation) { 
-								//Does nothing if user has not entered anything
-								e.preventDefault();
-							}
-							else {
-								e.preventDefault();
-								vm.editLocation(vm.customUserLocation).then(function() {
-									popUp.close();
-								}, function(error) {
-									e.preventDefault();
-								});
-							};
-						}
-						
-					}
-					]
-				});
-		};
-
-		function editLocation() {
-			var deferred = $q.defer();
-			if(vm.customUserLocation.length > 3) {
-				components.showLoader()
-				.then(function() {
-					if(vm.watchingForLocationChange === vm.customUserLocation) {
-						watchForLocationChange();						
-					}
-					else {
-						stopWatchingForLocationChange();
-					}
-					geolocation.getLocation(vm.customUserLocation).then(function(response) {
-						components.hideLoader().then(function() {
-							vm.userLocation = response.town;
-							vm.customUserLocation = "";
-							vm.locationErrorMsg = false;
-							deferred.resolve();
-						});
-					}, function(error) {
-						components.hideLoader().then(function() {
-							vm.locationErrorMsg = true;
-							deferred.reject();
-						});
-					});	
-				})
-
-			}
-			else {
-				components.hideLoader().then(function() {
-					vm.locationErrorMsg = true;
-					deferred.reject();
-				});
-			}
-			return deferred.promise;
 		};
 
 		function feedback() {

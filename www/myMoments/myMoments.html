@@ -11,45 +11,13 @@
 		<div class="totalLikesText">{{vm.totalLikes}}<span class="totalNumberOfExtraLikes" ng-if="vm.extraLikes > 0"> (+{{vm.extraLikes}})</span></div>
 		<br>
 		<hr class="horizontalRule">
-		<div class="row">
-			<div class="col-75">
-				<div class="location">UserName: {{vm.userName}}</div>
-			</div>
-			<div class="col">
-				<button class="editButton col button button-energized " ng-click="vm.editUserName(true)" ng-hide="vm.editing">Edit
-				</button>
-			</div>
-		</div>
+			<mng-user-name></mng-user-name>
 		<hr class="horizontalRule">
-		<div class="row">
-			<div class="col-75">
-				<div class="location">{{vm.userLocation}}</div>
-			</div>
-			<div class="col">
-				<button class="editButton col button button-energized " ng-click="vm.edit(true)"  ng-hide="vm.editing">Edit
-				</button>
-			</div>
-		</div>
+			<mng-user-location></mng-user-location>
 		<hr class="horizontalRule">
-		<div class="row">
-			<div class="col">
-				<span class="searchRadiusText">Search Radius:</span><br>
-				<div class = "radiusRange item range range-energized">
-						<i>5</i>
-						<input type = "range" name = "range" min="5" max="50" ng-model="vm.distance">
-						<i> {{vm.distance}} Miles</i>
-				</div>
-			</div>
-		</div>  
+			<mng-user-radius></mng-user-radius>
 		<hr class="horizontalRule">
-		<div class="row">
-			<div class="col-75">
-				<div class="location">{{vm.notificationText}}</div>
-			</div>
-			<div class="col">
-				<button class="editButton col button button-energized " ng-click="vm.editNotifications()"  ng-hide="vm.editing">Edit</button>
-			</div>
-		</div>
+			<mng-user-notifications></mng-user-notifications>
 		<hr>
 	<br>
 	
@@ -61,8 +29,6 @@
 		<div class="toggleText"> Show My Comments </div>
 	</label>
 
-<!-- 	<button data-ng-if="vm.momentView" data-ng-click="vm.toggleMomentView()">Moments</button>
-	<button data-ng-if="!vm.momentView" data-ng-click="vm.toggleMomentView()">Comments</button> -->
 	<hr>
 	<div data-ng-if="vm.momentView && vm.moments.length > 0">
 		<div class="momentsTitleText">Moments I have commented on
@@ -80,59 +46,8 @@
 	<ion-list ng-if="vm.loading === false">
 	<div ng-repeat="moment in vm.moments">
 		<mng-moment-view></mng-moment-view>
-		<!-- <div data-ng-if="!vm.displayCommentTray"> -->
-			<!-- <div data-ng-if="vm.config.sources"> -->
-				<!--<div class="ion-android-close" class="margin-right" data-ng-click="vm.remove(image)"></div>
-				<div class="momentLocation">{{image.location}}
-					<span ng-if="image.bestmoment" class="ion-ios-star"> </span>
-				</div>
-			<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
-
-				  <div data-ng-if="image.media === 'video'" class="videoBox">
-				    <videogular vg-theme="vm.config.theme">
-				      <vg-media vg-src="vm.config.sources" 
-				          vg-tracks="vm.config.tracks"
-				          vg-native-controler="true">
-				      </vg-media>
-
-				      <vg-controls>
-				        <vg-play-pause-button></vg-play-pause-button>
-				        <vg-time-display>{{ currentTime | date:'mm:ss' }}</vg-time-display>
-				        <vg-scrub-bar>
-				          <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-				        </vg-scrub-bar>
-				        <vg-time-display>{{ timeLeft | date:'mm:ss' }}</vg-time-display>
-				        <vg-volume>
-				          <vg-mute-button></vg-mute-button>
-				          <vg-volume-bar></vg-volume-bar>
-				        </vg-volume>
-				        <vg-fullscreen-button></vg-fullscreen-button>
-				      </vg-controls>
-				 
-				      <vg-overlay-play></vg-overlay-play>
-				      <vg-poster vg-url='config.plugins.poster'></vg-poster>
-				    </videogular>
-				  </div>
-
-				<div class="row row-no-padding">
-					<div class="col">
-						<img src="img/logo.png" width="25px" height"25px" class="myMoments_likesImage"></img>		
-						<div ng-show="image.likes" class="likes">{{image.likes}}</div>
-					</div>
-					<div class="col">
-						<div class="ion-ios-clock-outline time">{{image.time}}</div>
-					</div>
-				</div>
-				<div class="row row-no-padding">
-					<div class="col">
-						<div class="description">{{image.description}}</div>
-					</div>
-				</div>
-				<br>
-				<div data-ng-click="vm.viewComments(image)">Comments</div>
-			<!-- </div> End of config sources -->
-			<hr>
 			<br>
+			<hr>
 		<!-- </div> --> <!--End of displayCommentTray-->
 	</div> <!--End of ng-repeat -->
 	<div data-ng-if="vm.initRunning === true">

@@ -11,7 +11,6 @@
  		vm.removeFromBestMoments = removeFromBestMoments;
 		vm.populateMomentObj = populateMomentObj;
 		vm.getComment = getComment;
- 		vm.getUUID = getUUID;
 
  		vm.appInitialized = false;
  		vm.moments = [];
@@ -115,7 +114,8 @@
 				onesignalid: moment.onesignalid,
 				bestmoment: moment.bestmoment,
 				commentids: moment.commentids,
-				comments: moment.comments
+				comments: moment.comments,
+				creator: moment.creator
 			};
 		};
 
@@ -148,8 +148,12 @@
 			}
 			awsServices.copyObject(copySource, copySource, moment, "REPLACE").then(function() {
 				moment.key = moment.key.replace(/\/moment\/../, "/bestMoments");
+				awsServices.getObject(splitUrlOff(moment.key)).then(function(data) {
+					if(data === 'Not Found') {
+						notificationManager.notifyUploadToBestMoments(moment.onesignalid, constants.MOMENT_BECOMES_BEST_MOMENT);			
+					}
+				});
 				awsServices.copyObject(key, copySource, moment, "REPLACE");
-				notificationManager.notifyUploadToBestMoments(moment.onesignalid, constants.MOMENT_BECOMES_BEST_MOMENT);	
 			});
  		};
 
