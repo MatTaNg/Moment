@@ -9,60 +9,7 @@
 		<td-cards>
 		<td-card on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)" on-touch="vm.setCoords()"
 		on-partial-swipe="cardPartialSwipe(amt)" class = "{{moment.class}}">
-
 		<mng-moment-view></mng-moment-view>
-
-				<!--<img data-ng-if="image.media === 'picture'" src="{{image.key}}" height="80%" width="100%"></img>
-
-				<div data-ng-if="image.media === 'video'"class="videoBox">
-					<videogular vg-theme="vm.config.theme">
-						<vg-media vg-src="vm.config.sources"
-								vg-tracks="vm.config.tracks"
-								vg-native-controler="true">
-						</vg-media>
-
-						<vg-controls>
-							<vg-play-pause-button></vg-play-pause-button>
-							<vg-time-display>{{ currentTime | date:'mm:ss' }}</vg-time-display>
-							<vg-scrub-bar>
-								<vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-							</vg-scrub-bar>
-							<vg-time-display>{{ timeLeft | date:'mm:ss' }}</vg-time-display>
-							<vg-volume>
-								<vg-mute-button></vg-mute-button>
-								<vg-volume-bar></vg-volume-bar>
-							</vg-volume>
-							<vg-fullscreen-button></vg-fullscreen-button>
-						</vg-controls>
-			 
-						<vg-overlay-play></vg-overlay-play>
-						<vg-poster vg-url='config.plugins.poster'></vg-poster>
-					</videogular>
-				</div>
-
-				<div class="row row-no-padding">
-					<div class="col">
-						<img src="img/logo.png" width="25px" height"25px" class="likesIcon"></img>
-						<div ng-show="image.likes" class="momentLikes">{{image.likes}}</div>
-					</div>
-					<div class="col">
-						<div class="ion-ios-clock-outline momentTime">{{image.time}}</div>
-					</div>
-				</div>
-				<div class="row row-no-padding">
-					<div class="col">
-						<div class="momentLocation">{{image.location}}</div>
-					</div>
-				</div>
-				<img src="img/Liked.png" ng-show="image.swipedRight" width="100px" height="100px"class="on-drag-liked {{image.animate}}"></img>
-				<img src="img/Next.png" ng-show="image.swipedLeft" class="on-drag-next {{image.animate}}"></img>
-				<hr>
-				<div class="descriptionBox">
-					<span ng-show="image.description">{{ image.description }}  </span>
-					<div ng-hide="image.description" class="noDescription">No Description Found</div>
-					<div class="view-comments-link" ng-click="vm.viewComments()">View {{image.comments.length}} Comments</div>
-					<div class="{{vm.flagClass}}" ng-click="vm.flagged()"> </div>
-				</div>-->
 		</td-card>
 		</td-cards>
 	</span> <!--End of ng-repeat-->

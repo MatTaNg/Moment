@@ -9,14 +9,33 @@
 		this.remove = remove;
 		this.set = set;
 		this.addandDownload = addandDownload;
+		this.getAndDownload = getAndDownload;
 		localStorage.setItem('momentRadiusInMiles', JSON.stringify(25));
 		localStorage.setItem('totalLikes', "0");
+
+		function getAndDownload(storage) {
+			var deferred = $q.defer();
+			if(localStorage.getItem(storage) !== null && localStorage.getItem(storage) !== "undefined") {
+				try {
+					var moments = JSON.parse(localStorage.getItem(storage));
+					downloadManager.downloadFiles(moments).then(function(moments) {
+						deferred.resolve(moments);
+					});
+				} catch(e) {
+					deferred.resolve(localStorage.getItem(storage));
+				}
+			}
+			else {
+				localStorage.setItem(storage, JSON.stringify([]));
+				deferred.resolve([]);
+			}
+			return deferred.promise;
+		};
 
 		function get(storage) {
 			if(storage !== 'timeSinceLastMoment') {
 				//console logs here
 			}
-
 			if(localStorage.getItem(storage) !== null && localStorage.getItem(storage) !== "undefined") {
 				convertStringToBooleanValue(localStorage.getItem(storage));
 				try {
@@ -60,11 +79,14 @@
 			var deferred = $q.defer();
 			if(items && typeof items === 'object' && items.constructor === Array) {
 				if(items.length > 0 && verifyMetaData(items[0])) { //Is an array of Moments
-					downloadFile(storage, items).then(function(moment) {
-						localStorage.setItem(storage, JSON.stringify(moment));
-						deferred.resolve(moment);
+					downloadFile(storage, items).then(function(moments) {
+						console.log("@@@DOWNLAOD COMPLETE");
+						console.log(JSON.stringify(moments));
+						console.log(moments[0].nativeurl);
+						localStorage.setItem(storage, JSON.stringify(moments));
+						deferred.resolve(moments);
 					}, function(error) {
-						localStorage.setItem(storage, JSON.stringify(moment));
+						localStorage.setItem(storage, JSON.stringify(moments));
 						deferred.reject(error);
 					}); 
 				}
@@ -107,6 +129,8 @@
 				storage === 'bestMoments' ||
 				storage === 'myMoments') {
 				downloadManager.downloadFiles(items).then(function(moments) {
+					console.log("!!!!");
+					console.log()
 					deferred.resolve(moments);
 				});
 			}

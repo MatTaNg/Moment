@@ -121,11 +121,11 @@
 
   function updateMomentObject() {
     if(vm.location) {
-      vm.moment.location = core.currentLocation.town;
+      vm.moment.location = geolocation.currentLocation.town;
     }
     vm.moment.time = new Date().getTime().toString();
     vm.moment.description = vm.moment.description;
-    var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + core.currentLocation.state + '/' + core.currentLocation.lat + '_' + core.currentLocation.lng;
+    var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + geolocation.currentLocation.state + '/' + geolocation.currentLocation.lat + '_' + geolocation.currentLocation.lng;
     if(vm.isPicture) {
       vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
       vm.moment.media = "picture";

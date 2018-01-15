@@ -64,6 +64,7 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 .videoBox {
   width: 100%; 
   height: 300px;
+  padding-bottom: 5px;
 }
 
 /**General **/
@@ -130,7 +131,9 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   width: 95%;
   height: 95%;
   background-color: white;
-  padding: 10px;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
@@ -140,7 +143,9 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   width: 95%;
   height: 95%;
   background-color: white;
-  padding: 10px;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
@@ -148,19 +153,27 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   display: none;
 }
 .ion-ios-flag { 
-  position:fixed;
+  /*position:fixed;
   left: 92%;
   top: 93%;
   width:75%;
   font-size: 30px;
-  color: red;
+  color: red;*/
+  position: relative; 
+  bottom: 10px;
+  right: 10px;  
+  font-size: 30px;
 }
 .ion-ios-flag-outline {
-  position:fixed;
+  /*position:fixed;
   left: 92%;
   top: 93%;
   width:75%;
-  font-size: 30px;
+  font-size: 30px;*/
+    position: relative; 
+  bottom: 0%;
+  right: -55%; 
+   font-size: 30px; 
 }
 .ion-archive {
   position:fixed;
@@ -180,7 +193,12 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   padding-top: 10%;
   z-index: -1;
 }
+
 /**My Moment**/
+  /**User Notifications**/
+  .notificationsFont{
+    font-size: 12px
+  }
 .myMoments_description{
   white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
   white-space: -pre-wrap;      /* Opera 4-6 */
@@ -345,7 +363,7 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 /* Comments */
 .view-comments-link {
   /*margin-top: 28%;*/
-  position: absolute; 
-  bottom: 10px;
-  left: 10px;  
+  position: relative; 
+  left: 0%;  
+  float: left;
 }

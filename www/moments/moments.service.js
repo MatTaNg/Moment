@@ -6,20 +6,19 @@
 	function momentsService(common, core, $q, constants, logger, geolocation, awsService, localStorageManager, commentManager){
 		var that = this;
 
-		this.momentArray = localStorageManager.get('moments');
+		localStorageManager.getAndDownload('moments').then(function(moments) {
+			this.momentArray = moments;
+		})
 
 		this.initializeView = initializeView;
 		this.updateMoment = updateMoment;
 		this.uploadReport = uploadReport;
-		this.getNearbyMoments = getNearbyMoments;
 		this.addExtraClassesandSetTime = addExtraClassesandSetTime;
 		this.setMomentArray = setMomentArray;
 		this.getStartAfterKey = getStartAfterKey;
 		this.removeMomentFromLocalStorage = removeMomentFromLocalStorage;
 		
 		//Helper Functions
-		this.isMomentWithRadius = isMomentWithRadius;
-		// this.incrementCounter = incrementCounter;
 		this.checkAndDeleteExpiredMoments = checkAndDeleteExpiredMoments;
 		this.deleteOrUploadToBestMoments = deleteOrUploadToBestMoments;
 		this.updateMomentMetaDataForUpload = updateMomentMetaDataForUpload;
@@ -39,43 +38,6 @@
 			this.momentArray = moments;
 		};
 
-		function getNearbyMoments(currentMoments) {
-			var getLocation = geolocation.getLocation;
-			var calculateNearbyStates = geolocation.calculateNearbyStates;
-			var getMomentsByState = geolocation.getMomentsByState;
-			var concatMoments = function(moments) {
-				for(var i = 0; i < moments.length; i++) {
-					// Take out any empty arrays
-					if(moments[i].length === 0) {
-						moments.splice(i, 1);
-					} else {
-						i++;
-					}
-				}
-				var deferred = $q.defer();
-				if(moments.length !== 0 ){
-					deferred.resolve(moments[0]); //Object returns as [[{}]], fixing this.
-				} else {
-					deferred.resolve(moments);
-				}
-				return deferred.promise;
-			};
-			var getMomentsWithinRadius = geolocation.getMomentsWithinRadius;
-			if(!geolocation.customLocation) {
-				return geolocation.getLocation()
-				.then(calculateNearbyStates)
-				.then(getMomentsByState.bind(null, startAfterKey))
-				.then(concatMoments)
-				.then(getMomentsWithinRadius)
-			}
-			else {
-				return calculateNearbyStates()
-					.then(getMomentsByState.bind(null, startAfterKey))
-					.then(concatMoments)
-					.then(getMomentsWithinRadius)		
-			}
-		};
-
 		function removeMomentsWithUsersUUID(moments) {
 			for(var i = 0; i < moments.length; i) {
 				if(moments[i].uuids.split(" ").indexOf(common.getUUID()) !== -1) {
@@ -88,13 +50,13 @@
 
 		function initializeView() {
 			var deferred = $q.defer();
-			var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
 			var checkAndDeleteExpiredMoments = this.checkAndDeleteExpiredMoments;
+			var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
 			var temp = this.momentArray;
 			didUserDoTutorial().then(function(data) {
 				this.momentArray = temp;
 				if(!data) {
-					getNearbyMoments(this.momentArray)
+					geolocation.getMomentsAroundUser(startAfterKey)
 					.then(checkAndDeleteExpiredMoments)
 					.then(deleteOrUploadToBestMoments)
 					.then(commentManager.retrieveCommentsAndAddToMoments)
@@ -106,12 +68,12 @@
 							startAfterKey = ""; //This tells the controller to stop calling initialize
 						}
 						removeMomentsWithUsersUUID(moments);
-						var temp = createTempVariable(moments);
+						// var temp = createTempVariable(moments);
 						core.didUserChangeRadius = false;
 						// temp = addExtraClassesandSetTime(temp);
 						if(moments.length > 0) {
-							localStorageManager.addandDownload('moments', temp).then(function() {
-								deferred.resolve(temp);			
+							localStorageManager.addandDownload('moments', moments).then(function() {
+								deferred.resolve(moments);			
 							});
 						}
 						else {
@@ -163,23 +125,6 @@
 			return core.edit(updatedMoment);
 		};
 
-		// function incrementCounter(){
-		// 	var deferred = $q.defer();
-		// 	var temp = createTempVariable(this.momentArray);
-		// 	if(this.momentArray.length > 0) {
-		// 		deferred.resolve(temp); 
-		// 	}
-		// 	else {
-		// 		that.initializeView().then(function(moments) {
-		// 		// initializeView().then(function(moments) {
-		// 			deferred.resolve(moments);
-		// 		}, function(error) {
-		// 			deferred.reject();
-		// 		});
-		// 	}
-		// 	return deferred.promise;
-		// };
-
 //Helper functions
 
 function updateMomentMetaDataForUpload(moment, liked) {
@@ -225,6 +170,8 @@ function deleteOrUploadToBestMoments(moments) {
 };
 
 function checkAndDeleteExpiredMoments(moments) {
+	console.log("CHECK AND DELETE checkAndDeleteExpiredMoments");
+	console.log(moments);
 	var deferred = $q.defer();
 	var tempMoments = createTempVariable(moments);
 	currentTime = new Date().getTime(),
@@ -281,7 +228,7 @@ function addExtraClassesandSetTime(moments) {
 function getMomentsOnlyWithinRadius(moments){
 	var momentsInStates = [];
 	for(var i = 0; i < moments.length; i++) {
-		if(isMomentWithRadius(moments[i].Key)) { //The first key listed is always the folder, skip that.
+		if(geolocation.isMomentWithRadius(moments[i].Key)) { //The first key listed is always the folder, skip that.
 			momentsInStates.push(moments[i]);
 		}
 	}
@@ -290,30 +237,6 @@ function getMomentsOnlyWithinRadius(moments){
 
 function removeMomentFromLocalStorage(moment) {
 	localStorageManager.remove('moments', moment);
-};
-
-function extractCoordinatesFromKey(key) {
-	var lat = 0;
-	var lng = 0;
-	var coordinates = key.split('/')[key.split('/').length - 1];
-	coordinates = coordinates.split('_');
-	lat = coordinates[0].trim();
-	lng = coordinates[1].trim();
-	var result = {latitude: lat, longitude: lng};
-	return result;
-};
-
-function isMomentWithRadius(key) {
-	var coordinates = extractCoordinatesFromKey(key);
-	var lat = coordinates.latitude;
-	var lng = coordinates.longitude;
-	if((lat < geolocation.max_north.lat && lat > geolocation.max_south.lat) &&
-		(lng > geolocation.max_west.lng && lng < geolocation.max_east.lng )) {
-		return true;
-	}
-	else {
-		return false;
-	}
 };
 
 function createTempVariable(moments) {

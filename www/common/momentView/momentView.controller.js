@@ -1,13 +1,67 @@
 (function() {
 	angular.module('MomentViewController', [])
 
-	.controller('MomentViewController', ['$scope', 'commentManager', MomentViewController]);
-	function MomentViewController ($scope, commentManager) {
+	.controller('MomentViewController', ['downloadManager', '$sce' ,'common', '$scope', 'commentManager', MomentViewController]);
+	function MomentViewController (downloadManager, $sce, common, $scope, commentManager) {
 		var vm = this;
 		$scope.flagClass = "ion-ios-flag-outline";
 		$scope.updateComment = updateComment;
 		$scope.vm.viewComments = viewComments;
 		$scope.vm.flagged = flagged;
+		$scope.vm.createVideogularObj = createVideogularObj;
+
+		$scope.vm.commentsAndRepliesQuantity = 0;
+		$scope.vm.flag = true
+		initialize();
+
+		function createVideogularObj() {
+			if($scope.vm.moments.length > 0 && $scope.vm.moments[0].media === 'video') {
+				createVideogularObj($scope.vm.moments[0].nativeurl);
+			}
+		}
+
+		function setFlagBasedOnUsersUUID() {
+			if($scope.moment.creator.includes(common.getUUID())) {
+				$scope.vm.flag = false;
+			}
+		};
+
+		function setCommentsAndRepliesQuantity() {
+			for(var x = 0; x < $scope.vm.moments.length; x++){
+				for(var y = 0; y < $scope.vm.moments[x].comments.length; y++) {
+					console.log($scope.vm.moments[x]);
+					console.log("Y", y);
+					$scope.vm.commentsAndRepliesQuantity = $scope.vm.commentsAndRepliesQuantity + $scope.vm.moments[x].comments[y].replies.length;
+				}
+			}
+		};
+
+		function initialize() {
+			setFlagBasedOnUsersUUID();
+			createVideogularObj();
+			setCommentsAndRepliesQuantity();
+		};
+
+		function createVideogularObj(src) {
+			$scope.vm.config = {
+		        sources: [
+		          {src: $sce.trustAsResourceUrl(src), type: "video/mp4"},
+		        ],
+		        tracks: [
+		          {
+		            src: "http://www.videogular.com/assets/subs/pale-blue-dot.vtt",
+		            kind: "subtitles",
+		            srclang: "en",
+		            label: "English",
+		            default: ""
+		          }
+		        ],
+		        theme: "lib/videogular-themes-default/videogular.css",
+		        plugins: {
+		          poster: "http://www.videogular.com/assets/images/videogular.png"
+		        }
+		     };
+		};
 
 		function updateComment(comment) {
 			commentManager.updateComment(comment, this.momentArray);

@@ -55,6 +55,7 @@
 		};
 
 		function downloadFiles(moments) {
+			moments = [].concat(moments || []);
 			var deferred = $q.defer();
 			var x = 0;
 			var downloaded_Moments = []; 
@@ -64,9 +65,7 @@
 					uniqueKey = temp[temp.length - 1];
 					var fileURL = cordova.file.externalDataDirectory + 'moments' + new Date().getTime() + '/';
 					$cordovaFileTransfer.download(moment.key, fileURL, {}, true).then(function(result) {
-						// {src: $sce.trustAsResourceUrl(src), type: "video/mp4"},
-						moment.nativeurl = $sce.trustAsResourceUrl(result.nativeURL);
-						console.log(moment);
+						moment.nativeurl = result.nativeURL;
 						downloaded_Moments.push(moment);
 						callback();
 					}, function(error) {
@@ -82,6 +81,7 @@
 					deferred.resolve(downloaded_Moments);
 				});
 			} else {
+				console.log("ELSE");
 				var parameters = {
 					moments: moments,
 					cordovaFile: cordova.file

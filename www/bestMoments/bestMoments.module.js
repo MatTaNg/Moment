@@ -1,1 +1,1 @@
-angular.module('bestMoments', ['app.BestMomentsController', 'app.bestMomentsService'])
+angular.module('bestMomentsModule', ['app.BestMomentsController', 'app.bestMomentsService'])

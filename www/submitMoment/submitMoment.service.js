@@ -16,9 +16,11 @@
 
 		//Untested
 		function uploadToAWS(media, moment) {
+			console.log("UPLAOD TO AWS");
 			core.aVideoIsUploading = true;
 			var deferred = $q.defer();
 			if(!(media.includes(".mp4"))) { //Its a picture
+				console.log("PICTURE");
 				var blob = new Blob([this.dataURItoBlob(media)], {type: 'image/jpeg'});
 				core.upload(blob, moment, "image/jpg").then(function() {
 					localStorageManager.addandDownload('myMoments', moment);
@@ -27,11 +29,15 @@
 				});
 			} 
 			else {
+				console.log("VIDEO");
+				console.log(media);
+				console.log(moment);
 		        var xhr = new XMLHttpRequest();
 		        xhr.open("GET", media);
 		        xhr.responseType = "arraybuffer";
 		        xhr.addEventListener('load', function() {
 		        	core.upload(xhr.response, moment, "video/mp4").then(function() {
+		        		localStorageManager.addandDownload('myMoments', moment);
 						deferred.resolve(moment);
 		        	});
 		        });

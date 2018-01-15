@@ -1,4 +1,4 @@
-angular.module('app.routes', ['bestMoments', 'moments', 'myMoments', 'comments', 'submitMoment', 'app.IndexController'])
+angular.module('app.routes', ['bestMomentsModule', 'momentsModule', 'myMomentsModule', 'commentsModule', 'submitMomentModule', 'app.IndexController', 'commonModule'])
 
 .config(function($stateProvider, $urlRouterProvider) {
 

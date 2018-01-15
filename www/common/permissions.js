@@ -9,11 +9,14 @@
  		vm.requestPermissions = requestPermissions;
 
  		function checkPermission(permission) {
- 			if(cordova) {
+ 			if(cordova.plugins) {
 	 			var permissions = cordova.plugins.permissions;
 	 			if(permission === "location") {
 	 				return requestPermissions(permissions);
 	 			}
+ 			}
+ 			else {
+ 				return $q.reject();
  			}
  		};
 
