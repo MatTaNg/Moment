@@ -27,6 +27,13 @@ angular.module('app.routes', ['bestMomentsModule', 'momentsModule', 'myMomentsMo
     params: {
       showErrorBanner: false
     },
+    // views: {
+    //   'bestMoments': {
+    //     templateUrl: 'bestMoments/bestMoments.html',
+    //     controller: 'BestMomentsController',
+    //     controllerAs: 'vm'
+    //   }
+    // }
     views: {
       'moments': {
         templateUrl: 'moments/moments.html',

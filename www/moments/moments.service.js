@@ -68,9 +68,7 @@
 							startAfterKey = ""; //This tells the controller to stop calling initialize
 						}
 						removeMomentsWithUsersUUID(moments);
-						// var temp = createTempVariable(moments);
 						core.didUserChangeRadius = false;
-						// temp = addExtraClassesandSetTime(temp);
 						if(moments.length > 0) {
 							localStorageManager.addandDownload('moments', moments).then(function() {
 								deferred.resolve(moments);			
