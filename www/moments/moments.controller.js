@@ -1,8 +1,8 @@
 (function() {
 	angular.module('app.MomentsController', [])
 
-	.controller('MomentsController', ['geolocation', 'downloadManager', '$sce', 'momentsService', '$stateParams', '$ionicContentBanner', 'core', 'components', '$q', '$window', 'constants', '$interval', 'localStorageManager', 'notificationManager', '$timeout', MomentsController]);
-	function MomentsController (geolocation, downloadManager, $sce, momentsService, $stateParams, $ionicContentBanner, core, components, $q, $window, constants, $interval, localStorageManager, notificationManager, $timeout) {
+	.controller('MomentsController', ['geolocation', 'momentsService', '$stateParams', '$ionicContentBanner', 'core', 'components', '$q', '$window', 'constants', '$interval', 'localStorageManager', 'notificationManager', '$timeout', MomentsController]);
+	function MomentsController (geolocation, momentsService, $stateParams, $ionicContentBanner, core, components, $q, $window, constants, $interval, localStorageManager, notificationManager, $timeout) {
 		var vm = this;
 		vm.moments = localStorageManager.get('moments');
 		vm.liked = liked;		
@@ -27,10 +27,9 @@
 		console.log("MOMENTS CTRL");
 		console.log(JSON.stringify(vm.moments));
 
-		if((vm.moments.length === 0 ||
+		if(vm.moments.length === 0 ||
 			core.appInitialized === false ||
-			core.didUserChangeRadius) &&
-			cordova.plugins) {
+			core.didUserChangeRadius) {
 				vm.loadingMoments = true;
 				vm.moments = [];
 				momentsService.setMomentArray([]);

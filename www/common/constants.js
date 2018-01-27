@@ -15,7 +15,6 @@
 		"REPORT_FILES": ['bugs.txt', 'errors.txt', 'feedback.txt', 'flagged.txt', 'logs.txt'],
 
 		//Paths
-		"IMAGE_URL": 'https://s3.amazonaws.com/' + "mng-moment" + '/',
 		"MOMENT_PREFIX": "moment/",
 		"BEST_MOMENT_PREFIX": "bestMoments/",
 		"FEEDBACK_PREFIX": "reports/feedback/",

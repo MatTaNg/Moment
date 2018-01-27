@@ -1,4 +1,5 @@
-	<img data-ng-if="moment.media === 'picture'" src="{{moment.key}}" height="80%" width="100%"></img>
+<div>
+	<img data-ng-if="moment.media === 'picture'" src="{{vm.AWSurl + moment.key}}" height="auto" width="100%"></img>
 
 	<!--Video Begin-->
 	<div data-ng-if="moment.media === 'video'" class="videoBox">
@@ -45,13 +46,12 @@
 	<img src="img/Liked.png" ng-show="moment.swipedRight" width="100px" height="100px"class="on-drag-liked {{moment.animate}}"></img>
 	<img src="img/Next.png" ng-show="moment.swipedLeft" class="on-drag-next {{moment.animate}}"></img>
 	<hr>
-	<div>
-		<div style="height: 130px;">
-			<div ng-show="moment.description">{{ moment.description }}  </div>
-			<div ng-hide="moment.description" class="noDescription">No Description Found</div>
-		</div>
-		<!-- <div data-ng-click="vm.navToComments()">Comments</div> -->
-		<div ng-click="vm.viewComments()"> {{vm.commentsAndRepliesQuantity}} Comments</div>
-		<div data-ng-if="vm.flag" class="{{flagClass}}" ng-click="flagged()"> </div>
-		<!--<div class="ion-archive" ng-click="vm.downloadMoment(image)"> </div>-->
+	<div style="height: 6em;">
+		<div ng-show="moment.description">{{ moment.description }}  </div>
+		<div ng-hide="moment.description" class="noDescription">No Description Found</div>
 	</div>
+	<!-- <div data-ng-click="vm.navToComments()">Comments</div> -->
+	<div ng-click="vm.viewComments()"> {{vm.commentsAndRepliesQuantity}} Comments</div>
+	<div data-ng-if="vm.flag" class="{{flagClass}}" ng-click="flagged()"> </div>
+	<!--<div class="ion-archive" ng-click="vm.downloadMoment(image)"> </div>-->
+</div>	

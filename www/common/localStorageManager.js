@@ -80,9 +80,6 @@
 			if(items && typeof items === 'object' && items.constructor === Array) {
 				if(items.length > 0 && verifyMetaData(items[0])) { //Is an array of Moments
 					downloadFile(storage, items).then(function(moments) {
-						console.log("@@@DOWNLAOD COMPLETE");
-						console.log(JSON.stringify(moments));
-						console.log(moments[0].nativeurl);
 						localStorage.setItem(storage, JSON.stringify(moments));
 						deferred.resolve(moments);
 					}, function(error) {
@@ -172,7 +169,6 @@
 				//   	}
 				//   }
 				// }
-				logger.logFile('core.verifyMetaData', {Moment: moment}, '', 'errors.txt');
 				return false;
 			}
 		};  

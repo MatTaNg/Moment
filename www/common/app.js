@@ -37,11 +37,9 @@ angular.module('app', ['ionic',
   'app.IndexController',
   'UserRadiusController',
   'userRadiusDirective'
-
-
-
   // ]) //Uncomment to test
-  ,'jett.ionic.content.banner', 'ionic.contrib.ui.tinderCards',
+  ,'jett.ionic.content.banner', 
+  'ionic.contrib.ui.tinderCards',
   "ngSanitize",
   "com.2fdevs.videogular",
   "com.2fdevs.videogular.plugins.controls",
@@ -69,7 +67,7 @@ angular.module('app', ['ionic',
   }, 100);
 
     // document.addEventListener("pause", onPause, false) //Fires when user minimizes app
-    oneSignalSetup(); //Comment out for automated testing
+    // oneSignalSetup(); //Comment out for automated testing
     // initializeApp().then(function() {
       if(navigator.splashscreen)
         navigator.splashscreen.hide();

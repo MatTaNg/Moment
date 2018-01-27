@@ -41,7 +41,7 @@
 			}
 		}
 
-		function getComments(moments) {
+		function addCommentsToMoments(moments) {
 			return commentManager.retrieveCommentsAndAddToMoments(moments);
 		};
 
@@ -52,7 +52,11 @@
 		function updateMyMomentsWithRecentChanges(momentArray, newMoment) {
 			for(var i = 0; i < momentArray.length;i++) {
 				if(momentArray[i].key === newMoment.key) {
+					console.log("#####", JSON.stringify(momentArray[i].likes));
+					console.log("#####", newMoment.likes);
+					newMoment.gainedLikes = newMoment.likes - parseInt(momentArray[i].likes);
 					momentArray[i] = newMoment;
+					console.log(momentArray[i].gainedLikes);
 				}
 			}
 			return momentArray;
@@ -97,9 +101,8 @@
 					localStorageManager.set('myMoments', this.momentArray).then(function() {
 						this.momentArray =	updateExtraLikesTotalLikesAndGainedLikes(this.momentArray);
 						this.momentArray = addShortDescriptionAndTime(this.momentArray);
-						getComments(this.momentArray).then(function(moments) {
+						addCommentsToMoments(this.momentArray).then(function(moments) {
 							this.momentArray = moments;
-							console.log("MY MOMENT INIT FINISHED");
 							deferred.resolve(this.momentArray);
 						});
 					});
@@ -150,7 +153,6 @@
 				currentLikes = moments[x].likes;
 				totalLikes = totalLikes + parseInt(moments[x].likes);
 				extraLikes = totalLikes - this.oldLikes;
-				moments[x].gainedLikes = moments[x].likes - currentLikes;
 				localStorageManager.set('totalLikes', totalLikes);
 			}
 			return moments;

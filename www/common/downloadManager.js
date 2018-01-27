@@ -1,9 +1,9 @@
 (function() {
  	angular.module('downloadManager', [])
 
- 	.service('downloadManager', ['$sce', 'logger', '$cordovaFile', '$cordovaFileTransfer', '$q', downloadManager]);
+ 	.service('downloadManager', ['constants', '$sce', '$cordovaFile', '$cordovaFileTransfer', 'logger', '$q', downloadManager]);
 
- 	function downloadManager($sce, logger, $cordovaFile, $cordovaFileTransfer, $q){
+ 	function downloadManager(constants, $sce, $cordovaFile, $cordovaFileTransfer, logger, $q){
  		var vm = this;
 		vm.downloadFiles = downloadFiles;
 		vm.downloadToDevice = downloadToDevice;
@@ -59,6 +59,9 @@
 			var deferred = $q.defer();
 			var x = 0;
 			var downloaded_Moments = []; 
+			if(constants.DEV_MODE) {
+				return $q.resolve(moments);
+			}
 			if(cordova.file && moments) {
 				async.each(moments, function(moment, callback) {
 					var temp = moment.key.split("/");
@@ -81,7 +84,6 @@
 					deferred.resolve(downloaded_Moments);
 				});
 			} else {
-				console.log("ELSE");
 				var parameters = {
 					moments: moments,
 					cordovaFile: cordova.file

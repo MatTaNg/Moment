@@ -125,7 +125,7 @@
     }
     vm.moment.time = new Date().getTime().toString();
     vm.moment.description = vm.moment.description;
-    var key = constants.IMAGE_URL + constants.MOMENT_PREFIX + geolocation.currentLocation.state + '/' + geolocation.currentLocation.lat + '_' + geolocation.currentLocation.lng;
+    var key = constants.MOMENT_PREFIX + geolocation.currentLocation.state + '/' + geolocation.currentLocation.lat + '_' + geolocation.currentLocation.lng;
     if(vm.isPicture) {
       vm.moment.key = key + '_' + new Date().getTime() + '.jpg';
       vm.moment.media = "picture";

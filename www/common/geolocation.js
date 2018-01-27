@@ -12,10 +12,21 @@
 		vm.setLocation = setLocation;
 		vm.isMomentWithRadius = isMomentWithRadius;
 
+		vm.setDidUserChangeRadius = setDidUserChangeRadius;
+		vm.getDidUserChangeRadius = getDidUserChangeRadius;
+
  		vm.userLocation = undefined;
  		vm.currentLocation = "Could not find location";
  		vm.locationNotFound = false;
  		vm.didUserChangeRadius = false;
+
+ 		function getDidUserChangeRadius() {
+ 			return vm.didUserChangeRadius;
+ 		};
+
+ 		function setDidUserChangeRadius(bool) {
+ 			vm.didUserChangeRadius = bool;
+ 		};
 
 		function isMomentWithRadius(key) {
 			var coordinates = geolocationService.extractCoordinatesFromKey(key);
