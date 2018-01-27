@@ -127,11 +127,10 @@
 					bestMomentKey = bestMomentKey[bestMomentKey.length - 1];
 					momentKey = momentKey[momentKey.length - 1];
 					if(bestMomentKey === momentKey) {
-						vm.remove(bestMoments[i]);
-						awsServices.getMomentMetaData(common.splitUrlOff(moment.key)).then(function (metaData) {
+						awsServices.remove(bestMoments[i].key);
+						awsServices.getMomentMetaData(moment.key).then(function (metaData) {
 							delete metaData.bestmoment;
-							awsServices.copyObject(common.splitUrlOff(moment.key), common.splitUrlOff(moment.key), metaData, "REPLACE").then(function() {
-							});
+							awsServices.copyObject(moment.key, moment.key, metaData, "REPLACE");
 						});
 					}
 				}
@@ -140,7 +139,7 @@
 
  		function uploadToBestMoments(moment) {
  			var momentKey = moment.key;
- 			var copySource = splitUrlOff(moment.key);
+ 			var copySource = moment.key;
 			var key = constants.BEST_MOMENT_PREFIX + moment.key.split('/')[moment.key.split('/').length - 1];
 			var subString = moment.key.substring(moment.key.indexOf(constants.MOMENT_PREFIX), moment.key.indexOf(constants.MOMENT_PREFIX.length - 1));
 			if(!moment.bestmoment) {
@@ -148,8 +147,11 @@
 			}
 			awsServices.copyObject(copySource, copySource, moment, "REPLACE").then(function() {
 				moment.key = moment.key.replace(/\/moment\/../, "/bestMoments");
-				awsServices.getObject(splitUrlOff(moment.key)).then(function(data) {
+				awsServices.getObject(key).then(function(data) {
+					console.log("####");
+					console.log(data);
 					if(data === 'Not Found') {
+						console.log("TERUE");
 						notificationManager.notifyUploadToBestMoments(moment.onesignalid, constants.MOMENT_BECOMES_BEST_MOMENT);			
 					}
 				});
@@ -203,7 +205,6 @@
 				//   	}
 				//   }
 				// }
-				logger.logFile('core.verifyMetaData', {Moment: moment}, '', 'errors.txt');
 				return false;
 			}
 		};  

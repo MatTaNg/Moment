@@ -4,9 +4,7 @@
 	.service('bestMomentsService', ['common', 'core', '$q', 'constants', 'commentManager', 'localStorageManager', bestMomentsService]);
 
 	function bestMomentsService(common, core, $q, constants, commentManager, localStorageManager){
-		localStorageManager.getAndDownload('bestMoments').then(function(moments) {
-			this.momentArray = moments;
-		});
+		this.momentArray = localStorageManager.get('bestMoments');
 		this.initializeView = initializeView;
 		this.loadMore = loadMore;
 		this.convertTime = convertTime;
@@ -16,6 +14,7 @@
 			this.momentArray = [];
 		}
 
+		//Is this nessesary?
 		function convertTime(moments) {
 			for(var i = 0; i < moments.length; i++) {
 				moments[i].convertedTime = common.timeElapsed(moments[i].time);
@@ -36,7 +35,6 @@
 					moments = convertTime(moments);
 					getComments(moments).then(function (momentsWithComments) {
 						localStorageManager.set('bestMoments', moments).then(function() {
-							console.log("BEST MOMENT INIT FINISHED");	
 							deferred.resolve(convertTime(moments));
 						});
 					});

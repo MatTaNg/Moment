@@ -4,6 +4,7 @@
 	.controller('MomentViewController', ['downloadManager', '$sce' ,'common', '$scope', 'commentManager', MomentViewController]);
 	function MomentViewController (downloadManager, $sce, common, $scope, commentManager) {
 		var vm = this;
+		$scope.vm.AWSurl = "https://s3.amazonaws.com/mng-moment/";
 		$scope.flagClass = "ion-ios-flag-outline";
 		$scope.updateComment = updateComment;
 		$scope.vm.viewComments = viewComments;
@@ -29,8 +30,6 @@
 		function setCommentsAndRepliesQuantity() {
 			for(var x = 0; x < $scope.vm.moments.length; x++){
 				for(var y = 0; y < $scope.vm.moments[x].comments.length; y++) {
-					console.log($scope.vm.moments[x]);
-					console.log("Y", y);
 					$scope.vm.commentsAndRepliesQuantity = $scope.vm.commentsAndRepliesQuantity + $scope.vm.moments[x].comments[y].replies.length;
 				}
 			}

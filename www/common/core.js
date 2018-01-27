@@ -30,7 +30,7 @@
  		function remove(moment) {
  			var deferred = $q.defer();
  			if(moment.key !== undefined) {
- 				var key = common.splitUrlOff(moment.key);
+ 				var key = moment.key;
  			} else { //AWS S3 SDK returns a key with a capital 'K'
  				var key = moment.Key;
  			}
@@ -40,7 +40,6 @@
  		function edit(moment){
  			var key = moment.key;
  			if(common.verifyMetaData(moment)) {
- 				key = common.splitUrlOff(key);
  				return awsServices.copyObject(key, key, moment, "REPLACE");
  			} else {
  				return $q.reject();
@@ -55,10 +54,6 @@
  		}
 
  		function upload(file, moment, mimeType) {
- 			console.log("CORE UPLOAD");
- 			console.log(file);
- 			console.log(moment);
- 			console.log(mimeType);
  			var deferred = $q.defer();
  			if(isValidMimeType(mimeType)) {
 	 			showVideoBanner();
@@ -66,7 +61,7 @@
 	 				moment.key = moment.key + "_" + new Date().getTime() + ".jpg";
 	 			}
 	 			if(common.verifyMetaData(moment)) {
-	 				var key = common.splitUrlOff(moment.key);
+	 				var key = moment.key;
 	 				if(mimeType === "video/mp4") {
 	 					//Its a video
 	 					if(file.byteLength > 1024 * 1024 * 5) {
@@ -123,8 +118,7 @@
  		};
 
  		function getMoment(moment){
-			key = common.splitUrlOff(moment.key)
- 			return awsServices.getObject(key).then(function(moment) {
+ 			return awsServices.getObject(moment.key).then(function(moment) {
  				if(moment !== "Not Found") {
  					return moment.Metadata;
  				} else {
@@ -134,7 +128,7 @@
  		};
 
  		function getMomentMetaData(moment) {
-			return awsServices.getMomentMetaData(common.splitUrlOff(moment.key));
+			return awsServices.getMomentMetaData(moment.key);
  		};
 
 }

@@ -15,18 +15,21 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      // 'lib/**/**/*.js',
       'lib/async/dist/async.js',
       'lib/ionic/js/ionic.bundle.js',
       'lib/angular-mocks/angular-mocks.js',
+      'lib/*',
       'common/*',
+      'common/momentView/*',
       'bestMoments/*',
       'moments/*',
       'submitMoment/*',
       'myMoments/*',
+      'myMoments/**/*',
       'comments/*',
       'Integration-tests/*',
       'index.controller.js',
-      'common/mainView.directive.js',
     ],
 
 

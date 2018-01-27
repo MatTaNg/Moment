@@ -18,12 +18,6 @@
 		this.getStartAfterKey = getStartAfterKey;
 		this.removeMomentFromLocalStorage = removeMomentFromLocalStorage;
 		
-		//Helper Functions
-		this.checkAndDeleteExpiredMoments = checkAndDeleteExpiredMoments;
-		this.deleteOrUploadToBestMoments = deleteOrUploadToBestMoments;
-		this.updateMomentMetaDataForUpload = updateMomentMetaDataForUpload;
-		this.didUserDoTutorial = didUserDoTutorial;
-
 		var startAfterKey = "";
 
 		if(!this.momentArray) {
@@ -50,8 +44,6 @@
 
 		function initializeView() {
 			var deferred = $q.defer();
-			var checkAndDeleteExpiredMoments = this.checkAndDeleteExpiredMoments;
-			var deleteOrUploadToBestMoments = this.deleteOrUploadToBestMoments;
 			var temp = this.momentArray;
 			didUserDoTutorial().then(function(data) {
 				this.momentArray = temp;
@@ -68,9 +60,7 @@
 							startAfterKey = ""; //This tells the controller to stop calling initialize
 						}
 						removeMomentsWithUsersUUID(moments);
-						// var temp = createTempVariable(moments);
-						core.didUserChangeRadius = false;
-						// temp = addExtraClassesandSetTime(temp);
+						geolocation.setDidUserChangeRadius(false);
 						if(moments.length > 0) {
 							localStorageManager.addandDownload('moments', moments).then(function() {
 								deferred.resolve(moments);			
@@ -95,17 +85,21 @@
 		function didUserDoTutorial() {
 			var prefix = constants.MOMENT_PREFIX + 'tutorial';
 			return core.listMoments(prefix).then(function(data) {
-				var counter = 0;
-				var temp = data;
-				for(var i = 0; i < data.length; i++ ){
-					var uuids = data[i].uuids.split(" ");
-					if(uuids.indexOf(common.getUUID()) === -1) {
-						counter++;
-					}
-				}
-				return counter === 3 ? data : false;
+				return doesDataContainUUID(data);
 			});
 		};
+
+		function doesDataContainUUID(data) {
+			var counter = 0;
+			var temp = data;
+			for(var i = 0; i < data.length; i++ ){
+				var uuids = data[i].uuids.split(" ");
+				if(uuids.indexOf(common.getUUID()) === -1) {
+					counter++;
+				}
+			}
+			return counter === 3 ? data : false;
+		}
 
 		function uploadReport(report, moment) {
 			var defered = $q.defer();
@@ -120,7 +114,7 @@
 		function updateMoment(liked) {
 			var temp = createTempVariable(this.momentArray);
 			var updatedMoment = temp[0];
-			updatedMoment = that.updateMomentMetaDataForUpload(updatedMoment, liked);
+			updatedMoment = updateMomentMetaDataForUpload(updatedMoment, liked);
 			localStorageManager.set('moments', this.momentArray);
 			return core.edit(updatedMoment);
 		};
@@ -170,35 +164,47 @@ function deleteOrUploadToBestMoments(moments) {
 };
 
 function checkAndDeleteExpiredMoments(moments) {
-	console.log("CHECK AND DELETE checkAndDeleteExpiredMoments");
-	console.log(moments);
 	var deferred = $q.defer();
 	var tempMoments = createTempVariable(moments);
+	var momentsToBeDeleted = [];
 	currentTime = new Date().getTime(),
 	timeBetweenMoments = constants.MILISECONDS_IN_AN_HOUR * constants.HOURS_UNTIL_MOMENT_EXPIRES;
 	if(moments.length === 0) {
 		deferred.resolve(moments);
 	}
-	async.each(moments, function(moment, callback) {
+	async.each(tempMoments, function(moment, callback) {
 		var extraTimeFromLikes = parseInt(moment.likes) * constants.EXTRA_TIME_LIKES_GIVES_MOMENTS_MULTIPLIER;
-		// timeElapsed = core.timeElapsed(moment.time);
 		if(currentTime - moment.time > timeBetweenMoments + extraTimeFromLikes) {
+
 			if(localStorageManager.get('moments')) {
 				removeMomentFromLocalStorage(moment);
 			}
 			core.remove(moment);
-			tempMoments.splice(tempMoments.indexOf(moment), 1);
+			momentsToBeDeleted.push(moment);
 		}
-		// moment.time = core.timeElapsed(moment.time);
 		callback();
 	}, function(error) {
-		moments = tempMoments;
+		moments = findAndDeleteExpiredMoments(moments, momentsToBeDeleted);
 		if(error) {
 			deferred.reject();
 		}
 		deferred.resolve(moments);
 	});
 	return deferred.promise;
+};
+
+function findAndDeleteExpiredMoments(moments, momentsToBeDeleted) {
+	for(var i = 0; i < momentsToBeDeleted.length; i++) {
+		for(var x = 0; x < moments.length;) {
+			if(moments[x].key === momentsToBeDeleted[i].key) {
+				moments.splice(x, 1);
+			}
+			else {
+				x++;
+			}
+		}
+	}
+	return moments;
 };
 
 function addExtraClassesandSetTime(moments) {

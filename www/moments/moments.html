@@ -1,26 +1,26 @@
-<ion-view id="page2" cache-view="false">
+<ion-view id="page2" cache-view="false" style="height: 100%;">
 	<ion-nav-title>
 		<img class="title-image" src="img/header.png"/>
 	</ion-nav-title>
-<ion-content padding="true" class="has-header">
-<div ng-show="vm.moments && vm.showComments === false">
-	<span ng-repeat="moment in vm.moments">
+	<ion-content padding="true" style="height: 100%;">
+	<div style="height: 100%;" ng-show="vm.moments && vm.showComments === false">
+		<div style="height: 100%;" ng-repeat="moment in vm.moments">
 
-		<td-cards>
-		<td-card on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)" on-touch="vm.setCoords()"
-		on-partial-swipe="cardPartialSwipe(amt)" class = "{{moment.class}}">
-		<mng-moment-view></mng-moment-view>
-		</td-card>
-		</td-cards>
-	</span> <!--End of ng-repeat-->
+			<td-cards style="height: 100%;">
+			<td-card style="height: 100%;"  on-drag-right="vm.dragRight()" on-drag-left="vm.dragLeft()" on-release="vm.release($event)" on-touch="vm.setCoords()"
+			on-partial-swipe="cardPartialSwipe(amt)" class = "{{moment.class}}">
+				<mng-moment-view style="height: 100%;"></mng-moment-view>
+			</td-card>
+			</td-cards>
+		</div> <!--End of ng-repeat-->
 
-	<img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" class="noMoments"></img> 
-	<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" class="loadingMoments"></img>
-</div> <!-- End of ng-show -->
-<div data-ng-if="vm.showComments === true">
-	<div mng-comments moment="vm.moment" moments-array="vm.moments" show-comments="vm.showComments" local-storage-name="moments">
-</div>
-</div>
-</ion-content>
+		<img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" class="noMoments"></img> 
+		<img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" class="loadingMoments"></img>
+	</div> <!-- End of ng-show -->
+		<div data-ng-if="vm.showComments === true">
+			<div mng-comments moment="vm.moment" moments-array="vm.moments" show-comments="vm.showComments" local-storage-name="moments">
+			</div>
+		</div>
+	</ion-content>
 </ion-view>
 <!--on-swipe-left="vm.liked(false)" on-swipe-right="vm.liked(true)"-->

@@ -130,10 +130,10 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   z-index: 2;
   width: 95%;
   height: 95%;
-  background-color: white;
   padding-top: 10px;
   padding-right: 10px;
   padding-left: 10px;
+  background-color: white;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }

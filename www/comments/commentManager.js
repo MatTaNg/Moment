@@ -116,7 +116,7 @@
 					userName: vm.userName,
 					comment: comment,
 					commentids: '',
-					parent: common.splitUrlOff(parent.key),
+					parent: parent.key,
 					likesuuids: '',
 					replies: []
 				};
@@ -141,7 +141,7 @@
  		};
 
  		function extractKeyFromMoment(key) {
- 			var resultKey = common.splitUrlOff(key).split('/');
+ 			var resultKey = key.split('/');
  			var state = resultKey[resultKey.length - 2];
  			resultKey = resultKey[resultKey.length - 1];
  			resultKey = resultKey.substring(0, resultKey.length - 4);
@@ -175,14 +175,9 @@
  			var result = [];
  			core.listComments(key).then(function(comments) {
  				async.each(comments, function(commentObj, callback) {
- 					common.getComment(commentObj.Key).then(function(comment) {
+ 					common.getComment(commentObj.key).then(function(comment) {
  						if(comment !== 'Not Found') {
  							result.push(JSON.parse(comment.Body.toString('ascii'))[0]);
-	 						// if(result.length === 0) {
-	 						// 	result = JSON.parse(comment.Body.toString('ascii'));
-	 						// } else {
-	 						// 	result.concat(JSON.parse(comment.Body.toString('ascii'))); 							
-	 						// }
 	 					}
  						callback();
  					});
@@ -365,7 +360,7 @@
  		function addClasses(comments) {
  			var likesUUID;
  			// comments = [].concat(comments || []);
-			for(var i = 0; i < comments.length; i++) {
+			for(var i = 0; i < comments[i]; i++) {
 				likesUUID = comments[i].likesuuids.split(' ');
 				if(likesUUID.includes(common.getUUID())) {
 					comments[i].likedClass = "ion-android-favorite";					
