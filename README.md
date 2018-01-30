@@ -1,12 +1,18 @@
 <b>Gold Copy Testing</b>
 
-*Remove date cache and change GPS location to -25.104357, 135.332945.  Be sure DEV_MODE is false.
+<u>Set up</u>
+1.  Connect device and remove data cache from device (Settings -> App -> Moment -> Storage -> Clear Data).
+2.  Go into constants.js and set DEV_MODE to false and set moments and bestMoments to test regions.
+3.  Run ionic cordova run android in the command terminal once the device is connected.
+4.  Go into the aws console and remove everything from the momentTest and bestMomentsTest folders.
+
+<u>The Test</u>
 1.	*App should prompt for location access.
 2.	*No Moments found image should appear
 3.	Attempt to take a max-length video – App should prompt for file access
 4.	Play video and add a description
 5.	Submit the moment while the video is playing.
-<b>Wait at least a minute</b>
+<i>Wait at least a minute</i>
 6.	Go over to the myMoments section. 
 7.	Play the video
 8.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
@@ -31,7 +37,7 @@
 27.	Swipe right on the picture.
 28.	Go to best moments – Your picture and video should appear with the correct comments.
 29.	Go to AWS database and set your picture time meta data to 10 and remove your UUID once again.
-30.	Go to Moments and swipe on your picture.
+30.	Go to Moments - It should show No Moments Found.
 31.	It should be removed from the Moments database but NOT from BestMoments.
 
 
