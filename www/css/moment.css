@@ -63,7 +63,7 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 /**Video Player **/
 .videoBox {
   width: 100%; 
-  height: 300px;
+  height: 100%;
   padding-bottom: 5px;
 }
 
@@ -77,23 +77,19 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   color: #32CD32;
 }
 .noDescription {
-  font-size: 14pt;
+  font-size: 1em;
   font-style: oblique;
 }
 .momentLocation {
   text-align: left; 
-  margin-top: 15px; 
-  margin-bottom: 3px;
-  font-size: 14pt;
-  margin-left: 5px;
+  font-size: 1.3em;
 }
 .momentTime {
   text-align: right; 
-  font-size: 18pt
+  font-size: 1.5em
 }
 .momentLikes {
-  margin-top: 5px; 
-  font-size: 18pt
+  font-size: 1.5em
 }
 .on-drag-next.invisible {
   opacity: 100;
@@ -153,24 +149,13 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
   display: none;
 }
 .ion-ios-flag { 
-  /*position:fixed;
-  left: 92%;
-  top: 93%;
-  width:75%;
-  font-size: 30px;
-  color: red;*/
   position: relative; 
   bottom: 10px;
   right: 10px;  
   font-size: 30px;
 }
 .ion-ios-flag-outline {
-  /*position:fixed;
-  left: 92%;
-  top: 93%;
-  width:75%;
-  font-size: 30px;*/
-    position: relative; 
+  position: relative; 
   bottom: 0%;
   right: -55%; 
    font-size: 30px; 

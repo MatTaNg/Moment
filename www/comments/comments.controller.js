@@ -20,6 +20,10 @@
 		vm.submitCommentSpinner = false;
 		var index = vm.momentsArray.indexOf(vm.moment);
 
+		console.log("###", vm.moment);
+		console.log("###", vm.momentsArray);
+		console.log("###", vm.showComments);
+
 		function toggleReplies(comment) {
 			comment.showReplies = !comment.showReplies;
 		};
@@ -33,12 +37,9 @@
 		};
 
         function editComment(comment) {
-            $ionicLoading.show({}).then(function() {
-                commentManager.updateComment(comment, vm.moment).then(function() {
-                    comment.editMode = false;
-                    modifyMomentArrayAndSaveIt();
-                    $ionicLoading.hide();
-                });
+            commentManager.updateComment(comment, vm.moment).then(function() {
+                comment.editMode = false;
+                modifyMomentArrayAndSaveIt();
             });
         };
 
@@ -49,13 +50,16 @@
 		};
 
         function reply(comment) {
+        	vm.replyCommentSpinner = true;
         	var indexOfComment = vm.comments.indexOf(comment);
         	commentManager.uploadComment(comment.replyComment, comment).then(function(reply) {
 				vm.comments[indexOfComment].replies.push(reply);
-				vm.toggleReplies(comment);
-        		vm.toggleReplyBox(comment);
+				comment.replyMode = false;
+        		comment.showReplies = true;
         		modifyMomentArrayAndSaveIt();
         		comment.replyComment = "";
+        		vm.replyCommentSpinner = false;
+        		vm.commentsAndRepliesQuantity++;
         	});
         };
 
@@ -66,9 +70,23 @@
 				modifyMomentArrayAndSaveIt();
 				vm.comment = "";
 				vm.submitCommentSpinner = false;
+				vm.commentsAndRepliesQuantity++;
 			});
 		};
 
+		function removeComment(comment) {
+			if(vm.comments.indexOf(comment) === -1) { //This means the parent is a comment
+				for(var i = 0; i < vm.comments.length; i++) {
+					if(vm.comments[i].replies.indexOf(comment) !== -1 ) {
+						vm.comments[i].replies.splice(vm.comments[i].replies.indexOf(comment), 1);
+					}
+				}
+			} else {
+				vm.comments.splice(vm.comments.indexOf(comment), 1);
+			}
+			modifyMomentArrayAndSaveIt();
+			vm.commentsAndRepliesQuantity--;
+		}
 
 		function deleteComment(comment) {
 			$ionicPopup.confirm({
@@ -76,28 +94,14 @@
 			})
 			.then(function(confirm) {
 				if(confirm) {
-					$ionicLoading.show({}).then(function() {
-						commentManager.deleteComment(comment, comment.parent).then(function() {
-							if(vm.comments.indexOf(comment) === -1) { //This means the parent is a comment
-								for(var i = 0; i < vm.comments.length; i++) {
-									if(vm.comments[i].replies.indexOf(comment) !== -1 ) {
-										vm.comments[i].replies.splice(vm.comments[i].replies.indexOf(comment), 1);
-									}
-								}
-
-							} else {
-								vm.comments.splice(vm.comments.indexOf(comment), 1);
-							}
-							modifyMomentArrayAndSaveIt();
-							$ionicLoading.hide();
-						}, function (error) {
-							if(error) {
-								var params = { comment : comment}
-								logger.logFile("commentsController.deleteComment", params, error, 'errors.txt');
-							}
-							$ionicLoading.hide();
-						});
+					commentManager.deleteComment(comment, comment.parent).then(function() {
+					}, function (error) {
+						if(error) {
+							var params = { comment : comment}
+							logger.logFile("commentsController.deleteComment", params, error, 'errors.txt');
+						}
 					});
+					removeComment(comment);
 				}
 				else{
 					console.log("!CONFIRM");

@@ -23,9 +23,7 @@
 		vm.appStatus = "resume";
 		vm.comments = [];
 		vm.moment = {};
-		
-		console.log("MOMENTS CTRL");
-		console.log(JSON.stringify(vm.moments));
+		vm.commentsAndRepliesQuantity = 0;
 
 		if(vm.moments.length === 0 ||
 			core.appInitialized === false ||

@@ -16,7 +16,9 @@
 
 		//Paths
 		"MOMENT_PREFIX": "moment/",
+		// "MOMENT_PREFIX": "momentTest/",
 		"BEST_MOMENT_PREFIX": "bestMoments/",
+		// "BEST_MOMENT_PREFIX": "bestMomentsTest/",
 		"FEEDBACK_PREFIX": "reports/feedback/",
 		"BUG_PREFIX": "reports/bugs/",
 		"GEOLOCATION_URL": "http://maps.googleapis.com/maps/api/geocode/json?",
