@@ -57,7 +57,7 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 }
 
 .openDialog .popup {
-  width: 80%;
+  width: 100vw;
 }
 
 /**Video Player **/
@@ -70,6 +70,90 @@ ion-list.manual-list-fullwidth div.list > .item, .list.card.manual-card-fullwidt
 /**General **/
 .likesIcon {
   float: left
+}
+
+/**Moment View**/
+.mediaContent {
+  height: 50vh; 
+  margin-bottom: 5px;
+}
+.mediaMetaData {
+  height: 5vh;
+}
+.description {
+  height: 13vh;
+}
+
+/**iPhone 5**/
+@media screen and (max-height: 600px) {
+  .mediaContent {
+    height: 50vh; 
+    margin-bottom: 5px;
+  }
+  .mediaMetaData {
+    height: 5vh;
+  }
+  .description {
+    height: 11vh;
+  }
+
+}
+
+@media screen and (min-height: 700px) {
+  .mediaContent {
+    height: 50vh; 
+    margin-bottom: 5px;
+  }
+  .mediaMetaData {
+    height: 5vh;
+  }
+  .description {
+    height: 16vh;
+  }
+
+}
+
+@media screen and (min-height: 800px) {
+  .mediaContent {
+    height: 50vh; 
+    margin-bottom: 5px;
+  }
+  .mediaMetaData {
+    height: 5vh;
+  }
+  .description {
+    height: 17vh;
+  }
+
+}
+
+/**Tablets**/
+@media screen and (min-height: 1000px) {
+  .mediaContent {
+    height: 60vh; 
+    margin-bottom: 5px;
+  }
+  .mediaMetaData {
+    height: 5vh;
+  }
+  .description {
+    height: 13vh;
+  }
+
+}
+
+@media screen and (min-height: 1200px) {
+  .mediaContent {
+    height: 64vh; 
+    margin-bottom: 5px;
+  }
+  .mediaMetaData {
+    height: 5vh;
+  }
+  .description {
+    height: 13vh;
+  }
+
 }
 
 /**Moment**/

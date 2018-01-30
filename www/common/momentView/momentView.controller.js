@@ -34,7 +34,7 @@
 			var comments = moment.comments;
 			moment.commentsAndRepliesQuantity = comments.length;
 			for(var x = 0; x < comments.length; x++){
-					moment.commentsAndRepliesQuantity = moment.commentsAndRepliesQuantity + comments[x].replies.length;
+				moment.commentsAndRepliesQuantity = moment.commentsAndRepliesQuantity + comments[x].replies.length;
 			}
 		};
 

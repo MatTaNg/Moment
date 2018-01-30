@@ -1,36 +1,36 @@
-<div style="height: 50vh; margin-bottom: 5px;">
+<div class="mediaContent">
 	<img data-ng-if="moment.media === 'picture'" src="{{vm.AWSurl + moment.key}}" height="100%" width="100%"></img>
 
-<!--Video Begin-->
-<div data-ng-if="moment.media === 'video'" class="videoBox">
-	<videogular vg-theme="vm.config.theme">
-		<vg-media vg-src="vm.config.sources"
-				vg-tracks="vm.config.tracks"
-				vg-native-controler="true">
-		</vg-media>
+	<!--Video Begin-->
+	<div data-ng-if="moment.media === 'video'" class="videoBox">
+		<videogular vg-theme="vm.config.theme">
+			<vg-media vg-src="vm.config.sources"
+					vg-tracks="vm.config.tracks"
+					vg-native-controler="true">
+			</vg-media>
 
-		<vg-controls>
-			<vg-play-pause-button></vg-play-pause-button>
-			<vg-time-display>{{ currentTime | date:'mm:ss' }}</vg-time-display>
-			<vg-scrub-bar>
-				<vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-			</vg-scrub-bar>
-			<vg-time-display>{{ timeLeft | date:'mm:ss' }}</vg-time-display>
-			<vg-volume>
-				<vg-mute-button></vg-mute-button>
-				<vg-volume-bar></vg-volume-bar>
-			</vg-volume>
-			<vg-fullscreen-button></vg-fullscreen-button>
-		</vg-controls>
+			<vg-controls>
+				<vg-play-pause-button></vg-play-pause-button>
+				<vg-time-display>{{ currentTime | date:'mm:ss' }}</vg-time-display>
+				<vg-scrub-bar>
+					<vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+				</vg-scrub-bar>
+				<vg-time-display>{{ timeLeft | date:'mm:ss' }}</vg-time-display>
+				<vg-volume>
+					<vg-mute-button></vg-mute-button>
+					<vg-volume-bar></vg-volume-bar>
+				</vg-volume>
+				<vg-fullscreen-button></vg-fullscreen-button>
+			</vg-controls>
 
-		<vg-overlay-play></vg-overlay-play>
-		<vg-poster vg-url='config.plugins.poster'></vg-poster>
-	</videogular>
-</div>
+			<vg-overlay-play></vg-overlay-play>
+			<vg-poster vg-url='config.plugins.poster'></vg-poster>
+		</videogular>
+	</div>
 <!--End of Video-->
 </div>
 
-<div class="row row-no-padding" style="height: 5vh;">
+<div class="row row-no-padding mediaMetaData">
 	<div class="col">
 		<img src="img/logo.png" width="25px" height"100%" class="likesIcon"></img>
 		<div ng-show="moment.likes" class="momentLikes">{{moment.likes}}</div>
@@ -39,7 +39,7 @@
 		<div class="ion-ios-clock-outline momentTime">{{moment.time}}</div>
 	</div>
 </div>
-<div class="row row-no-padding" style="height: 5vh;">
+<div class="row row-no-padding mediaMetaData">
 	<div class="col">
 		<div class="momentLocation">{{moment.location}}</div>
 	</div>
@@ -47,7 +47,7 @@
 	<img src="img/Liked.png" ng-show="moment.swipedRight" width="100px" height="100px"class="on-drag-liked {{moment.animate}}"></img>
 	<img src="img/Next.png" width="100px" height="100px" ng-show="moment.swipedLeft" class="on-drag-next {{moment.animate}}"></img>
 <hr>
-<div style="height: 13vh;">
+<div class="description">
 	<div ng-show="moment.description">{{ moment.description }}  </div>
 	<div ng-hide="moment.description" class="noDescription">No Description Found</div>
 </div>
