@@ -21,6 +21,9 @@
                 <span data-ng-if="comment.uuid === vm.uuid" data-ng-click="vm.toggleEditBox(comment)">Edit</span>
                 <span data-ng-if="comment.replyMode" data-ng-click="vm.toggleReplyBox(comment)">Close</span>
                 <span data-ng-if="!comment.replyMode" data-ng-click="vm.toggleReplyBox(comment)">Reply</span>
+                <div class="row" data-ng-if="vm.replyCommentSpinner === true">
+                    <ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
+                </div>
                 <span class="row" data-ng-if="comment.replyMode">
                     <label class="col item item-input">
                         <input ng-model="comment.replyComment" type = "text"/>
@@ -29,7 +32,7 @@
                 </span>
                 <br>
                 <span data-ng-if="!comment.showReplies && comment.replies.length > 0" data-ng-click="vm.toggleReplies(comment)">View {{comment.replies.length}} Replies</span>
-                <span data-ng-if="comment.showReplies.length > 0" data-ng-click="vm.toggleReplies(comment)">Hide {{comment.replies.length}} Replies</span>
+                <span data-ng-if="comment.showReplies && comment.replies.length > 0" data-ng-click="vm.toggleReplies(comment)">Hide {{comment.replies.length}} Replies</span>
 
                 <!--BEGIN REPLIES-->
                 <div style="padding-left: 50px; font-size: 0.8em" data-ng-repeat="reply in comment.replies">
@@ -79,12 +82,16 @@
     </div>
     <div class="row">
         <div class="col">
+            <div data-ng-if="vm.submitCommentSpinner === true">
+                <ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
             <label class="item item-input">
                 <input ng-model="vm.comment" type = "text"/>
             </label>
-        </div>
-        <div data-ng-if="vm.submitCommentSpinner === true">
-            <ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
         </div>
         <button class="col col-10 button button-positive" ng-click="vm.submitComment()">Ok</button>
     </div>

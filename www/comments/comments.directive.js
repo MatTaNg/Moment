@@ -14,7 +14,8 @@
                 moment: '=',
                 showComments: '=',
                 momentsArray: '=',
-                localStorageName: '@'
+                localStorageName: '@',
+                commentsAndRepliesQuantity: '='
             }
         };
     };

@@ -30,6 +30,7 @@
 		vm.moment = {};
 		vm.comments = {};
 		vm.showComments = false;
+		vm.commentsAndRepliesQuantity = 0;
 
 		// if(!vm.moments) {
 		// 	vm.moments = [];
@@ -63,6 +64,8 @@
 				vm.stopLoadingData = false;
 				$scope.$broadcast('scroll.refreshComplete');
 				components.hideLoader();
+				vm.loadingMoments = false;
+				console.log("$$$$", vm.moments);
 			}, function(error) {
 				vm.noMoments = true;
 				$scope.$broadcast('scroll.refreshComplete');

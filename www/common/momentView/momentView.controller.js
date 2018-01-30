@@ -1,8 +1,8 @@
 (function() {
 	angular.module('MomentViewController', [])
 
-	.controller('MomentViewController', ['downloadManager', '$sce' ,'common', '$scope', 'commentManager', MomentViewController]);
-	function MomentViewController (downloadManager, $sce, common, $scope, commentManager) {
+	.controller('MomentViewController', ['$ionicPopup', 'downloadManager', '$sce' ,'common', '$scope', 'commentManager', MomentViewController]);
+	function MomentViewController ($ionicPopup, downloadManager, $sce, common, $scope, commentManager) {
 		var vm = this;
 		$scope.vm.AWSurl = "https://s3.amazonaws.com/mng-moment/";
 		$scope.flagClass = "ion-ios-flag-outline";
@@ -10,7 +10,9 @@
 		$scope.vm.viewComments = viewComments;
 		$scope.vm.flagged = flagged;
 		$scope.vm.createVideogularObj = createVideogularObj;
+		$scope.vm.setCommentsAndRepliesQuantity = setCommentsAndRepliesQuantity;
 
+		$scope.vm.showComments = false;
 		$scope.vm.commentsAndRepliesQuantity = 0;
 		$scope.vm.flag = true
 		initialize();
@@ -27,18 +29,19 @@
 			}
 		};
 
-		function setCommentsAndRepliesQuantity() {
-			for(var x = 0; x < $scope.vm.moments.length; x++){
-				for(var y = 0; y < $scope.vm.moments[x].comments.length; y++) {
-					$scope.vm.commentsAndRepliesQuantity = $scope.vm.commentsAndRepliesQuantity + $scope.vm.moments[x].comments[y].replies.length;
-				}
+		function setCommentsAndRepliesQuantity(moment) {
+			console.log("$$$$", moment);
+			var comments = moment.comments;
+			moment.commentsAndRepliesQuantity = comments.length;
+			for(var x = 0; x < comments.length; x++){
+					moment.commentsAndRepliesQuantity = moment.commentsAndRepliesQuantity + comments[x].replies.length;
 			}
 		};
 
 		function initialize() {
 			setFlagBasedOnUsersUUID();
 			createVideogularObj();
-			setCommentsAndRepliesQuantity();
+			setCommentsAndRepliesQuantity($scope.moment);
 		};
 
 		function createVideogularObj(src) {
@@ -66,8 +69,8 @@
 			commentManager.updateComment(comment, this.momentArray);
 		};
 
-		function viewComments() {
-			$scope.vm.moment = $scope.vm.moments[0];
+		function viewComments(moment) {
+			$scope.vm.moment = moment;
 			$scope.vm.showComments = !$scope.vm.showComments;
 		};
 

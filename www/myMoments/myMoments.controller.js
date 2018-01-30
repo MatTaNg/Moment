@@ -27,6 +27,7 @@
 		vm.showComments = false;
 		vm.moment = {};
 		vm.comments = {};
+		vm.commentsAndRepliesQuantity = 0;
 
 		if(!(vm.moments)) {
 			vm.moments = [];

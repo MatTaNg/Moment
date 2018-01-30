@@ -31,7 +31,6 @@
 			result.commentids = comment.commentids;
 			result.parent = comment.parent;
 			result.likesuuids = comment.likesuuids;
-			// result.replies = comment.replies;
 			return result;
  		};
 
@@ -125,7 +124,7 @@
 					updateParentObject(parent);
 					sendNotification(parent);
 					commentObj.time = common.timeElapsed(commentObj.time);
-	 				commentObj.likedClass = commentObj.likedClass = "ion-android-favorite-outline";
+	 				commentObj.likedClass = "ion-android-favorite-outline";
 					return commentObj;
 				});
 			});
@@ -360,7 +359,7 @@
  		function addClasses(comments) {
  			var likesUUID;
  			// comments = [].concat(comments || []);
-			for(var i = 0; i < comments[i]; i++) {
+			for(var i = 0; i < comments.length; i++) {
 				likesUUID = comments[i].likesuuids.split(' ');
 				if(likesUUID.includes(common.getUUID())) {
 					comments[i].likedClass = "ion-android-favorite";					
