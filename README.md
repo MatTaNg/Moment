@@ -20,71 +20,28 @@
 10.	Edit the location to “MMM”. An Error message should appear
 11. Click the location button - Your current location should appear.
 12. Edit the location to "Malvern, PA"
-13.	Go to Moments – Your video should appear (If you are within 50 miles of Malvern, PA).
-14.	Play the video.
-15.	Swipe right on the video.
-16.	*No Moments should appear
-17.	Go back to the myMoments tab and make sure likes has incremented by 1, and there is a green +1 at the top. (101 Likes).
-18.	Take a picture
-19.	Attempt to add a description that’s too long and submit it.
-20.	Add a valid description and uncheck the location box
-21.	Go to myMoments and make sure the picture shows up.
-22.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
-23. Comment, edit like, and reply on the picture and/or the video
-24. Going back should show 2 comments - Or however many comments & replies there are for the specific moment.
-25.	Go back to Moments and be sure your picuture appears with an “Unknown” location and it should update the comments too
-26. Click on the comments and be sure it matches with the comments from step 22.
-27.	Swipe right on the picture.
-28.	Go to best moments – Your picture and video should appear with the correct comments.
-29.	Go to AWS database and set your picture time meta data to 10 and remove your UUID once again.
-30.	Go to Moments - It should show No Moments Found.
-31.	It should be removed from the Moments database but NOT from BestMoments.
-
-
-1.  Turn DEV mode on in constants.js
-
-1.  Delete everything in the test folder in S3 bucket
-2.  Swipe all the moments
-
-- After all the moments are gone a No Moments Found icon should appear
-
-1.  Take a picture
-2.  Submit it.
-3.  Upload a picture
-4.  Submit it, uncheck the location checkbox and add a description.
-5.  Picture should appear on moments page and in DB
-6.  Swipe right, should reload the same image with 1 like on it.
-7.  Swipe left, should reload the asme image with 1 like on it.
-8.  Keep swiping right until the moment ends up in the bestMoments folder
-9.  Check the bestMoments folder to see if it is there.
-10.  Delete the moment from the bestMoments folder in the DB
-11.  Pull down to refresh all bestMoments.
-12. Your new bestMoment should no longer be there.
-
-Navigate to myMoments page
-1.  Confirm that your new moment is on that page
-2.  Confirm that It has correctly incremented the likes there.
-3.  Change the radius to 50 miles
-4.  Edit your location to an incorrect location using both zip code and town, state format
-5.  Error message should appear.
-6.  Click the location icon in the Edit location menu and verify it gets your current location.
-7.  Cancel out of the location box.
-8.  Correctly Edit your location using the town, state format to a place less than 50 miles away.
-9.  Navigate to the moment page.
-10.  Moments should still be there.
-11.  Navigaate to the myMoments page.
-12.  Change the radius to 5 miles.
-13.  Navigate to the moment page.
-14.  Should display, No Moments found.
-15.  Type in a zip code 5+ miles away (EX: 07670).
-16.  Navigate to the Moment page.
-17.  No Moments should be shown.
-
-Delete your moments
-1.  Navigate to the myMoments page.
-2.  No Moments should show.
-3.  Navigate to the Moment page.
-4.  No Moments should show.
+13.	<b>Go to Moments</b> – Your video should appear (If you are within 50 miles of Malvern, PA).
+14. You should get a notification telling you your moment has been promoted.
+15.	Play the video.
+16.	Swipe right on the video.
+17.	*No Moments should appear
+18.	Go back to the myMoments tab and make sure likes has incremented by 1, and there is a green +1 at the top. (101 Likes).
+19.	Take a picture
+20.	Attempt to add a description that’s too long and submit it.
+21.	Add a valid description and uncheck the location box
+22.	Go to myMoments and make sure the picture shows up.
+23.	Go to AWS database, remove your UUID, set the likes to 100 and views to 20.
+24. Toggle "Show My Comments" on and off.  It should no show any moments toggled on.
+25. Comment, edit like, and reply on the picture and/or the video
+26. Going back should show 2 comments - Or however many comments & replies there are for the specific moment.
+27. Toggle "Show My Comments" on and off.  It should show your commented on moments when toggled on.
+28.	<b>Go back to Moments</b> and be sure your picuture appears with an “Unknown” location and it should update the comments too
+29. Click on the comments and be sure it matches with the comments from step 22.
+30.	Swipe right on the picture.
+31.	Go to best moments – Your picture and video should appear with the correct comments.
+32.	Go to AWS database and set your picture time meta data to 10 and remove your UUID once again.
+33.	Go to Moments - It should show No Moments Found.
+34.	It should be removed from the Moments database but NOT from BestMoments.
 
 <b>Updating the app on Google Play</b>
 <b>Reference</b>https://stackoverflow.com/questions/42290083/how-do-i-publish-an-updated-version-of-my-existing-ionic-app-on-google-play-stor
