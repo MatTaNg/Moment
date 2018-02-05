@@ -1,42 +1,67 @@
-// describe('MyMoment Controller', function() {
+// describe('Best Moments Controller', function() {
 
-//     var core, $rootScope, constants, $q, momentsService, myMomentsService, $ionicPopup, components, $scope, geolocation;
+//     var common, $ionicLoading, $sce, core, $rootScope, constants, $q, myMomentsService, $ionicPopup, components, $scope, geolocation, $ionicContentBanner, localStorageManager,
+//     mockMoments = mockOutMoments();
 
 //     beforeEach(module('app'));
-//     beforeEach(module('core'));
-//     beforeEach(module('components'));
-//     beforeEach(module('constants'));
 
-//     beforeEach(inject(function(_$controller_, _core_, $rootScope, constants, $q, _momentsService_, _myMomentsService_, $ionicPopup, _components_, $scope, _geolocation_) {
-//         var self = this;
-//         this.$scope = $rootScope.$new();
-//         this.myMomentsService = _myMomentsService_;
+// 	beforeEach(inject(function($templateCache) {
+//     	$templateCache.put('layout/tabsController.html', 'layout/tabsController.html');
+//     	$templateCache.put('myMoments/myMoments.html', 'layout/tabsController.html');
+//     	$templateCache.put('bestMoments/bestMoments.html', 'layout/tabsController.html');
+//     	$templateCache.put('moments/moments.html', 'layout/tabsController.html');
+//     	$templateCache.put('submitMoment/submitMoment.html', 'layout/tabsController.html');
+//     	$templateCache.put('templates/page.html', 'layout/tabsController.html');
+//     	$templateCache.put('common/momentView/momentView.html', 'layout/tabsController.html');
+// 	}));
 
-//         this.$ionicContentBanner = _$ionicContentBanner_;
-//         this.constants = _constants_;
-//         this.core = _core_;
-//         this.momentsService = _momentsService_;
-//         this.components = _components_;
-//         this.$q = _$q_;
-//         this.$ionicPopup = _$ionicPopup_;
-//         this.geolocation = _geolocation_;
+//     function mockOutMoments() {
+// 		return {
+// 			key: "moment/PA/40.0014951_-75.2700205_1515996539543.jpg",
+// 			description: "MOCK_DESCRIPTION1",
+// 			likes: 1,
+// 			location: "MOCK_LOCATION1",
+// 			time: new Date().getTime().toString(),
+// 			uuids: "123",
+// 			views: 1,
+// 			media: 'picture',
+// 			onesignalid: 'MOCK_SIGNAL_ID',
+// 			bestmoment: false,
+// 			commentids: 'MOCK_COMMENT_IDS',
+// 			comments: 'MOCK_COMMENTS',
+// 			creator: 'MOCK_CREATOR'
+// 		};
+// 	};
 
-//         this.$controller = _$controller_('MomentsController', {
-//             momentsService: momentsService, 
-//             $scope: $scope, 
-//             $ionicContentBanner: $ionicContentBanner,
-//             core: core,
-//             constants: constants,
-//             component: components,
-//             $q: $q,
-//             $ionicPopup: $ionicPopup,
-//             geolocation: geolocation
-//         });
-//     }));
+// 	beforeEach(inject(function($controller, $rootScope, _$q_, _common_, _$ionicLoading_, _$sce_, _constants_, _myMomentsService_, _$ionicPopup_, _geolocation_, _$ionicContentBanner_, _localStorageManager_) {
+// 		$scope = $rootScope.$new();
+// 		$q = _$q_;
+// 		common = _common_;
+// 		$ionicLoading = _$ionicLoading_;
+// 		$sce = _$sce_;
+// 		constants = _constants_;
+// 		myMomentsService = _myMomentsService_;
+// 		$ionicPopup = _$ionicPopup_;
+// 		geolocation = _geolocation_;
+// 		$ionicContentBanner = _$ionicContentBanner_;
+// 		localStorageManager = _localStorageManager_;
+// 		core = _core_;
 
-//     it('should initialize', function() { 
-//         console.log(this);
-//         console.log("CONTROLLER");
-//     });
+// 		spyOn(localStorageManager, 'get').and.returnValue([mockOutMoments]);
+
+// 		createController = function() {
+// 			return $controller('BestMomentsController', {
+// 				'$scope': $scope
+// 			})
+// 		};
+// 	}));
+
+// 	beforeEach(function() {
+// 		spyOn(core, 'remove');
+// 	});
+
+// 	it('Should initialize', function() {
+
+// 	});
 
 // });

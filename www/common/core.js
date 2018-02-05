@@ -64,19 +64,19 @@
 	 				var key = moment.key;
 	 				if(mimeType === "video/mp4") {
 	 					//Its a video
-	 					if(file.byteLength > 1024 * 1024 * 5) {
-	 						awsServices.multiPartUpload(file, key, moment).then(function() {
-	 							finishedVideoUpload();
-	 							deferred.resolve();
-	 						});
-	 					}
-	 					else {
+	 					// if(file.byteLength > 1024 * 1024 * 5) {
+	 					// 	awsServices.multiPartUpload(file, key, moment).then(function() {
+	 					// 		finishedVideoUpload();
+	 					// 		deferred.resolve();
+	 					// 	});
+	 					// }
+	 					// else {
 	 						//Its a small video
 	 						return awsServices.upload(file, key, moment, "video/mp4").then(function() {
 	 							finishedVideoUpload();
 	 							deferred.resolve();
 	 						});
-	 					}
+	 					// }
 	 				}
 	 				else {
 	 					//Its a picture

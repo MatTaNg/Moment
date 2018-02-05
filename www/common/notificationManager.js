@@ -65,6 +65,9 @@
     };
 
     function notifyUser(id, msg) {
+      console.log("Notify User");
+      console.log(id);
+      console.log(msg);
         var currentTime = new Date().getTime();
 
         if(currentTime - timeOfLastNotification > constants.TIME_BETWEEN_NOTIFICATIONS) {
@@ -91,6 +94,8 @@
     };
 
     function notifyMoreMomentsFound() {
+      console.log("Notify More Moments Found", isNotificationOn(constants.MORE_MOMENTS_FOUND));
+      console.log(player_id);
       if(isNotificationOn(constants.MORE_MOMENTS_FOUND)) {
         notifyUser(player_id, constants.MORE_MOMENTS_FOUND);
       }

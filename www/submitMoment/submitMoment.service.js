@@ -19,9 +19,11 @@
 			if(!(media.includes(".mp4"))) { //Its a picture
 				var blob = new Blob([this.dataURItoBlob(media)], {type: 'image/jpeg'});
 				core.upload(blob, moment, "image/jpg").then(function() {
-					localStorageManager.addandDownload('myMoments', moment);
+					moment.comments = [];
 					core.aVideoIsUploading = false;
-					deferred.resolve(moment);
+					localStorageManager.addandDownload('myMoments', moment).then(function(moment) {
+						deferred.resolve(moment);
+					});
 				});
 			} 
 			else {
@@ -32,8 +34,10 @@
 		        xhr.addEventListener('load', function() {
 		        	core.upload(xhr.response, moment, "video/mp4").then(function() {
 		        		console.log("DONE");
-		        		localStorageManager.addandDownload('myMoments', moment);
-						deferred.resolve(moment);
+		        		moment.comments = [];
+		        		localStorageManager.addandDownload('myMoments', moment).then(function(moment) {
+							deferred.resolve(moment);
+		        		});
 		        	});
 		        });
 		        xhr.send();

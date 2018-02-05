@@ -24,6 +24,10 @@
 		vm.showCommentSpinner = false;
 		vm.momentView = localStorageManager.get('momentView');
 
+		if(vm.momentView.length === 0) {
+			vm.momentView = false;
+		}
+
 		vm.showComments = false;
 		vm.moment = {};
 		vm.comments = {};
@@ -32,8 +36,9 @@
 		if(!(vm.moments)) {
 			vm.moments = [];
 		}
-
-		initialize();
+		if(vm.moments.length === 0) {
+			initialize();
+		}
 
 		if(vm.customUserLocation) {
 			watchForLocationChange();	
@@ -113,18 +118,14 @@
 		};
 
 		function initialize() {
-			initializeMomentsBasedOnLocalStorage();
 			findAndSetTheUsersLocation();
 			initializeCurrentMomentValuesAndSetLoadingIcon();
-			
+			vm.initRunning = true;			
+
 			var deferred = $q.defer();
 			myMomentsService.retrieveCommentedOnMoments().then(function(moments) {
 				localStorageManager.set('myMomentsWithComments', moments);
 				vm.momentsWithComments = moments;
-				initializeMomentsBasedOnLocalStorage();
-			});
-			if(vm.moments !== [] && vm.initRunning === false) {
-				vm.initRunning = true;
 				myMomentsService.initialize().then(function(moments) {
 					vm.initRunning = false;
 					moments = removeNullObject(moments); //Band-aid
@@ -133,11 +134,11 @@
 						vm.totalLikes = myMomentsService.getTotalLikes();
 						vm.extraLikes = myMomentsService.getExtraLikes();
 						turnOffAllLoadingIndicators();
-						initializeMomentsBasedOnLocalStorage();
 					} else {
 						vm.loading = false;
 						vm.moments = [];
 					}
+					initializeMomentsBasedOnLocalStorage();
 					deferred.resolve();
 				}, function(error) {
 					vm.initRunning = false;
@@ -148,11 +149,7 @@
 					});
 					deferred.reject();
 				});
-			}
-			else {
-				vm.errorMessage = true;
-				deferred.reject();
-			}
+			}); //End of retrieve commented on moments
 			return deferred.promise;
 		};
 

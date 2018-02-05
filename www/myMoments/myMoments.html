@@ -22,7 +22,7 @@
 	<br>
 	
 	<label class="toggle toggleLabel">
-		<input ng-checked="vm.momentView" data-ng-click="vm.toggleMomentView()" type = "checkbox"/>
+		<input ng-checked="vm.momentView === true" data-ng-click="vm.toggleMomentView()" type = "checkbox"/>
 		<div class = "track toggleHandle">
 			<div class = "handle"></div>
 		</div>
@@ -40,20 +40,21 @@
 		</div>
 	</div>
 
-	<div data-ng-if="vm.moments.length === 0"> 
-		<div class="momentsTitleText"> No Moments Found </div>
-	</div>
-	<ion-list ng-if="vm.loading === false">
-	<div ng-repeat="moment in vm.moments">
-		<mng-moment-view></mng-moment-view>
-			<br>
-			<hr>
-		<!-- </div> --> <!--End of displayCommentTray-->
-	</div> <!--End of ng-repeat -->
 	<div data-ng-if="vm.initRunning === true">
 		<ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
 	</div>
-	</ion-list>
+
+	<div data-ng-if="vm.moments.length === 0 && vm.initRunning === false"> 
+		<div class="momentsTitleText"> No Moments Found </div>
+	</div>
+	<div ng-if="vm.initRunning === false">
+		<div ng-repeat="moment in vm.moments">
+			<mng-moment-view></mng-moment-view>
+				<br>
+				<hr>
+			<!-- </div> --> <!--End of displayCommentTray-->
+		</div> <!--End of ng-repeat -->
+	</div>
 	<div class = "row">
 		<button class="col button button-assertive feedbackButton" data-ng-click="vm.feedback()">Feedback</button>
 	</div>

@@ -105,9 +105,9 @@
 				temp.push(items);
 				items = temp;
 			}
-			return downloadFile(storage, items).then(function() {
+			return downloadFile(storage, items).then(function(moments) {
 				var currentLocalStorage = get(storage);
-				currentLocalStorage = currentLocalStorage.concat(items);
+				currentLocalStorage = currentLocalStorage.concat(moments);
 				localStorage.setItem(storage, JSON.stringify(currentLocalStorage));
 			});
 		}
@@ -121,20 +121,11 @@
 		};
 
 		function downloadFile(storage, items) {
-			var deferred = $q.defer();
-			if(storage === 'moments' ||
-				storage === 'bestMoments' ||
-				storage === 'myMoments') {
-				downloadManager.downloadFiles(items).then(function(moments) {
-					console.log("!!!!");
-					console.log()
-					deferred.resolve(moments);
-				});
-			}
-			else {
-				deferred.resolve();	
-			}
-			return deferred.promise;
+			// var deferred = $q.defer();
+			return downloadManager.downloadFiles(items).then(function(moments) {
+				return moments;
+			});
+			// return deferred.promise;
 		};
 
 		function verifyMetaData(moment) {

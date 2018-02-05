@@ -20,10 +20,6 @@
 		vm.submitCommentSpinner = false;
 		var index = vm.momentsArray.indexOf(vm.moment);
 
-		console.log("###", vm.moment);
-		console.log("###", vm.momentsArray);
-		console.log("###", vm.showComments);
-
 		function toggleReplies(comment) {
 			comment.showReplies = !comment.showReplies;
 		};

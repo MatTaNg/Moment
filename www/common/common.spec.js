@@ -1,7 +1,7 @@
 describe('Common', function() {
 	var common, core, $q, constants, logger, geolocation, $scope, $templateCache, awsServices, notificationManager;
 
-	var mock_moment;
+	var mock_moment = createMockMomentObj();
 
 	beforeEach(module('app'));
 
@@ -13,21 +13,6 @@ describe('Common', function() {
 	}));
 
     beforeEach(inject(function($injector) {
-        mock_moment = {
-			key: "moment/PA/40.0014951_-75.2700205_1515996539543.jpg",
-			description: "MOCK_DESCRIPTION1",
-			likes: 1,
-			location: "MOCK_LOCATION1",
-			time: new Date().getTime().toString(),
-			uuids: "123",
-			views: 1,
-			media: 'picture',
-			onesignalid: 'MOCK_SIGNAL_ID',
-			bestmoment: false,
-			commentids: 'MOCK_COMMENT_IDS',
-			comments: 'MOCK_COMMENTS',
-			creator: 'MOCK_CREATOR'
-        };
         common = $injector.get('common');
         $q = $injector.get('$q');
         geolocation = $injector.get('geolocation');
@@ -48,6 +33,24 @@ describe('Common', function() {
 		});
     }));
 
+	function createMockMomentObj() {
+        return {
+			key: "moment/PA/40.0014951_-75.2700205_1515996539543.jpg",
+			description: "MOCK_DESCRIPTION1",
+			likes: 1,
+			location: "MOCK_LOCATION1",
+			time: new Date().getTime().toString(),
+			uuids: "123",
+			views: 1,
+			media: 'picture',
+			onesignalid: 'MOCK_SIGNAL_ID',
+			bestmoment: false,
+			commentids: 'MOCK_COMMENT_IDS',
+			comments: 'MOCK_COMMENTS',
+			creator: 'MOCK_CREATOR'
+        };
+	};
+
     // it("DEV_MODE should be off", function() {
     // 	expect(constants.DEV_MODE).toBe(false);
     // 	expect(constants.HOURS_BETWEEN_MOMENTS).not.toBe(0);
@@ -62,14 +65,22 @@ describe('Common', function() {
 		});
 		var copyObjSpy = spyOn(awsServices, 'copyObject').and.callFake(function(key, copySource, moment, replace) {
 			if(key === "bestMoments/40.0014951_-75.2700205_1515996539543.jpg") {
-				expect(copySource).toEqual(mock_moment.key);
-				expect(moment).toEqual(mock_moment);
+				expect(copySource).toEqual(createMockMomentObj().key);
+				var expected = createMockMomentObj();
+				expected.key = key;
+				expected.bestmoment = 'true';
+				expected.time = expected.time.substring(0, expected.time.length - 3);
+				expect(moment).toEqual(expected);
 				expect(replace).toEqual("REPLACE");
 				expect(secondCopyObjCalled).toEqual(true);
 				done();
 			}
 			else if(key === copySource) {
-				expect(moment).toEqual(mock_moment);
+				expected = createMockMomentObj();
+				moment.time = moment.time.substring(0, moment.time.length - 3);
+				expected.time = expected.time.substring(0, expected.time.length - 3);
+				expected.bestmoment = "true";
+				expect(moment).toEqual(expected);
 				expect(replace).toEqual("REPLACE");	
 				secondCopyObjCalled = true;
 			}
@@ -89,6 +100,7 @@ describe('Common', function() {
 
 		spyOn(awsServices, 'copyObject').and.callFake(function(key, copySource, moment, replace) {
 			if(key === "bestMoments/40.0014951_-75.2700205_1515996539543.jpg") {
+				
 				expect(copySource).toEqual(mock_moment.key);
 				expect(moment).toEqual(mock_moment);
 				expect(replace).toEqual("REPLACE");
@@ -110,7 +122,7 @@ describe('Common', function() {
 
     it('Should remove from best moments', function(done) {
         var mock_best_moment = {
-			key: "moment/PA/40.0014951_-75.2700205_1515996539543.jpg",
+			key: "bestMoments/40.0014951_-75.2700205_1515996539543.jpg",
 			description: "MOCK_DESCRIPTION1",
 			likes: 1,
 			location: "MOCK_LOCATION1",

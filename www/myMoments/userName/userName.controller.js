@@ -12,7 +12,6 @@
 		function editUserName() {
 			var temp = vm.userName;
 			var focus = true;
-			console.log(JSON.stringify(focus));
 			var popUp = $ionicPopup.show({
 				template: '<input mng-auto-focus ng-model="vm.userName" style="width:90%;"> </input>' +
 				'<span style="color: red; font-size:12px" ng-if="vm.userNameTaken">This user name has been taken</span>',

@@ -247,7 +247,12 @@
 			async.each(states, function(state, callback) {
 
 				awsServices.getMoments(constants.MOMENT_PREFIX + state, startAfter, constants.MAX_MOMENTS_PER_GET).then(function(moments) {
-					result = result.concat(moments);
+					if(moments.length > 0) {
+						if(startAfter !== '') {
+							moments = moments[0].splice(0, 1);
+						}
+						result = result.concat(moments);
+					}
 					callback();
 				});
 			}, function(error) {

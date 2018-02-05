@@ -1,5 +1,6 @@
 describe('Comment Manager', function() {
-	var common, core, $q, constants, logger, awsServices, scope, $rootScope, notificationManager;
+	var common, core, $q, constants, logger, awsServices, scope, $rootScope, notificationManager,
+	mockUUID = "123";
 
 	function createMockComment() {
 		return {
@@ -13,7 +14,8 @@ describe('Comment Manager', function() {
             comment: "MockComment",
             commentids: "a3052d4fa4ec79a5",
             parent: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			likesuuids: ''
+			likesuuids: '',
+			likedClass: 'ion-android-favorite-outline'
         };
 	};
 
@@ -60,6 +62,7 @@ describe('Comment Manager', function() {
 
 	beforeEach(function() {
 		spyOn(localStorageManager, 'set');
+		spyOn(common, 'getUUID').and.returnValue(mockUUID);
 	});
 
 	it('Should set a user name that does not exist', function(done) {
@@ -139,11 +142,9 @@ describe('Comment Manager', function() {
 		var mock_moment = createMockMoment();
 		var mock_comment = createMockComment();
 		commentManager.userName = "MOCK USER NAME";
-		var mockUUID = "123";
 		var expectedKey = 'comments/' + mockUUID + '/' + '40.008446_-75.26046_1499829188066.txt';
 		spyOn(notificationManager, 'notifyUserRepliesToComment');
 		spyOn(notificationManager, 'notifyUserRepliesToMoment');
-		spyOn(common, 'getUUID').and.returnValue(mockUUID);
 		spyOn(common, 'verifyMetaData').and.callFake(function(parent) {
 			expect(parent).toEqual(mock_moment);
 			return true;
@@ -189,11 +190,9 @@ describe('Comment Manager', function() {
 	it('Should Upload a comment with a parent as a comment', function(done) {
 		commentManager.userName = "MOCK USER NAME";
 		var mock_comment = createMockComment();
-		var mockUUID = "123";
 		var expectedKey = 'comments/' + mockUUID + '/' + '40.008446_-75.26046_1499829188066.txt';
 		spyOn(notificationManager, 'notifyUserRepliesToComment');
 		spyOn(notificationManager, 'notifyUserRepliesToMoment');
-		spyOn(common, 'getUUID').and.returnValue(mockUUID);
 		spyOn(common, 'verifyMetaData').and.callFake(function(parent) {
 			expect(parent).toEqual(mock_comment);
 			return true;
@@ -317,7 +316,7 @@ describe('Comment Manager', function() {
 
     function makeGetTimeMockable(time) {
         //Removes last digit from time
-        return time.substring(0, time.length - 2);
+        return time.substring(0, time.length - 3);
     }
 
 	function mockOutCoreGetMoments(returnValue) {

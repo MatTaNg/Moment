@@ -52,11 +52,8 @@
 		function updateMyMomentsWithRecentChanges(momentArray, newMoment) {
 			for(var i = 0; i < momentArray.length;i++) {
 				if(momentArray[i].key === newMoment.key) {
-					console.log("#####", JSON.stringify(momentArray[i].likes));
-					console.log("#####", newMoment.likes);
 					newMoment.gainedLikes = newMoment.likes - parseInt(momentArray[i].likes);
 					momentArray[i] = newMoment;
-					console.log(momentArray[i].gainedLikes);
 				}
 			}
 			return momentArray;
@@ -66,15 +63,21 @@
 			var deferred = $q.defer();
 			var oldMomentArray = momentArray;
 			async.each(momentArray, function(moment, callback) {
-				core.getMomentMetaData(moment).then(function(returnedMoment) {
-					if(returnedMoment !== "Not Found") {
-						momentArray = updateMyMomentsWithRecentChanges(momentArray, returnedMoment);
-							callback();
-					}
-				}, function(error) {
-					callback();
+				console.log("RETRIVING COMMENTS", moment);
+				commentManager.retrieveComments(moment).then(function(comments) {
+					console.log("RETURNING", comments);
+					moment.comments = comments;
+					core.getMomentMetaData(moment).then(function(returnedMoment) {
+						if(returnedMoment !== "Not Found") {
+							momentArray = updateMyMomentsWithRecentChanges(momentArray, returnedMoment);
+								callback();
+						}
+					}, function(error) {
+						callback();
+					});
 				});
 			}, function(error) {
+				console.log("RESOLVED", error);
 				if(!error) {
 					deferred.resolve(momentArray);
 				}
@@ -97,6 +100,7 @@
 				if(this.momentArray.length === 0) {
 					deferred.resolve([]);
 				}
+				console.log("%%%%%%%%", this.momentArray.length);
 				if(this.momentArray.length > 0) {
 					localStorageManager.set('myMoments', this.momentArray).then(function() {
 						this.momentArray =	updateExtraLikesTotalLikesAndGainedLikes(this.momentArray);

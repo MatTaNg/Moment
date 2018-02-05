@@ -100,6 +100,7 @@ if (window.StatusBar) {
     } //window.connection
 
     function oneSignalSetup() {
+      console.log("One Signal SetUp");
       // Enable to debug issues.
       // window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
   

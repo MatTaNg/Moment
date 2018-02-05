@@ -49,7 +49,7 @@
 					var parameters = {
 						momentNativeURL: momentNativeURL
 					}
-					logger.logFile("core.downloadToDevice", parameters, error, 'errors.txt');
+					logger.logFile("downloadManager.downloadToDevice", parameters, error, 'errors.txt');
 				});
 			 });
 		};
@@ -64,14 +64,16 @@
 			}
 			if(cordova.file && moments) {
 				async.each(moments, function(moment, callback) {
-					var temp = moment.key.split("/");
-					uniqueKey = temp[temp.length - 1];
 					var fileURL = cordova.file.externalDataDirectory + 'moments' + new Date().getTime() + '/';
-					$cordovaFileTransfer.download(moment.key, fileURL, {}, true).then(function(result) {
+					$cordovaFileTransfer.download(constants.AWS_URL + moment.key, fileURL, {}, true).then(function(result) {
 						moment.nativeurl = result.nativeURL;
 						downloaded_Moments.push(moment);
 						callback();
 					}, function(error) {
+						var parameters = {
+							moments: moments,
+						}
+					logger.logFile("downloadManager.downloadFiles", parameters, error, 'errors.txt');
 						callback();
 					});
 				}, function(error) {

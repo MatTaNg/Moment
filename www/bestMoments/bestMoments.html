@@ -6,7 +6,7 @@
   <ion-refresher on-refresh="vm.initialize()">
   </ion-refresher>
 <span data-ng-if="vm.showComments === false">
-    <img data-ng-if="vm.moments.length === 0" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
+    <img data-ng-if="vm.moments.length === 0 && vm.loadingMoments === false" src="img/no-results-found.png" width= "100%" style="padding-top: 10%"></img>
   <img data-ng-if="vm.loadingMoments === true" src="img/LoadingMoments.png" width= "100%" class="loadingMoments"></img>
     <div data-ng-if="vm.loadingMoments === false" ng-repeat="moment in vm.moments | orderBy:vm.sort">
         <mng-moment-view></mng-moment-view>

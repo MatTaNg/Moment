@@ -1,25 +1,12 @@
 (function() {
 	angular.module('app.BestMomentsController', [])
 
-	.controller('BestMomentsController', ['$scope', 'core', 'components','bestMomentsService', 'localStorageManager', 'constants', BestMomentsController]);
-	function BestMomentsController ($scope, core, components, bestMomentsService, localStorageManager, constants) {
+	.controller('BestMomentsController', ['$scope', 'core','bestMomentsService', 'localStorageManager', 'constants', BestMomentsController]);
+	function BestMomentsController ($scope, core, bestMomentsService, localStorageManager, constants) {
 		var vm = this;
 		vm.initialize = initialize;
 		vm.loadingMoments = true;
 		vm.moments = localStorageManager.get('bestMoments');
-		// localStorageManager.getAndDownload('bestMoments').then(function(moments) {
-		// 	vm.moments = moments;
-		// 	if(vm.moments.length === 0) {
-		// 		bestMomentsService.initializeView().then(function(moments) {
-		// 			components.hideLoader();
-		// 			vm.moments = moments;
-		// 		}); 
-		// 	}
-		// 	else {
-		// 		vm.moments = bestMomentsService.convertTime(vm.moments);
-		// 		loadMore();
-		// 	}
-		// });
 		vm.loadMore = loadMore;
 		vm.viewComments = viewComments;
 
@@ -32,11 +19,12 @@
 		vm.showComments = false;
 		vm.commentsAndRepliesQuantity = 0;
 
-		// if(!vm.moments) {
-		// 	vm.moments = [];
-		// }
-
-		vm.initialize();
+		if(vm.moments.length === 0) {
+			vm.initialize();
+		}
+		else {
+			vm.loadingMoments = false;
+		}
 
 		function viewComments(image) {
 			vm.moment = image;
@@ -63,9 +51,7 @@
 				sortMomentsAndAddShowComments(moments);
 				vm.stopLoadingData = false;
 				$scope.$broadcast('scroll.refreshComplete');
-				components.hideLoader();
 				vm.loadingMoments = false;
-				console.log("$$$$", vm.moments);
 			}, function(error) {
 				vm.noMoments = true;
 				$scope.$broadcast('scroll.refreshComplete');

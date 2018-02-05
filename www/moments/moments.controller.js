@@ -94,9 +94,12 @@
 		};		
 
 		function initialize() {
+			console.log("Initialize Called");
+			console.log(vm.moments.length);
 			if(vm.initRunning === false) {
 				return momentsService.initializeView()
 				.then(function(moments){
+					console.log("MOMENTS SERVICE RETURNED", moments.length);
 					if(moments.length > 0) {
 						vm.comments = moments[0].comments;
 					}
@@ -109,11 +112,14 @@
 					components.hideLoader();
 					vm.moments = momentsService.addExtraClassesandSetTime(vm.moments);
 					localStorageManager.set('moments', vm.moments);
+					console.log("Done", vm.moments.length);
 					if(momentsService.getStartAfterKey() !== "" && vm.moments.length < constants.MAX_NUM_OF_MOMENTS) {
 						vm.loadingMoments = true;
+						console.log("Call it again");
 						return initialize();
 					}
 					else {
+						console.log("Stop Calling")
 						vm.initRunning = false;
 					}
 				}, function(error) {
@@ -137,6 +143,7 @@
 						}
 				});
 				if(vm.moments.length === 1) {
+					console.log("Loading Moments True");
 					vm.loadingMoments = true;
 				}
 				vm.moments.splice(0, 1);
@@ -174,26 +181,31 @@
 		}
 
 		function onPause() {
+			console.log("On Pause Called", vm.moments.length);
 			vm.appStatus = "pause";
-			initialize().then(function() {
-				if(vm.moments.length > 0 && vm.initRunning === false) {
-		            notificationManager.notifyMoreMomentsFound();
-		            $timeout(function() {
-		              onPause();
-		            }, constants.MILISECONDS_IN_A_DAY); //Only notify once a day
-				}
-				else {
+			if(vm.moments.length === 0) {
+				initialize().then(function() {
+					if(vm.moments.length > 0 && vm.initRunning === false) {
+						console.log("True");
+			            notificationManager.notifyMoreMomentsFound();
+			            $timeout(function() {
+			              onPause();
+			            }, constants.MILISECONDS_IN_A_DAY); //Only notify once a day
+					}
+					else {
+						console.log("False");
+						$timeout(function() {
+							if(vm.appStatus === "pause") {
+								onPause();
+							}
+						}, constants.MILISECONDS_IN_AN_HOUR); //Re-check every hour.
+					}
+				}, function(error) {
 					$timeout(function() {
-						if(vm.appStatus === "pause") {
-							onPause();
-						}
+						onPause();
 					}, constants.MILISECONDS_IN_AN_HOUR); //Re-check every hour.
-				}
-			}, function(error) {
-				$timeout(function() {
-					onPause();
-				}, constants.MILISECONDS_IN_AN_HOUR); //Re-check every hour.
-			});
+				});
+			}
 		};
 	}
 })();

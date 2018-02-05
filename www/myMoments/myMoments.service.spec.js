@@ -1,5 +1,6 @@
 describe("Test myMoments Service", function() {
-	var localStorageManager, downloadManager, service, core_Mock, $q, constants, logger, geolocation, $scope, $templateCache, commentManager, awsServices;
+	var common, localStorageManager, downloadManager, service, core_Mock, $q, constants, logger, geolocation, $scope, $templateCache, commentManager, awsServices,
+    mockUUID = "123";
 
 	beforeEach(module('app'));
 
@@ -28,7 +29,7 @@ describe("Test myMoments Service", function() {
         commentManager = $injector.get('commentManager');
         awsServices = $injector.get('awsServices');
         localStorageManager = $injector.get('localStorageManager');
-
+        common = $injector.get('common');
     }));
 
     beforeEach(function() {
@@ -44,7 +45,8 @@ describe("Test myMoments Service", function() {
             commentids: "a3052d4fa4ec79a5",
             parent: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
             replies: [],
-            nativeurl: "MOCKURL"
+            nativeurl: "MOCKURL",
+            likesuuids: ''
         };
 
         mock_moment = {
@@ -67,6 +69,7 @@ describe("Test myMoments Service", function() {
             var result = { Body: JSON.stringify([mock_comment]) };
             return $q.resolve(result);
         });
+        spyOn(common, 'getUUID').and.returnValue(mockUUID);
     });
 
     it('Should initialize', function(done) {

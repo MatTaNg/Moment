@@ -151,10 +151,6 @@
  		};
 
  		function getMoments(prefix, startAfter, maxKeys) {
- 			console.log("GET MOMENTS");
- 			console.log(prefix);
- 			console.log(startAfter);
- 			console.log(maxKeys);
  			var deferred = $q.defer();
  			var startAfter = startAfter;
  			var s3 = vm.initiateBucket();
@@ -178,7 +174,6 @@
 					deferred.reject(error);	
  				}
  				else {
- 					console.log(data);
  					for(var i = 0; i < data.Contents.length; i) {
  						data.Contents[i].key = data.Contents[i].Key;
  						//Remove the folder

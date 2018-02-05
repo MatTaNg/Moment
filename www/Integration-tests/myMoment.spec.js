@@ -84,7 +84,9 @@ describe('myMoment Service', function() {
             commentids: "a3052d4fa4ec79a5",
             parent: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
             replies: [],
-            nativeurl: "MOCKURL"
+            likesuuids: '',
+            nativeurl: "MOCKURL",
+            likedClass: 'ion-android-favorite-outline'
         };
     };
 
@@ -159,7 +161,7 @@ describe('myMoment Service', function() {
 
     function makeGetTimeMockable(time) {
         //Removes last digit from time
-        return time.substring(0, time.length - 2);
+        return time.substring(0, time.length - 3);
     }
 
 });

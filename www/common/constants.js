@@ -16,12 +16,13 @@
 
 		//Paths
 		"MOMENT_PREFIX": "moment/",
-		// "MOMENT_PREFIX": "momentTest/",
+		// "MOMENT_PREFIX": "momentTest/", //Test Region
 		"BEST_MOMENT_PREFIX": "bestMoments/",
-		// "BEST_MOMENT_PREFIX": "bestMomentsTest/",
+		// "BEST_MOMENT_PREFIX": "bestMomentsTest/", //Test Region
 		"FEEDBACK_PREFIX": "reports/feedback/",
 		"BUG_PREFIX": "reports/bugs/",
 		"GEOLOCATION_URL": "http://maps.googleapis.com/maps/api/geocode/json?",
+		"AWS_URL": "https://s3.amazonaws.com/mng-moment/",
 
 		//Configurations
 		"MAX_DESCRIPTION_LENGTH": 180,
@@ -49,6 +50,5 @@
 
 		"MOCKED_COORDS": {lat: 40.0084, lng: 75.2605, town: "Narberth, PA", state: 'PA'},
 		"DEV_MODE": true //Creates a mock UUID, lat, lng coords and does not filter moments by UUID
-		
 	})
 })();

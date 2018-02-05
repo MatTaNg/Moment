@@ -24,7 +24,8 @@ $q, $window, constants, $interval, localStorageManager, notificationManager, $ti
         notificationManager = $injector.get('notificationManager');
         timeout = $injector.get('$timeout');
 
-        controller = $controller('MomentsController');
+        // $ionicContentBanner = $injector.get('$ionicContentBanner');
+        // controller = $controller('MomentsController');
     }));
     // beforeEach(inject(function(_$controller_, $rootScope, _momentsService_, _$ionicContentBanner_, _core_, _components_, _$q_, _$ionicPopup_) {
     //     console.log("INJECTING...");
@@ -54,7 +55,7 @@ $q, $window, constants, $interval, localStorageManager, notificationManager, $ti
     	// $scope.initialize();
         // beforeEach();
         console.log("CONTROLLER");
-        controller.initialize();
+        // controller.initialize();
         
     });
 

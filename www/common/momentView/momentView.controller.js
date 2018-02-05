@@ -17,12 +17,6 @@
 		$scope.vm.flag = true
 		initialize();
 
-		function createVideogularObj() {
-			if($scope.vm.moments.length > 0 && $scope.vm.moments[0].media === 'video') {
-				createVideogularObj($scope.vm.moments[0].nativeurl);
-			}
-		}
-
 		function setFlagBasedOnUsersUUID() {
 			if($scope.moment.creator.includes(common.getUUID())) {
 				$scope.vm.flag = false;
@@ -30,8 +24,10 @@
 		};
 
 		function setCommentsAndRepliesQuantity(moment) {
-			console.log("$$$$", moment);
 			var comments = moment.comments;
+			if(!comments) { //Theres a bug where moment.comments === undefined don't know how to reproduce
+				comments = [];
+			}
 			moment.commentsAndRepliesQuantity = comments.length;
 			for(var x = 0; x < comments.length; x++){
 				moment.commentsAndRepliesQuantity = moment.commentsAndRepliesQuantity + comments[x].replies.length;
@@ -39,8 +35,12 @@
 		};
 
 		function initialize() {
+			console.log("Moment View Controller", $scope.moment);
+			$scope.moment.time = common.timeElapsed($scope.moment.time);
 			setFlagBasedOnUsersUUID();
-			createVideogularObj();
+			if($scope.moment.media === 'video') {
+				createVideogularObj($scope.moment.nativeurl);
+			}
 			setCommentsAndRepliesQuantity($scope.moment);
 		};
 

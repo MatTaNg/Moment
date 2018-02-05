@@ -70,7 +70,7 @@
  		};
 
  		function deleteComment(comment, parent) {
- 			comment = removeExcessiveProperties(comment);
+ 			// comment = removeExcessiveProperties(comment);
 			return getComments(comment.key).then(function (comments) {
 				for(var i = 0; i < comments.length; i++) {
 					if(comments[i].id === comment.id) {

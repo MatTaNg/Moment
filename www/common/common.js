@@ -146,12 +146,9 @@
 				moment.bestmoment = "true";
 			}
 			awsServices.copyObject(copySource, copySource, moment, "REPLACE").then(function() {
-				moment.key = moment.key.replace(/\/moment\/../, "/bestMoments");
+				moment.key = moment.key.replace(/moment\/../, "bestMoments");
 				awsServices.getObject(key).then(function(data) {
-					console.log("####");
-					console.log(data);
 					if(data === 'Not Found') {
-						console.log("TERUE");
 						notificationManager.notifyUploadToBestMoments(moment.onesignalid, constants.MOMENT_BECOMES_BEST_MOMENT);			
 					}
 				});

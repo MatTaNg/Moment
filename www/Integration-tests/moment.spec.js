@@ -118,7 +118,8 @@ describe('Moment Service', function() {
             comment: "MockComment",
             commentids: "a3052d4fa4ec79a5",
             parent: "moment/PA/40.008446_-75.26046_1499829188066.jpg",
-			likesuuids: ''
+			likesuuids: '',
+            likedClass: 'ion-android-favorite-outline'
         };
 	}
 

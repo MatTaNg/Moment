@@ -48,11 +48,13 @@
 			didUserDoTutorial().then(function(data) {
 				this.momentArray = temp;
 				if(!data) {
+					console.log("Start AFtetr Key", startAfterKey);
 					geolocation.getMomentsAroundUser(startAfterKey)
 					.then(checkAndDeleteExpiredMoments)
 					.then(deleteOrUploadToBestMoments)
 					.then(commentManager.retrieveCommentsAndAddToMoments)
 					.then(function(moments) {
+						console.log("Moments Service", moments.length);
 						if(moments.length > 0) {
 							var uniqueKey = moments[moments.length - 1].key.split("/");
 							startAfterKey = 'moment/' + uniqueKey[uniqueKey.length - 2] + "/" + uniqueKey[uniqueKey.length - 1];
