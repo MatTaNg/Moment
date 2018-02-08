@@ -1,0 +1,65 @@
+<ion-view title="Moments" id="page2" cache-view="false">
+  <ion-nav-title>
+    <img class="title-image" src="img/header.png"/>
+  </ion-nav-title>
+<ion-content padding="true" class="has-header">
+<img data-ng-if="vm.isPicture" src="{{vm.media}}" height="300px" width="100%"> </img>
+
+<!--Video Begin-->
+  <div data-ng-if="vm.isVideo" style="width: 100%; height: 300px;">
+    <videogular vg-theme="vm.config.theme">
+      <vg-media vg-src="vm.config.sources"
+          vg-tracks="vm.config.tracks"
+          vg-native-controler="true">
+      </vg-media>
+
+      <vg-controls>
+        <vg-play-pause-button></vg-play-pause-button>
+        <vg-time-display>{{ currentTime | date:'mm:ss' }}</vg-time-display>
+        <vg-scrub-bar>
+          <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+        </vg-scrub-bar>
+        <vg-time-display>{{ timeLeft | date:'mm:ss' }}</vg-time-display>
+        <vg-volume>
+          <vg-mute-button></vg-mute-button>
+          <vg-volume-bar></vg-volume-bar>
+        </vg-volume>
+        <vg-fullscreen-button></vg-fullscreen-button>
+      </vg-controls>
+ 
+      <vg-overlay-play></vg-overlay-play>
+      <vg-poster vg-url='config.plugins.poster'></vg-poster>
+    </videogular>
+  </div>
+<!--End of Video-->
+
+<!--  <video style="display:block;" data-ng-if="vm.isVideo" width="100%" height="300px" controls>
+  <source src="{{vm.media}}" type="video/mp4"></source>
+  </video>  -->
+<div class="row">
+  <div ng-show="vm.moment.description.length > vm.maxChars" style= "color: red">{{vm.moment.description}} </div>
+  <div ng-show="vm.moment.description.length <= vm.maxChars">{{vm.moment.description}}</div>
+</div>
+<div class="row" ng-if="vm.moment.description">
+  <div ng-show="vm.moment.description.length > vm.maxChars" style= "color: red">{{vm.moment.description.length}} / {{vm.maxChars}}</div>
+  <div ng-show="vm.moment.description.length <= vm.maxChars" style= "color: green">{{vm.moment.description.length}} / {{vm.maxChars}}</div>
+</div>
+<div class="row">
+    <div class="col">
+      <label class="item item-input">
+        <input type="text" data-ng-model="vm.moment.description" placeholder="Add a Description!">
+      </label>
+    </div>
+    <button style="margin-right: 5px" class="col col-10 button button-positive">OK</button>
+</div>
+<div class="row">
+  <div class="col"><ion-checkbox data-ng-model="vm.location">Show Location</ion-checkbox></div>
+</div>
+<div class="row">
+  <div class="button-bar">
+    <button class="button button-assertive" data-ng-click="vm.cancel()">Cancel</button>
+    <button class="button button-positive" data-ng-disabled="core.currentLocation.town" data-ng-click="vm.submit()">Submit</button>
+  </div>
+</div>
+</ion-content>
+</ion-view>

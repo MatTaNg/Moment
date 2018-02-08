@@ -1,0 +1,98 @@
+<div data-ng-show="vm.showComments">
+    <div data-ng-click="vm.exitView()"><-- Back</div>
+    <div data-ng-if="vm.comments.length === 0">
+        <div style="text-align: center; margin-top: 5px; margin-bottom: 5px;">No Comments Found </div>
+    </div>
+    <div ng-repeat="comment in vm.comments">
+        <div class = "row">
+            <div class="col">
+                <span style="font-size: 1.5em;">{{comment.userName}}:</span>
+                <br>
+                <span data-ng-if="!comment.editMode" style="padding-left: 10px; font-size: 1em">{{comment.comment}}</span>
+                <span class="row" data-ng-if="comment.editMode">
+                    <label class="col item item-input">
+                        <input ng-model="comment.comment" type = "text"/>
+                    </label>
+                    <button class="col col-10 button button-positive" ng-click="vm.editComment(comment)">Edit</button>
+                </span>
+                <br>
+                <span style="font-size: 0.8em; text-align: right">{{comment.time}}</span>
+                <span data-ng-if="comment.uuid === vm.uuid && comment.replies.length === 0" data-ng-click="vm.deleteComment(comment)">Delete</span>
+                <span data-ng-if="comment.uuid === vm.uuid" data-ng-click="vm.toggleEditBox(comment)">Edit</span>
+                <span data-ng-if="comment.replyMode" data-ng-click="vm.toggleReplyBox(comment)">Close</span>
+                <span data-ng-if="!comment.replyMode" data-ng-click="vm.toggleReplyBox(comment)">Reply</span>
+                <div class="row" data-ng-if="vm.replyCommentSpinner === true">
+                    <ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
+                </div>
+                <span class="row" data-ng-if="comment.replyMode">
+                    <label class="col item item-input">
+                        <input ng-model="comment.replyComment" type = "text"/>
+                    </label>
+                    <button class="col col-10 button button-positive" ng-click="vm.reply(comment)">Reply</button>
+                </span>
+                <br>
+                <span data-ng-if="!comment.showReplies && comment.replies.length > 0" data-ng-click="vm.toggleReplies(comment)">View {{comment.replies.length}} Replies</span>
+                <span data-ng-if="comment.showReplies && comment.replies.length > 0" data-ng-click="vm.toggleReplies(comment)">Hide {{comment.replies.length}} Replies</span>
+
+                <!--BEGIN REPLIES-->
+                <div style="padding-left: 50px; font-size: 0.8em" data-ng-repeat="reply in comment.replies">
+                    <span class="row" data-ng-if="comment.showReplies">
+                        <span class="col">
+                            <span style="font-size: 1.5em;">{{reply.userName}}:</span>
+                            <br>
+                            <span data-ng-if="!reply.editMode" style="padding-left: 10px; font-size: 1em">{{reply.comment}}</span>
+                            <span class="row" data-ng-if="reply.editMode">
+                                <label class="col item item-input">
+                                    <input ng-model="reply.comment" type = "text"/>
+                                </label>
+                                <button class="col col-10 button button-positive" ng-click="vm.editComment(reply)">Edit</button>
+                            </span>
+                            <br>
+                            <span style="font-size: 0.8em; text-align: right">{{reply.time}}</span>
+                            <span data-ng-if="reply.uuid === vm.uuid" data-ng-click="vm.deleteComment(reply)">Delete</span>
+                            <span data-ng-if="comment.uuid === vm.uuid" data-ng-click="vm.toggleEditBox(reply)">Edit</span>
+                            <span class="row" data-ng-if="reply.replyMode">
+                                <label class="col item item-input">
+                                    <input ng-model="vm.replyComment" type = "text"/>
+                                </label>
+                                <button class="col col-10 button button-positive" ng-click="vm.reply(reply)">Reply</button>
+                            </span>
+                        </span>
+                        <div class="col-25">
+                            <span style="float:right; margin-top: 10%; font-size: 2em">
+                            <div data-ng-click="vm.toggleLike(reply)" ng-class="reply.likedClass"> 
+                                <span style="color: black">{{reply.likes}}  </span>
+                            </div>
+                            </span>
+                        </div>
+                    </span>
+                </div>
+                <!--END REPLIES-->
+
+            </div>
+            <div class="col-25">
+                <span style="float:right; margin-top: 10%; font-size: 2em">
+                <div data-ng-click="vm.toggleLike(comment)" ng-class="comment.likedClass"> 
+                    <span style="color: black">{{comment.likes}}  </span>
+                </div>
+                </span>
+            </div>
+        </div>
+        <hr>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div data-ng-if="vm.submitCommentSpinner === true">
+                <ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label class="item item-input">
+                <input ng-model="vm.comment" type = "text"/>
+            </label>
+        </div>
+        <button class="col col-10 button button-positive" ng-click="vm.submitComment()">Ok</button>
+    </div>
+</div>

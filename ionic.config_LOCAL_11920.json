@@ -1,0 +1,10 @@
+{
+  "name": "test2",
+  "app_id": "8ccc69c5",
+  "defaultBrowser": "chrome",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic1",
+  "watchPatterns": []
+}

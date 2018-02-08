@@ -1,0 +1,65 @@
+<ion-view title="Moment" id="page4" cache-view="false">
+	<ion-nav-title>
+		<img class="title-image" src="img/header.png"/>
+	</ion-nav-title>
+	<ion-content padding="true" class="has-header">
+<ion-refresher on-refresh="vm.refreshing()">
+</ion-refresher>
+<span data-ng-if="!vm.showComments">	
+	<div class="centerLikes">
+		<img src="img/logo.png" class="totalLikesImage" height="50px" width="50px"></img></div>
+		<div class="totalLikesText">{{vm.totalLikes}}<span class="totalNumberOfExtraLikes" ng-if="vm.extraLikes > 0"> (+{{vm.extraLikes}})</span></div>
+		<br>
+		<hr class="horizontalRule">
+			<mng-user-name></mng-user-name>
+		<hr class="horizontalRule">
+			<mng-user-location></mng-user-location>
+		<hr class="horizontalRule">
+			<mng-user-radius></mng-user-radius>
+		<hr class="horizontalRule">
+			<mng-user-notifications></mng-user-notifications>
+		<hr>
+	<br>
+	
+	<label class="toggle toggleLabel">
+		<input ng-checked="vm.momentView" data-ng-click="vm.toggleMomentView()" type = "checkbox"/>
+		<div class = "track toggleHandle">
+			<div class = "handle"></div>
+		</div>
+		<div class="toggleText"> Show My Comments </div>
+	</label>
+
+	<hr>
+	<div data-ng-if="vm.momentView && vm.moments.length > 0">
+		<div class="momentsTitleText">Moments I have commented on
+		</div>
+	</div>
+
+	<div data-ng-if="!vm.momentView && vm.moments.length > 0">
+		<div class="momentsTitleText">Moments I have uploaded
+		</div>
+	</div>
+
+	<div data-ng-if="vm.moments.length === 0"> 
+		<div class="momentsTitleText"> No Moments Found </div>
+	</div>
+	<ion-list ng-if="vm.loading === false">
+	<div ng-repeat="moment in vm.moments">
+		<mng-moment-view></mng-moment-view>
+			<br>
+			<hr>
+		<!-- </div> --> <!--End of displayCommentTray-->
+	</div> <!--End of ng-repeat -->
+	<div data-ng-if="vm.initRunning === true">
+		<ion-spinner class="myMoments_spinner" icon="android"></ion-spinner>
+	</div>
+	</ion-list>
+	<div class = "row">
+		<button class="col button button-assertive feedbackButton" data-ng-click="vm.feedback()">Feedback</button>
+	</div>
+</span> <!--End of showComments-->
+<div data-ng-if="vm.showComments">
+	<div mng-comments moment="vm.moment" moments-array="vm.moments" local-storage-name="myMoments" show-comments="vm.showComments" comments-and-replies-quantity="vm.commentsAndRepliesQuantity"></div>
+</div>
+</ion-content>
+</ion-view>
